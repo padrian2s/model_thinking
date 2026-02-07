@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aggregation & Decision Models - Model Thinking Simulators</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Dark theme (default) */
+body.theme-dark {
+    --bg-primary: #0a0e17;
+    --bg-secondary: #12182a;
+    --bg-card: linear-gradient(145deg, #12182a 0%, #0d1220 100%);
+    --bg-panel: #16213e;
+    --bg-input: #1a1a2e;
+    --text-primary: #f0f0f0;
+    --text-secondary: #8899aa;
+    --text-muted: #667788;
+    --border-color: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(0, 210, 255, 0.3);
+    --accent-cyan: #00d2ff;
+    --accent-red: #e94560;
+    --accent-green: #6bcb77;
+    --accent-gold: #ffd93d;
+    --accent-purple: #9b59b6;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --canvas-bg: #0a0e17;
+    --header-bg: linear-gradient(135deg, #0d1321 0%, #1a1a2e 50%, #16213e 100%);
+    --header-border: #1e3a5f;
+    --sim-container-bg: #111827;
+    --controls-bg: #0f172a;
+    --panel-border: #1e293b;
+    --control-label: #94a3b8;
+    --control-heading: #64748b;
+    --section-heading: #7dd3fc;
+    --val-color: #7dd3fc;
+    --range-bg: #1e293b;
+    --btn-bg: #1e293b;
+    --btn-border: #334155;
+    --btn-hover-bg: #334155;
+    --select-bg: #1e293b;
+    --select-border: #334155;
+    --stat-bg: #0f172a;
+    --stat-label: #64748b;
+    --stat-value: #f1f5f9;
+    --info-bg: #0f172a;
+    --info-text: #94a3b8;
+    --insight-bg: #0f2922;
+    --chart-bg: #0a0e17;
+    --axis-color: #1e293b;
+    --axis-label: #475569;
+    --grid-line: #111827;
+    --empty-cell: #1a1a2e;
+    --grid-empty: #111827;
+    --sitting-color: #1e293b;
+    --inactive-bar: #334155;
+    --divider-color: #1e3a5f;
+    --rule-cell-bg: #1e293b;
+    --rule-arrow: #475569;
+    --rule-on: #e2e8f0;
+    --rule-off: #1e293b;
+    --rule-result-on: #f59e0b;
+    --mini-block-border: #334155;
+    --vote-card-bg: #0f172a;
+    --vote-card-border: #1e293b;
+    --vote-highlight-bg: #1a1500;
+    --vote-highlight-border: #f59e0b;
+    --vote-h5: #94a3b8;
+    --vote-details: #64748b;
+    --h2h-diag: #1e293b;
+    --h2h-diag-text: #334155;
+    --h2h-win: #052e16;
+    --h2h-lose: #1e293b;
+    --label-bright: #e2e8f0;
+}
+
+/* White theme */
+body.theme-white {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-card: linear-gradient(145deg, #ffffff 0%, #f0f2f5 100%);
+    --bg-panel: #ffffff;
+    --bg-input: #f0f2f5;
+    --text-primary: #1a1a2e;
+    --text-secondary: #555566;
+    --text-muted: #888899;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-hover: rgba(0, 130, 200, 0.4);
+    --accent-cyan: #0088cc;
+    --accent-red: #d63031;
+    --accent-green: #27ae60;
+    --accent-gold: #f39c12;
+    --accent-purple: #8e44ad;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --canvas-bg: #ffffff;
+    --header-bg: linear-gradient(135deg, #e8ecf1 0%, #f5f7fa 50%, #e0e5ec 100%);
+    --header-border: #c0c8d4;
+    --sim-container-bg: #ffffff;
+    --controls-bg: #f0f2f5;
+    --panel-border: #d0d5dd;
+    --control-label: #555566;
+    --control-heading: #888899;
+    --section-heading: #0077b6;
+    --val-color: #0077b6;
+    --range-bg: #d0d5dd;
+    --btn-bg: #e0e5ec;
+    --btn-border: #c0c8d4;
+    --btn-hover-bg: #c0c8d4;
+    --select-bg: #e0e5ec;
+    --select-border: #c0c8d4;
+    --stat-bg: #f0f2f5;
+    --stat-label: #888899;
+    --stat-value: #1a1a2e;
+    --info-bg: #f0f2f5;
+    --info-text: #555566;
+    --insight-bg: #e8f5e9;
+    --chart-bg: #ffffff;
+    --axis-color: #d0d5dd;
+    --axis-label: #888899;
+    --grid-line: #e8ecf1;
+    --empty-cell: #e0e5ec;
+    --grid-empty: #f0f2f5;
+    --sitting-color: #d0d5dd;
+    --inactive-bar: #c0c8d4;
+    --divider-color: #c0c8d4;
+    --rule-cell-bg: #e0e5ec;
+    --rule-arrow: #888899;
+    --rule-on: #1a1a2e;
+    --rule-off: #d0d5dd;
+    --rule-result-on: #f39c12;
+    --mini-block-border: #c0c8d4;
+    --vote-card-bg: #f0f2f5;
+    --vote-card-border: #d0d5dd;
+    --vote-highlight-bg: #fff8e1;
+    --vote-highlight-border: #f39c12;
+    --vote-h5: #555566;
+    --vote-details: #888899;
+    --h2h-diag: #e0e5ec;
+    --h2h-diag-text: #c0c8d4;
+    --h2h-win: #e8f5e9;
+    --h2h-lose: #e0e5ec;
+    --label-bright: #1a1a2e;
+}
+
+/* Sepia theme */
+body.theme-sepia {
+    --bg-primary: #f4ecd8;
+    --bg-secondary: #faf6eb;
+    --bg-card: linear-gradient(145deg, #faf6eb 0%, #f0e8d0 100%);
+    --bg-panel: #faf6eb;
+    --bg-input: #efe7d3;
+    --text-primary: #433422;
+    --text-secondary: #6b5b4a;
+    --text-muted: #8b7b6a;
+    --border-color: rgba(100, 70, 30, 0.15);
+    --border-hover: rgba(160, 100, 30, 0.4);
+    --accent-cyan: #b8860b;
+    --accent-red: #a0522d;
+    --accent-green: #6b8e23;
+    --accent-gold: #cd853f;
+    --accent-purple: #8b4513;
+    --shadow: rgba(100, 70, 30, 0.15);
+    --canvas-bg: #faf6eb;
+    --header-bg: linear-gradient(135deg, #ede4cc 0%, #faf6eb 50%, #e8dfca 100%);
+    --header-border: #c4a56a;
+    --sim-container-bg: #faf6eb;
+    --controls-bg: #f0e8d0;
+    --panel-border: #d4c4a0;
+    --control-label: #6b5b4a;
+    --control-heading: #8b7b6a;
+    --section-heading: #8b6914;
+    --val-color: #8b6914;
+    --range-bg: #d4c4a0;
+    --btn-bg: #e8dfca;
+    --btn-border: #c4a56a;
+    --btn-hover-bg: #d4c4a0;
+    --select-bg: #e8dfca;
+    --select-border: #c4a56a;
+    --stat-bg: #f0e8d0;
+    --stat-label: #8b7b6a;
+    --stat-value: #433422;
+    --info-bg: #f0e8d0;
+    --info-text: #6b5b4a;
+    --insight-bg: #e8ecd0;
+    --chart-bg: #faf6eb;
+    --axis-color: #d4c4a0;
+    --axis-label: #8b7b6a;
+    --grid-line: #ede4cc;
+    --empty-cell: #e8dfca;
+    --grid-empty: #f0e8d0;
+    --sitting-color: #d4c4a0;
+    --inactive-bar: #c4a56a;
+    --divider-color: #c4a56a;
+    --rule-cell-bg: #e8dfca;
+    --rule-arrow: #8b7b6a;
+    --rule-on: #433422;
+    --rule-off: #d4c4a0;
+    --rule-result-on: #cd853f;
+    --mini-block-border: #c4a56a;
+    --vote-card-bg: #f0e8d0;
+    --vote-card-border: #d4c4a0;
+    --vote-highlight-bg: #f5ecd0;
+    --vote-highlight-border: #cd853f;
+    --vote-h5: #6b5b4a;
+    --vote-details: #8b7b6a;
+    --h2h-diag: #e8dfca;
+    --h2h-diag-text: #c4a56a;
+    --h2h-win: #e8ecd0;
+    --h2h-lose: #e8dfca;
+    --label-bright: #433422;
+}
+
+/* Ocean theme */
+body.theme-ocean {
+    --bg-primary: #0b1628;
+    --bg-secondary: #0f2035;
+    --bg-card: linear-gradient(145deg, #0f2035 0%, #0b1628 100%);
+    --bg-panel: #132a42;
+    --bg-input: #163352;
+    --text-primary: #d4e6f1;
+    --text-secondary: #7fb3d3;
+    --text-muted: #5a8faa;
+    --border-color: rgba(100, 180, 255, 0.1);
+    --border-hover: rgba(100, 200, 255, 0.35);
+    --accent-cyan: #5dade2;
+    --accent-red: #e74c3c;
+    --accent-green: #48c9b0;
+    --accent-gold: #f7dc6f;
+    --accent-purple: #a569bd;
+    --shadow: rgba(0, 20, 50, 0.5);
+    --canvas-bg: #0b1628;
+    --header-bg: linear-gradient(135deg, #091422 0%, #0f2035 50%, #132a42 100%);
+    --header-border: #1a4a6e;
+    --sim-container-bg: #0f2035;
+    --controls-bg: #0b1628;
+    --panel-border: #1a4a6e;
+    --control-label: #7fb3d3;
+    --control-heading: #5a8faa;
+    --section-heading: #5dade2;
+    --val-color: #5dade2;
+    --range-bg: #1a4a6e;
+    --btn-bg: #163352;
+    --btn-border: #1a4a6e;
+    --btn-hover-bg: #1a4a6e;
+    --select-bg: #163352;
+    --select-border: #1a4a6e;
+    --stat-bg: #0b1628;
+    --stat-label: #5a8faa;
+    --stat-value: #d4e6f1;
+    --info-bg: #0b1628;
+    --info-text: #7fb3d3;
+    --insight-bg: #0b2820;
+    --chart-bg: #0b1628;
+    --axis-color: #1a4a6e;
+    --axis-label: #5a8faa;
+    --grid-line: #0f2035;
+    --empty-cell: #163352;
+    --grid-empty: #0f2035;
+    --sitting-color: #1a4a6e;
+    --inactive-bar: #1a4a6e;
+    --divider-color: #1a4a6e;
+    --rule-cell-bg: #163352;
+    --rule-arrow: #5a8faa;
+    --rule-on: #d4e6f1;
+    --rule-off: #1a4a6e;
+    --rule-result-on: #f7dc6f;
+    --mini-block-border: #1a4a6e;
+    --vote-card-bg: #0b1628;
+    --vote-card-border: #1a4a6e;
+    --vote-highlight-bg: #1a2800;
+    --vote-highlight-border: #f7dc6f;
+    --vote-h5: #7fb3d3;
+    --vote-details: #5a8faa;
+    --h2h-diag: #163352;
+    --h2h-diag-text: #1a4a6e;
+    --h2h-win: #0b2820;
+    --h2h-lose: #163352;
+    --label-bright: #d4e6f1;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.page-header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--header-border);
+}
+
+.page-header h1 {
+    font-size: 2.4em;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.page-header .subtitle {
+    font-size: 1.1em;
+    color: var(--text-muted);
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+.sim-section { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
+.sim-section h2 { font-size: 1.8em; color: var(--section-heading); margin-bottom: 6px; border-left: 4px solid #3b82f6; padding-left: 16px; }
+.sim-section .model-desc { color: var(--control-label); margin-bottom: 20px; padding-left: 20px; max-width: 900px; font-size: 0.95em; }
+
+.sim-container { display: grid; grid-template-columns: 280px 1fr; gap: 20px; background: var(--sim-container-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.controls-panel { background: var(--controls-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.controls-panel h3 { font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; color: var(--control-heading); margin-bottom: 4px; }
+.control-group { display: flex; flex-direction: column; gap: 4px; }
+.control-group label { font-size: 0.82em; color: var(--control-label); display: flex; justify-content: space-between; align-items: center; }
+.control-group label span.val { color: var(--val-color); font-weight: 600; font-family: 'Courier New', monospace; }
+
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: var(--range-bg); border-radius: 3px; outline: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: 2px solid #1e40af; }
+input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: 2px solid #1e40af; }
+
+select { background: var(--select-bg); color: var(--text-primary); border: 1px solid var(--select-border); border-radius: 4px; padding: 6px 8px; font-size: 0.85em; outline: none; cursor: pointer; }
+select:focus { border-color: #3b82f6; }
+
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+button { background: var(--btn-bg); color: var(--text-primary); border: 1px solid var(--btn-border); border-radius: 6px; padding: 6px 12px; font-size: 0.82em; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+button:hover { background: var(--btn-hover-bg); border-color: #3b82f6; }
+button.primary { background: #1e40af; border-color: #2563eb; color: #fff; }
+button.primary:hover { background: #2563eb; }
+button.active { background: #059669; border-color: #10b981; color: #fff; }
+
+.viz-area { display: flex; flex-direction: column; gap: 16px; }
+canvas { border-radius: 6px; image-rendering: pixelated; }
+
+.stats-bar { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.85em; }
+.stat-item { background: var(--stat-bg); border: 1px solid var(--panel-border); border-radius: 6px; padding: 8px 14px; display: flex; flex-direction: column; align-items: center; }
+.stat-item .stat-label { color: var(--stat-label); font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-item .stat-value { color: var(--stat-value); font-size: 1.3em; font-weight: 700; font-family: 'Courier New', monospace; }
+
+.info-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 10px; }
+.info-box { background: var(--info-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 16px; }
+.info-box.mechanism { border-left: 3px solid #f59e0b; }
+.info-box.examples { border-left: 3px solid #8b5cf6; }
+.info-box.insight { border-left: 3px solid #10b981; background: var(--insight-bg); }
+.info-box h4 { font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.info-box.mechanism h4 { color: #f59e0b; }
+.info-box.examples h4 { color: #8b5cf6; }
+.info-box.insight h4 { color: #10b981; }
+.info-box p, .info-box li { font-size: 0.88em; color: var(--info-text); line-height: 1.5; }
+.info-box ul { list-style: none; padding: 0; }
+.info-box ul li::before { content: "\2022 "; color: #8b5cf6; font-weight: bold; margin-right: 6px; }
+
+.section-divider { height: 2px; background: linear-gradient(to right, transparent, var(--divider-color), transparent); margin: 50px auto; max-width: 1400px; }
+.chart-container { position: relative; background: var(--chart-bg); border: 1px solid var(--panel-border); border-radius: 6px; }
+
+.preset-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.preset-row button { font-size: 0.75em; padding: 3px 8px; }
+
+.rule-display { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; margin-top: 4px; }
+.rule-cell { background: var(--rule-cell-bg); text-align: center; padding: 2px; font-size: 0.65em; font-family: 'Courier New', monospace; border-radius: 2px; }
+.rule-cell .mini-pattern { display: flex; justify-content: center; gap: 1px; margin-bottom: 1px; }
+.rule-cell .mini-block { width: 6px; height: 6px; border-radius: 1px; }
+
+.voting-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
+.vote-card { background: var(--vote-card-bg); border: 1px solid var(--vote-card-border); border-radius: 8px; padding: 12px; text-align: center; }
+.vote-card h5 { color: var(--vote-h5); font-size: 0.8em; text-transform: uppercase; margin-bottom: 4px; }
+.vote-card .winner { font-size: 1.4em; font-weight: 700; margin-bottom: 2px; }
+.vote-card .details { font-size: 0.75em; color: var(--vote-details); }
+.vote-card.highlight { border-color: var(--vote-highlight-border); background: var(--vote-highlight-bg); }
+
+@media (max-width: 900px) { .sim-container { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<div class="page-header">
+    <h1 data-ro="Modele de Agregare &#x219;i Decizii">Aggregation &amp; Decision Models</h1>
+    <p class="subtitle" data-ro="Cum reguli simple &#x219;i agregarea produc comportament emergent complex: Teorema Limit&#x103; Central&#x103;, Jocul Vie&#x21B;ii al lui Conway, Automatele Celulare ale lui Wolfram &#x219;i Paradoxul Condorcet &icirc;n agregarea preferin&#x21B;elor.">How simple rules and aggregation produce complex emergent behavior: Central Limit Theorem, Conway's Game of Life, Wolfram's Cellular Automata, and the Condorcet Paradox in preference aggregation.</p>
+</div>
+
+<!-- 2a. CENTRAL LIMIT THEOREM -->
+<div class="sim-section" id="clt-section">
+    <h2 data-ro="2a. Vizualizator Teorema Limit&#x103; Central&#x103;">2a. Central Limit Theorem Visualizer</h2>
+    <p class="model-desc" data-ro="E&#x219;antioneaz&#x103; din orice distribu&#x21B;ie, calculeaz&#x103; media fiec&#x103;rui e&#x219;antion &#x219;i urm&#x103;re&#x219;te cum distribu&#x21B;ia mediilor converge c&#x103;tre o curb&#x103; normal&#x103; (clopot) indiferent de distribu&#x21B;ia surs&#x103;.">Sample from any distribution, compute the mean of each sample, and watch the distribution of means converge to a normal (bell) curve regardless of the source distribution.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Controale">Controls</h3>
+            <div class="control-group">
+                <label data-ro="Distribu&#x21B;ia Surs&#x103;">Source Distribution</label>
+                <select id="clt-dist">
+                    <option value="uniform" data-ro="Uniform&#x103; [0, 1]">Uniform [0, 1]</option>
+                    <option value="exponential" data-ro="Exponen&#x21B;ial&#x103;">Exponential</option>
+                    <option value="binomial" data-ro="Binomial&#x103; (p=0.3)">Binomial (p=0.3)</option>
+                    <option value="bimodal" data-ro="Bimodal&#x103;">Bimodal</option>
+                    <option value="skewed" data-ro="Asimetric&#x103; Dreapta">Right-Skewed</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Dimensiune E&#x219;antion (N)">Sample Size (N)</span> <span class="val" id="clt-n-val">30</span></label>
+                <input type="range" id="clt-n" min="1" max="100" value="30">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="&Icirc;ncerc&#x103;ri per click">Trials per click</span> <span class="val" id="clt-trials-val">100</span></label>
+                <input type="range" id="clt-trials" min="10" max="1000" value="100" step="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Vitez&#x103;">Speed</span> <span class="val" id="clt-speed-val">5</span></label>
+                <input type="range" id="clt-speed" min="1" max="10" value="5">
+            </div>
+            <div class="btn-row">
+                <button class="primary" id="clt-play" data-ro="Ruleaz&#x103;">Run</button>
+                <button id="clt-add" data-ro="+100 &Icirc;ncerc&#x103;ri">+100 Trials</button>
+                <button id="clt-reset" data-ro="Reseteaz&#x103;">Reset</button>
+            </div>
+        </div>
+        <div class="viz-area">
+            <div class="stats-bar">
+                <div class="stat-item"><span class="stat-label" data-ro="Total &Icirc;ncerc&#x103;ri">Total Trials</span><span class="stat-value" id="clt-total">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Media Mediilor">Mean of Means</span><span class="stat-value" id="clt-mean">--</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Dev. Std.">Std Dev</span><span class="stat-value" id="clt-std">--</span></div>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+                <canvas id="clt-source" width="360" height="180" class="chart-container"></canvas>
+                <canvas id="clt-hist" width="560" height="380" class="chart-container"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Mecanism">Mechanism</h4>
+            <p data-ro="Indiferent de distribu&#x21B;ia de baz&#x103; -- uniform&#x103;, exponen&#x21B;ial&#x103;, bimodal&#x103; sau orice alt&#x103; -- <strong>media multor variabile aleatoare independente</strong> se apropie de o distribu&#x21B;ie normal&#x103;. Aceasta este Teorema Limit&#x103; Central&#x103;. Pe m&#x103;sur&#x103; ce dimensiunea e&#x219;antionului N cre&#x219;te, distribu&#x21B;ia mediilor devine tot mai &icirc;n form&#x103; de clopot &#x219;i mai str&acirc;ns&#x103; &icirc;n jurul mediei reale. Devia&#x21B;ia standard a mediilor scade propor&#x21B;ional cu 1/sqrt(N).">Regardless of the underlying distribution -- uniform, exponential, bimodal, or anything else -- the <strong>average of many independent random variables</strong> approaches a normal distribution. This is the Central Limit Theorem. As sample size N increases, the distribution of sample means becomes increasingly bell-shaped and tighter around the true mean. The standard deviation of means shrinks proportionally to 1/sqrt(N).</p>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Real&#x103;">Real-World Examples</h4>
+            <ul>
+                <li data-ro="Distribu&#x21B;ii de &icirc;n&#x103;l&#x21B;ime -- suma multor factori genetici &#x219;i de mediu produce o curb&#x103; clopot">Height distributions -- the sum of many genetic and environmental factors produces a bell curve</li>
+                <li data-ro="Erori de m&#x103;surare -- agregeaz&#x103; multe erori aleatoare mici &#x219;i eroarea total&#x103; este distribuit&#x103; normal">Measurement errors -- aggregate many small random errors and the total error is normally distributed</li>
+                <li data-ro="Randamente portofoliu de ac&#x21B;iuni -- randamentele portofoliului diversificat aproximeaz&#x103; normalitatea (&icirc;n timpuri normale)">Stock portfolio returns -- diversified portfolio returns approximate normality (in normal times)</li>
+                <li data-ro="Medii ale sondajelor -- media multor sondaje produce o estimare mai fiabil&#x103;, distribuit&#x103; normal">Polling averages -- averaging many polls produces a more reliable, normally-distributed estimate</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Idee Cheie">Key Insight</h4>
+            <p data-ro="Curba clopot nu este o presupunere despre cum func&#x21B;ioneaz&#x103; lumea -- este o consecin&#x21B;&#x103; matematic&#x103; a agreg&#x103;rii. Ori de c&acirc;te ori vezi un rezultat distribuit normal, &icirc;ntreab&#x103;: &quot;Ce factori independen&#x21B;i sunt suma&#x21B;i aici?&quot; TLC explic&#x103; de ce at&acirc;tea fenomene din natur&#x103; &#x219;i societate urmeaz&#x103; acest tipar.">The bell curve is not an assumption about how the world works -- it is a mathematical consequence of aggregation. Whenever you see a normally-distributed outcome, ask: "What independent factors are being summed here?" The CLT explains why so many phenomena in nature and society follow this pattern.</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- 2b. CONWAY'S GAME OF LIFE -->
+<div class="sim-section" id="gol-section">
+    <h2 data-ro="2b. Jocul Vie&#x21B;ii al lui Conway">2b. Conway's Game of Life</h2>
+    <p class="model-desc" data-ro="Celulele de pe o gril&#x103; tr&#x103;iesc, mor sau se nasc pe baza a patru reguli simple. Din acestea apar planoare, oscilatoare, nave spa&#x21B;iale &#x219;i chiar structuri capabile de calcul universal.">Cells on a grid live, die, or are born based on four simple rules. From these emerge gliders, oscillators, spaceships, and even structures capable of universal computation.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Controale">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Dimensiune Gril&#x103;">Grid Size</span> <span class="val" id="gol-size-val">70</span></label>
+                <input type="range" id="gol-size" min="30" max="120" value="70">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Umplere Aleatoare %">Random Fill %</span> <span class="val" id="gol-fill-val">25%</span></label>
+                <input type="range" id="gol-fill" min="5" max="60" value="25">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Vitez&#x103;">Speed</span> <span class="val" id="gol-speed-val">8</span></label>
+                <input type="range" id="gol-speed" min="1" max="30" value="8">
+            </div>
+            <div class="btn-row">
+                <button class="primary" id="gol-play" data-ro="Porne&#x219;te">Play</button>
+                <button id="gol-step" data-ro="Pas">Step</button>
+                <button id="gol-clear" data-ro="Cur&#x103;&#x21B;&#x103;">Clear</button>
+                <button id="gol-random" data-ro="Aleatoriu">Random</button>
+            </div>
+            <h3 style="margin-top:8px;" data-ro="Presetare">Presets</h3>
+            <div class="preset-row">
+                <button id="gol-glider" data-ro="Planor">Glider</button>
+                <button id="gol-pulsar">Pulsar</button>
+                <button id="gol-gun" data-ro="Tun Gosper">Gosper Gun</button>
+                <button id="gol-rpent">R-pentomino</button>
+                <button id="gol-lwss">LWSS</button>
+                <button id="gol-acorn" data-ro="Ghind&#x103;">Acorn</button>
+            </div>
+            <p style="font-size:0.75em;color:var(--axis-label);margin-top:6px;" data-ro="Click pe gril&#x103; pentru a desena/&#x219;terge celule.">Click on the grid to draw/erase cells.</p>
+        </div>
+        <div class="viz-area">
+            <div class="stats-bar">
+                <div class="stat-item"><span class="stat-label" data-ro="Genera&#x21B;ie">Generation</span><span class="stat-value" id="gol-gen">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Popula&#x21B;ie">Population</span><span class="stat-value" id="gol-pop">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Na&#x219;teri">Births</span><span class="stat-value" id="gol-births">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Decese">Deaths</span><span class="stat-value" id="gol-deaths">0</span></div>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+                <canvas id="gol-canvas" width="630" height="630"></canvas>
+                <canvas id="gol-chart" width="320" height="200" class="chart-container"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Mecanism">Mechanism</h4>
+            <p data-ro="Doar patru reguli simple: (1) Orice celul&#x103; vie cu mai pu&#x21B;in de 2 vecini vii moare (subpopulare). (2) Orice celul&#x103; vie cu 2 sau 3 vecini vii supravie&#x21B;uie&#x219;te. (3) Orice celul&#x103; vie cu mai mult de 3 vecini vii moare (supraaglomerare). (4) Orice celul&#x103; moart&#x103; cu exact 3 vecini vii devine vie (reproducere). Din acestea apar <strong>planoare</strong> (tipare &icirc;n mi&#x219;care), <strong>oscilatoare</strong> (tipare repetitive), <strong>nave spa&#x21B;iale</strong> &#x219;i chiar calcul universal. Reguli simple produc comportament emergent complex.">Just four simple rules: (1) Any live cell with fewer than 2 live neighbors dies (underpopulation). (2) Any live cell with 2 or 3 live neighbors survives. (3) Any live cell with more than 3 live neighbors dies (overcrowding). (4) Any dead cell with exactly 3 live neighbors becomes alive (reproduction). From these emerge <strong>gliders</strong> (moving patterns), <strong>oscillators</strong> (repeating patterns), <strong>spaceships</strong>, and even universal computation. Simple rules produce complex emergent behavior.</p>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Real&#x103;">Real-World Examples</h4>
+            <ul>
+                <li data-ro="Tipare de trafic -- ma&#x219;inile urmeaz&#x103; reguli simple dar produc blocaje &#x219;i unde complexe">Traffic patterns -- cars follow simple rules but produce complex jams and waves</li>
+                <li data-ro="Cre&#x219;terea urban&#x103; -- ora&#x219;ele se extind prin decizii locale, cre&acirc;nd structur&#x103; emergent&#x103;">Urban growth -- cities expand through local decisions, creating emergent structure</li>
+                <li data-ro="Tipare de reac&#x21B;ie-difuzie chimic&#x103; -- tipare Turing &icirc;n biologie">Chemical reaction-diffusion patterns -- Turing patterns in biology</li>
+                <li data-ro="Comportament de stol -- p&#x103;s&#x103;rile urmeaz&#x103; 3 reguli simple (separare, aliniere, coeziune) pentru a crea murmura&#x21B;ii">Flocking behavior -- birds follow 3 simple rules (separation, alignment, cohesion) to create murmurations</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Idee Cheie">Key Insight</h4>
+            <p data-ro="Jocul Vie&#x21B;ii demonstreaz&#x103; c&#x103; complexitatea nu necesit&#x103; reguli complexe. &Icirc;ntregul &icirc;ndepline&#x219;te func&#x21B;ii care dep&#x103;&#x219;esc cu mult capacit&#x103;&#x21B;ile p&#x103;r&#x21B;ilor sale. Aceasta ridic&#x103; &icirc;ntreb&#x103;ri profunde: dac&#x103; con&#x219;tiin&#x21B;a &#x219;i inteligen&#x21B;a pot emerge din reguli neuronale simple, ar putea fenomene sociale complexe s&#x103; emit&#x103; similar din comportamente individuale simple?">The Game of Life demonstrates that complexity does not require complex rules. The whole performs functions that far exceed the capacities of its parts. This raises deep questions: if consciousness and intelligence can emerge from simple neuronal rules, could complex social phenomena similarly emerge from simple individual behaviors?</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- 2c. 1D CELLULAR AUTOMATA -->
+<div class="sim-section" id="ca-section">
+    <h2 data-ro="2c. Automate Celulare 1D (Wolfram)">2c. 1D Cellular Automata (Wolfram)</h2>
+    <p class="model-desc" data-ro="Un singur r&acirc;nd de celule evolueaz&#x103; conform unei reguli care mapeaz&#x103; fiecare vecin&#x103;tate de 3 celule la o stare nou&#x103;. Toate cele 256 de reguli posibile sunt codificate &icirc;ntr-un singur octet, totu&#x219;i produc comportamente de la uniform la haotic la complex.">A single row of cells evolves according to a rule that maps each 3-cell neighborhood to a new state. All 256 possible rules are encoded in a single byte, yet they produce behaviors ranging from uniform to chaotic to complex.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Controale">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Num&#x103;r Regul&#x103;">Rule Number</span> <span class="val" id="ca-rule-val">110</span></label>
+                <input type="range" id="ca-rule" min="0" max="255" value="110">
+            </div>
+            <div class="preset-row">
+                <button class="ca-preset" data-rule="30">Rule 30</button>
+                <button class="ca-preset" data-rule="90">Rule 90</button>
+                <button class="ca-preset active" data-rule="110">Rule 110</button>
+                <button class="ca-preset" data-rule="184">Rule 184</button>
+                <button class="ca-preset" data-rule="0">Rule 0</button>
+                <button class="ca-preset" data-rule="255">Rule 255</button>
+                <button class="ca-preset" data-rule="73">Rule 73</button>
+                <button class="ca-preset" data-rule="150">Rule 150</button>
+            </div>
+            <div class="control-group">
+                <label data-ro="Condi&#x21B;ie Ini&#x21B;ial&#x103;">Initial Condition</label>
+                <select id="ca-init">
+                    <option value="single" data-ro="Celul&#x103; Unic&#x103;">Single Cell</option>
+                    <option value="random" data-ro="Aleatoriu">Random</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><span data-ro="L&#x103;&#x21B;ime">Width</span> <span class="val" id="ca-width-val">201</span></label>
+                <input type="range" id="ca-width" min="51" max="401" value="201" step="2">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Genera&#x21B;ii">Generations</span> <span class="val" id="ca-gens-val">150</span></label>
+                <input type="range" id="ca-gens" min="50" max="300" value="150">
+            </div>
+            <div class="btn-row">
+                <button class="primary" id="ca-generate" data-ro="Genereaz&#x103;">Generate</button>
+            </div>
+            <h3 style="margin-top:10px;" data-ro="Tabel de C&#x103;utare Reguli">Rule Lookup Table</h3>
+            <div class="rule-display" id="ca-rule-display"></div>
+        </div>
+        <div class="viz-area">
+            <div class="stats-bar">
+                <div class="stat-item"><span class="stat-label" data-ro="Regul&#x103;">Rule</span><span class="stat-value" id="ca-rule-num">110</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Clas&#x103;">Class</span><span class="stat-value" id="ca-class" data-ro="Complex">Complex</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="L&#x103;&#x21B;ime">Width</span><span class="stat-value" id="ca-width-stat">201</span></div>
+            </div>
+            <canvas id="ca-canvas" width="900" height="500" class="chart-container"></canvas>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Mecanism">Mechanism</h4>
+            <p data-ro="Fiecare celul&#x103; se uit&#x103; la ea &icirc;ns&#x103;&#x219;i &#x219;i la cei doi vecini (3 celule = 8 tipare posibile). Num&#x103;rul regulii, convertit &icirc;n binar, spune fiec&#x103;rui tipar dac&#x103; celula central&#x103; ar trebui s&#x103; fie vie sau moart&#x103; &icirc;n genera&#x21B;ia urm&#x103;toare. Un singur octet (0-255) determin&#x103; complet comportamentul. Wolfram a clasificat rezultatele &icirc;n patru clase: <strong>Clasa 1</strong> (uniform/gol), <strong>Clasa 2</strong> (periodic/repetitiv), <strong>Clasa 3</strong> (haotic/aleatoriu) &#x219;i <strong>Clasa 4</strong> (complex). Regula 110 este demonstrabil Turing complet&#x103; -- poate calcula orice poate calcula un computer.">Each cell looks at itself and its two neighbors (3 cells = 8 possible patterns). The rule number, converted to binary, tells each pattern whether the center cell should be alive or dead in the next generation. A single byte (0-255) completely determines the behavior. Wolfram classified outcomes into four classes: <strong>Class 1</strong> (uniform/empty), <strong>Class 2</strong> (periodic/repetitive), <strong>Class 3</strong> (chaotic/random), and <strong>Class 4</strong> (complex). Rule 110 is provably Turing complete -- it can compute anything a computer can.</p>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Real&#x103;">Real-World Examples</h4>
+            <ul>
+                <li data-ro="Formarea tiparelor pe cochilia melcului Conus textile -- izbitor de similar cu rezultatul Regulii 30">Pattern formation on Conus textile sea snail shells -- strikingly similar to Rule 30 output</li>
+                <li data-ro="Tipare de cre&#x219;tere a cristalelor -- reguli simple la nivel atomic creeaz&#x103; structur&#x103; macroscopic&#x103; complex&#x103;">Crystal growth patterns -- simple atomic-level rules create complex macroscopic structure</li>
+                <li data-ro="Modele de flux de trafic -- Regula 184 modeleaz&#x103; dinamica de baz&#x103; a traficului (ma&#x219;ini ca 1, drum gol ca 0)">Traffic flow models -- Rule 184 models basic traffic dynamics (cars as 1s, empty road as 0s)</li>
+                <li data-ro="Generarea numerelor aleatoare -- Regula 30 este folosit&#x103; de Wolfram Mathematica pentru numere pseudoaleatoare">Random number generation -- Rule 30 is used by Wolfram Mathematica for pseudorandom numbers</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Idee Cheie">Key Insight</h4>
+            <p data-ro="Un singur num&#x103;r &icirc;ntre 0 &#x219;i 255 poate specifica comportament de la trivial gol p&acirc;n&#x103; la capabil de calcul universal. Aceasta sugereaz&#x103; c&#x103; grani&#x21B;a &icirc;ntre simplitate &#x219;i complexitate este sub&#x21B;ire ca o lam&#x103;, &#x219;i c&#x103; putere computa&#x21B;ional&#x103; imens&#x103; se poate ascunde &icirc;n sisteme extrem de simple.">A single number between 0 and 255 can specify behavior ranging from trivially empty to capable of universal computation. This suggests that the boundary between simplicity and complexity is razor-thin, and that immense computational power can hide in extremely simple systems.</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- 2d. PREFERENCE AGGREGATION -->
+<div class="sim-section" id="vote-section">
+    <h2 data-ro="2d. Agregarea Preferin&#x21B;elor (Paradoxul Condorcet)">2d. Preference Aggregation (Condorcet Paradox)</h2>
+    <p class="model-desc" data-ro="Diferite metode de vot aplicate aceluia&#x219;i set de preferin&#x21B;e ale voturilor pot produce c&acirc;&#x219;tig&#x103;tori diferi&#x21B;i. Teorema Imposibilit&#x103;&#x21B;ii lui Arrow demonstreaz&#x103; c&#x103; niciun sistem de vot prin clasament nu poate satisface simultan toate criteriile de echitate.">Different voting methods applied to the same set of voter preferences can produce different winners. Arrow's Impossibility Theorem proves no ranked voting system can satisfy all fairness criteria simultaneously.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Controale">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Num&#x103;r de Candida&#x21B;i">Number of Candidates</span> <span class="val" id="vote-cands-val">4</span></label>
+                <input type="range" id="vote-cands" min="3" max="6" value="4">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Num&#x103;r de Votan&#x21B;i">Number of Voters</span> <span class="val" id="vote-voters-val">99</span></label>
+                <input type="range" id="vote-voters" min="9" max="501" value="99" step="2">
+            </div>
+            <div class="control-group">
+                <label data-ro="Tipar Preferin&#x21B;e">Preference Pattern</label>
+                <select id="vote-pattern">
+                    <option value="random" data-ro="Preferin&#x21B;e Aleatoare">Random Preferences</option>
+                    <option value="condorcet" data-ro="Ciclu Condorcet (for&#x21B;at)">Condorcet Cycle (forced)</option>
+                    <option value="polarized" data-ro="Polarizat">Polarized</option>
+                    <option value="consensus" data-ro="Aproape-Consens">Near-Consensus</option>
+                </select>
+            </div>
+            <div class="btn-row">
+                <button class="primary" id="vote-generate" data-ro="Genereaz&#x103; Alegeri">Generate Election</button>
+                <button id="vote-recount" data-ro="Renum&#x103;r&#x103;">Recount</button>
+            </div>
+        </div>
+        <div class="viz-area">
+            <div class="stats-bar">
+                <div class="stat-item"><span class="stat-label" data-ro="Votan&#x21B;i">Voters</span><span class="stat-value" id="vote-n">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Candida&#x21B;i">Candidates</span><span class="stat-value" id="vote-c">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="C&acirc;&#x219;tig&#x103;tor Condorcet?">Condorcet Winner?</span><span class="stat-value" id="vote-condorcet">--</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Metodele Sunt de Acord?">Methods Agree?</span><span class="stat-value" id="vote-agree">--</span></div>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+                <canvas id="vote-pref-chart" width="500" height="280" class="chart-container"></canvas>
+                <canvas id="vote-h2h" width="300" height="280" class="chart-container"></canvas>
+            </div>
+            <div class="voting-results" id="vote-results"></div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Mecanism">Mechanism</h4>
+            <p data-ro="Cu trei sau mai mul&#x21B;i candida&#x21B;i, preferin&#x21B;ele individuale ra&#x21B;ionale pot produce rezultate de grup ira&#x21B;ionale. <strong>Paradoxul Condorcet</strong>: A bate pe B, B bate pe C, dar C bate pe A -- un ciclu f&#x103;r&#x103; c&acirc;&#x219;tig&#x103;tor clar. Diferite metode de agregare rup acest ciclu diferit: Pluralitatea alege cele mai multe voturi pentru locul &icirc;nt&acirc;i, Numarul Borda puncteaz&#x103; toate clasamentele, Condorcet verific&#x103; competi&#x21B;iile directe, iar Balotajul elimin&#x103; candida&#x21B;ii cei mai slabi. <strong>Teorema Imposibilit&#x103;&#x21B;ii lui Arrow</strong> demonstreaz&#x103; c&#x103; niciun sistem de vot prin clasament nu poate satisface simultan toate criteriile de echitate (non-dictatur&#x103;, eficien&#x21B;&#x103; Pareto, independen&#x21B;a alternativelor irelevante).">With three or more candidates, individual rational preferences can produce irrational group outcomes. The <strong>Condorcet Paradox</strong>: A beats B, B beats C, but C beats A -- a cycle with no clear winner. Different aggregation methods break this cycle differently: Plurality picks the most first-place votes, Borda Count scores all rankings, Condorcet checks head-to-head matchups, and Runoff eliminates the weakest candidates. <strong>Arrow's Impossibility Theorem</strong> proves that no ranked-choice voting system can simultaneously satisfy all fairness criteria (non-dictatorship, Pareto efficiency, independence of irrelevant alternatives).</p>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Real&#x103;">Real-World Examples</h4>
+            <ul>
+                <li data-ro="Alegeri presiden&#x21B;iale -- alegerile din SUA din 2000 (Bush/Gore/Nader) sunt un caz clasic de efect spoiler">Presidential elections -- the 2000 US election (Bush/Gore/Nader) is a classic spoiler-effect case</li>
+                <li data-ro="Decizii de comitet -- comitetele de angajare departamentale adesea cicleaz&#x103; prin candida&#x21B;i">Committee decisions -- department hiring committees often cycle through candidates</li>
+                <li data-ro="Prioritizarea func&#x21B;ionalit&#x103;&#x21B;ilor produsului -- p&#x103;r&#x21B;ile interesate clasific&#x103; func&#x21B;ionalit&#x103;&#x21B;ile diferit, metoda de agregare conteaz&#x103;">Product feature prioritization -- stakeholders rank features differently, aggregation method matters</li>
+                <li data-ro="Alinierea IA -- agregarea preferin&#x21B;elor umane &icirc;ntr-o func&#x21B;ie obiectiv se confrunt&#x103; cu aceea&#x219;i imposibilitate">AI alignment -- aggregating human preferences into an objective function faces the same impossibility</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Idee Cheie">Key Insight</h4>
+            <p data-ro="Nu exist&#x103; un sistem de vot perfect. Metoda de agregare nu este o procedur&#x103; neutr&#x103; -- modeleaz&#x103; activ rezultatul. Aceasta &icirc;nseamn&#x103; c&#x103; alegerea modului de a alege este ea &icirc;ns&#x103;&#x219;i o decizie cu consecin&#x21B;e. &Icirc;n orice decizie de grup cu 3+ op&#x21B;iuni, cineva trebuie s&#x103; decid&#x103; regulile, &#x219;i regulile determin&#x103; par&#x21B;ial c&acirc;&#x219;tig&#x103;torul.">There is no perfect voting system. The method of aggregation is not a neutral procedure -- it actively shapes the outcome. This means the choice of how to choose is itself a consequential decision. In any group decision with 3+ options, someone must decide the rules, and the rules partly determine the winner.</p>
+        </div>
+    </div>
+</div>
+
+<div style="height:60px"></div>
+
+<script>
+// ============================================================
+// UTILITIES
+// ============================================================
+function getCSSVar(name) { return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function randInt(n) { return Math.floor(Math.random() * n); }
+function gaussRand(mean, std) {
+    let u = 0, v = 0;
+    while(u === 0) u = Math.random();
+    while(v === 0) v = Math.random();
+    return mean + std * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = randInt(i + 1);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+// ============================================================
+// 2a. CENTRAL LIMIT THEOREM
+// ============================================================
+(function() {
+    let means = [];
+    let running = false;
+    let timer = null;
+
+    function getVal(id) { return parseInt(document.getElementById(id).value); }
+
+    function sampleFromDist() {
+        const dist = document.getElementById('clt-dist').value;
+        switch(dist) {
+            case 'uniform': return Math.random();
+            case 'exponential': return -Math.log(1 - Math.random());
+            case 'binomial': { let s = 0; for (let i = 0; i < 10; i++) s += (Math.random() < 0.3 ? 1 : 0); return s / 10; }
+            case 'bimodal': return Math.random() < 0.5 ? gaussRand(0.25, 0.08) : gaussRand(0.75, 0.08);
+            case 'skewed': return Math.pow(Math.random(), 3);
+        }
+    }
+
+    function runTrials(count) {
+        const n = getVal('clt-n');
+        for (let t = 0; t < count; t++) {
+            let sum = 0;
+            for (let i = 0; i < n; i++) sum += sampleFromDist();
+            means.push(sum / n);
+        }
+        updateCLT();
+    }
+
+    function updateCLT() {
+        const total = means.length;
+        if (total === 0) {
+            document.getElementById('clt-total').textContent = '0';
+            document.getElementById('clt-mean').textContent = '--';
+            document.getElementById('clt-std').textContent = '--';
+            drawSourceDist();
+            drawHistogram();
+            return;
+        }
+        const m = means.reduce((a, b) => a + b, 0) / total;
+        const v = means.reduce((a, b) => a + (b - m) ** 2, 0) / total;
+        const s = Math.sqrt(v);
+
+        document.getElementById('clt-total').textContent = total;
+        document.getElementById('clt-mean').textContent = m.toFixed(4);
+        document.getElementById('clt-std').textContent = s.toFixed(4);
+
+        drawSourceDist();
+        drawHistogram();
+    }
+
+    function drawSourceDist() {
+        const canvas = document.getElementById('clt-source');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = getCSSVar('--chart-bg');
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.fillStyle = getCSSVar('--stat-label');
+        ctx.font = '11px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('Source Distribution (single sample)', W/2, 16);
+
+        const samples = [];
+        for (let i = 0; i < 5000; i++) samples.push(sampleFromDist());
+
+        const pad = {top: 28, right: 15, bottom: 20, left: 35};
+        const cw = W - pad.left - pad.right;
+        const ch = H - pad.top - pad.bottom;
+
+        const minV = Math.min(...samples);
+        const maxV = Math.max(...samples);
+        const range = maxV - minV || 1;
+        const numBins = 40;
+        const bins = new Array(numBins).fill(0);
+        for (const s of samples) {
+            const bin = Math.min(Math.floor((s - minV) / range * numBins), numBins - 1);
+            bins[bin]++;
+        }
+        const maxBin = Math.max(...bins);
+        const barW = cw / numBins;
+
+        for (let i = 0; i < numBins; i++) {
+            const h = (bins[i] / maxBin) * ch;
+            ctx.fillStyle = '#6366f1';
+            ctx.fillRect(pad.left + i * barW + 1, pad.top + ch - h, barW - 2, h);
+        }
+
+        ctx.strokeStyle = getCSSVar('--axis-color');
+        ctx.beginPath();
+        ctx.moveTo(pad.left, pad.top);
+        ctx.lineTo(pad.left, pad.top + ch);
+        ctx.lineTo(pad.left + cw, pad.top + ch);
+        ctx.stroke();
+    }
+
+    function drawHistogram() {
+        const canvas = document.getElementById('clt-hist');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = getCSSVar('--chart-bg');
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.fillStyle = getCSSVar('--stat-label');
+        ctx.font = '12px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('Distribution of Sample Means (CLT in action)', W/2, 18);
+
+        if (means.length < 2) {
+            ctx.fillStyle = getCSSVar('--inactive-bar');
+            ctx.font = '14px Segoe UI';
+            ctx.fillText('Click "Run" or "+100 Trials" to begin', W/2, H/2);
+            return;
+        }
+
+        const pad = {top: 30, right: 20, bottom: 30, left: 50};
+        const cw = W - pad.left - pad.right;
+        const ch = H - pad.top - pad.bottom;
+
+        const m = means.reduce((a, b) => a + b, 0) / means.length;
+        const v = means.reduce((a, b) => a + (b - m) ** 2, 0) / means.length;
+        const s = Math.sqrt(v) || 0.001;
+
+        const lo = m - 4 * s;
+        const hi = m + 4 * s;
+        const range = hi - lo;
+
+        const numBins = 60;
+        const bins = new Array(numBins).fill(0);
+        for (const val of means) {
+            const bin = Math.min(Math.max(Math.floor((val - lo) / range * numBins), 0), numBins - 1);
+            bins[bin]++;
+        }
+        const maxBin = Math.max(...bins, 1);
+        const barW = cw / numBins;
+
+        for (let i = 0; i < numBins; i++) {
+            const h = (bins[i] / maxBin) * ch;
+            const t = i / numBins;
+            const hue = 200 + t * 60;
+            ctx.fillStyle = `hsl(${hue}, 70%, 55%)`;
+            ctx.fillRect(pad.left + i * barW + 0.5, pad.top + ch - h, barW - 1, h);
+        }
+
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let px = 0; px <= cw; px++) {
+            const x = lo + (px / cw) * range;
+            const z = (x - m) / s;
+            const pdf = (1 / (s * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
+            const binWidth = range / numBins;
+            const scaledPdf = pdf * means.length * binWidth;
+            const h = (scaledPdf / maxBin) * ch;
+            const py = pad.top + ch - h;
+            if (px === 0) ctx.moveTo(pad.left + px, py);
+            else ctx.lineTo(pad.left + px, py);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = getCSSVar('--inactive-bar');
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, pad.top);
+        ctx.lineTo(pad.left, pad.top + ch);
+        ctx.lineTo(pad.left + cw, pad.top + ch);
+        ctx.stroke();
+
+        ctx.fillStyle = getCSSVar('--stat-label');
+        ctx.font = '9px Courier New';
+        ctx.textAlign = 'center';
+        for (let i = 0; i <= 4; i++) {
+            const x = pad.left + (i / 4) * cw;
+            const val = lo + (i / 4) * range;
+            ctx.fillText(val.toFixed(3), x, pad.top + ch + 14);
+        }
+
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 4; i++) {
+            const y = pad.top + ch - (i / 4) * ch;
+            const val = (i / 4) * maxBin;
+            ctx.fillText(Math.round(val), pad.left - 5, y + 3);
+        }
+
+        const meanX = pad.left + ((m - lo) / range) * cw;
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(meanX, pad.top);
+        ctx.lineTo(meanX, pad.top + ch);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#ef4444';
+        ctx.font = '10px Segoe UI';
+        ctx.textAlign = 'left';
+        ctx.fillText('mean = ' + m.toFixed(4), meanX + 4, pad.top + 12);
+
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(W - 140, pad.top + 4, 12, 3);
+        ctx.fillStyle = getCSSVar('--info-text');
+        ctx.font = '9px Segoe UI';
+        ctx.textAlign = 'left';
+        ctx.fillText('Normal curve', W - 124, pad.top + 9);
+    }
+
+    function playCLT() {
+        if (running) { stopCLT(); return; }
+        running = true;
+        document.getElementById('clt-play').textContent = document.documentElement.lang === 'ro' ? 'Stop' : 'Stop';
+        document.getElementById('clt-play').classList.add('active');
+        tickCLT();
+    }
+
+    function tickCLT() {
+        if (!running) return;
+        const speed = getVal('clt-speed');
+        const trialsPerTick = speed * 20;
+        runTrials(trialsPerTick);
+        if (means.length > 50000) { stopCLT(); return; }
+        timer = requestAnimationFrame(tickCLT);
+    }
+
+    function stopCLT() {
+        running = false;
+        if (timer) cancelAnimationFrame(timer);
+        document.getElementById('clt-play').textContent = document.documentElement.lang === 'ro' ? 'Ruleaz\u0103' : 'Run';
+        document.getElementById('clt-play').classList.remove('active');
+    }
+
+    document.getElementById('clt-play').addEventListener('click', playCLT);
+    document.getElementById('clt-add').addEventListener('click', () => runTrials(getVal('clt-trials')));
+    document.getElementById('clt-reset').addEventListener('click', () => { stopCLT(); means = []; updateCLT(); });
+
+    ['clt-n', 'clt-trials', 'clt-speed'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            document.getElementById(id + '-val').textContent = this.value;
+        });
+    });
+
+    document.getElementById('clt-dist').addEventListener('change', () => { stopCLT(); means = []; updateCLT(); });
+
+    updateCLT();
+    window._cltDrawSource = drawSourceDist;
+    window._cltDrawHist = drawHistogram;
+})();
+
+
+// ============================================================
+// 2b. CONWAY'S GAME OF LIFE
+// ============================================================
+(function() {
+    let N = 70;
+    let grid = [];
+    let generation = 0;
+    let running = false;
+    let timer = null;
+    let popHistory = [];
+    let lastBirths = 0, lastDeaths = 0;
+    let drawing = false;
+    let drawVal = 1;
+
+    const canvas = document.getElementById('gol-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function getVal(id) { return parseInt(document.getElementById(id).value); }
+
+    function makeGrid(n) { const g = []; for (let i = 0; i < n; i++) g[i] = new Uint8Array(n); return g; }
+
+    function init(randomize) {
+        N = getVal('gol-size');
+        grid = makeGrid(N);
+        if (randomize) {
+            const fill = getVal('gol-fill') / 100;
+            for (let i = 0; i < N; i++)
+                for (let j = 0; j < N; j++)
+                    grid[i][j] = Math.random() < fill ? 1 : 0;
+        }
+        generation = 0;
+        popHistory = [countPop()];
+        lastBirths = 0;
+        lastDeaths = 0;
+        draw();
+        updateStats();
+    }
+
+    function countPop() { let c = 0; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) c += grid[i][j]; return c; }
+
+    function countNeighbors(r, c) {
+        let count = 0;
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                const nr = (r + dr + N) % N;
+                const nc = (c + dc + N) % N;
+                count += grid[nr][nc];
+            }
+        }
+        return count;
+    }
+
+    function step() {
+        const newGrid = makeGrid(N);
+        let births = 0, deaths = 0;
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                const n = countNeighbors(i, j);
+                if (grid[i][j]) {
+                    if (n === 2 || n === 3) newGrid[i][j] = 1;
+                    else { newGrid[i][j] = 0; deaths++; }
+                } else {
+                    if (n === 3) { newGrid[i][j] = 1; births++; }
+                }
+            }
+        }
+        grid = newGrid;
+        generation++;
+        lastBirths = births;
+        lastDeaths = deaths;
+        const pop = countPop();
+        popHistory.push(pop);
+        if (popHistory.length > 300) popHistory = popHistory.slice(-300);
+        draw();
+        updateStats();
+    }
+
+    function updateStats() {
+        document.getElementById('gol-gen').textContent = generation;
+        document.getElementById('gol-pop').textContent = countPop();
+        document.getElementById('gol-births').textContent = lastBirths;
+        document.getElementById('gol-deaths').textContent = lastDeaths;
+
+        const chartCanvas = document.getElementById('gol-chart');
+        const cctx = chartCanvas.getContext('2d');
+        const W = chartCanvas.width, H = chartCanvas.height;
+        cctx.clearRect(0, 0, W, H);
+        cctx.fillStyle = getCSSVar('--chart-bg');
+        cctx.fillRect(0, 0, W, H);
+
+        cctx.fillStyle = getCSSVar('--stat-label');
+        cctx.font = '11px Segoe UI';
+        cctx.textAlign = 'center';
+        cctx.fillText('Population Over Time', W/2, 14);
+
+        if (popHistory.length < 2) return;
+        const pad = {top: 25, right: 10, bottom: 20, left: 40};
+        const cw = W - pad.left - pad.right;
+        const ch = H - pad.top - pad.bottom;
+        const maxPop = Math.max(...popHistory, 1);
+
+        cctx.strokeStyle = getCSSVar('--axis-color');
+        cctx.beginPath();
+        cctx.moveTo(pad.left, pad.top);
+        cctx.lineTo(pad.left, pad.top + ch);
+        cctx.lineTo(pad.left + cw, pad.top + ch);
+        cctx.stroke();
+
+        cctx.strokeStyle = '#22c55e';
+        cctx.lineWidth = 1.5;
+        cctx.beginPath();
+        const st = cw / Math.max(popHistory.length - 1, 1);
+        for (let i = 0; i < popHistory.length; i++) {
+            const x = pad.left + i * st;
+            const y = pad.top + ch - (popHistory[i] / maxPop) * ch;
+            if (i === 0) cctx.moveTo(x, y); else cctx.lineTo(x, y);
+        }
+        cctx.stroke();
+
+        cctx.fillStyle = getCSSVar('--axis-label');
+        cctx.font = '9px Courier New';
+        cctx.textAlign = 'right';
+        cctx.fillText(maxPop, pad.left - 3, pad.top + 10);
+        cctx.fillText('0', pad.left - 3, pad.top + ch + 3);
+    }
+
+    function draw() {
+        const cellSize = Math.max(1, Math.floor(630 / N));
+        canvas.width = cellSize * N;
+        canvas.height = cellSize * N;
+
+        ctx.fillStyle = getCSSVar('--canvas-bg');
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                if (grid[i][j]) {
+                    ctx.fillStyle = '#22c55e';
+                    ctx.fillRect(j * cellSize, i * cellSize, cellSize - (cellSize > 3 ? 1 : 0), cellSize - (cellSize > 3 ? 1 : 0));
+                }
+            }
+        }
+    }
+
+    function placePattern(pattern, offR, offC) {
+        for (const [dr, dc] of pattern) {
+            const r = (offR + dr + N) % N;
+            const c = (offC + dc + N) % N;
+            grid[r][c] = 1;
+        }
+        draw();
+        updateStats();
+    }
+
+    const patterns = {
+        glider: [[0,1],[1,2],[2,0],[2,1],[2,2]],
+        pulsar: (function() {
+            const p = [];
+            const colGroups = [[4,5,6],[10,11,12]];
+            for (const cg of colGroups) { for (const c of cg) { p.push([2, c]); p.push([7, c]); p.push([9, c]); p.push([14, c]); } }
+            const rowGroups = [[4,5,6],[10,11,12]];
+            for (const rg of rowGroups) { for (const r of rg) { p.push([r, 2]); p.push([r, 7]); p.push([r, 9]); p.push([r, 14]); } }
+            return p;
+        })(),
+        gun: [[5,1],[5,2],[6,1],[6,2],[3,13],[3,14],[4,12],[4,16],[5,11],[5,17],[6,11],[6,15],[6,17],[6,18],[7,11],[7,17],[8,12],[8,16],[9,13],[9,14],[1,25],[2,23],[2,25],[3,21],[3,22],[4,21],[4,22],[5,21],[5,22],[6,23],[6,25],[7,25],[3,35],[3,36],[4,35],[4,36]],
+        rpent: [[0,1],[0,2],[1,0],[1,1],[2,1]],
+        lwss: [[0,1],[0,4],[1,0],[2,0],[2,4],[3,0],[3,1],[3,2],[3,3]],
+        acorn: [[0,1],[1,3],[2,0],[2,1],[2,4],[2,5],[2,6]]
+    };
+
+    document.getElementById('gol-play').addEventListener('click', function() {
+        if (running) {
+            running = false;
+            if (timer) cancelAnimationFrame(timer);
+            this.textContent = document.documentElement.lang === 'ro' ? 'Porne\u0219te' : 'Play';
+            this.classList.remove('active');
+        } else {
+            running = true;
+            this.textContent = document.documentElement.lang === 'ro' ? 'Pauz\u0103' : 'Pause';
+            this.classList.add('active');
+            (function tick() {
+                if (!running) return;
+                const speed = getVal('gol-speed');
+                for (let i = 0; i < Math.ceil(speed / 5); i++) step();
+                timer = setTimeout(() => requestAnimationFrame(tick), Math.max(10, 200 / speed));
+            })();
+        }
+    });
+
+    document.getElementById('gol-step').addEventListener('click', () => { running = false; document.getElementById('gol-play').textContent = document.documentElement.lang === 'ro' ? 'Porne\u0219te' : 'Play'; document.getElementById('gol-play').classList.remove('active'); step(); });
+    document.getElementById('gol-clear').addEventListener('click', () => { running = false; document.getElementById('gol-play').textContent = document.documentElement.lang === 'ro' ? 'Porne\u0219te' : 'Play'; document.getElementById('gol-play').classList.remove('active'); init(false); });
+    document.getElementById('gol-random').addEventListener('click', () => { running = false; document.getElementById('gol-play').textContent = document.documentElement.lang === 'ro' ? 'Porne\u0219te' : 'Play'; document.getElementById('gol-play').classList.remove('active'); init(true); });
+
+    Object.keys(patterns).forEach(key => {
+        const btn = document.getElementById('gol-' + key);
+        if (btn) {
+            btn.addEventListener('click', () => {
+                running = false;
+                document.getElementById('gol-play').textContent = document.documentElement.lang === 'ro' ? 'Porne\u0219te' : 'Play';
+                document.getElementById('gol-play').classList.remove('active');
+                init(false);
+                const mid = Math.floor(N / 2);
+                placePattern(patterns[key], mid - 5, mid - 5);
+            });
+        }
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+        drawing = true;
+        const rect = canvas.getBoundingClientRect();
+        const cellSize = canvas.width / N;
+        const c = Math.floor((e.clientX - rect.left) / cellSize);
+        const r = Math.floor((e.clientY - rect.top) / cellSize);
+        if (r >= 0 && r < N && c >= 0 && c < N) { drawVal = grid[r][c] ? 0 : 1; grid[r][c] = drawVal; draw(); updateStats(); }
+    });
+    canvas.addEventListener('mousemove', (e) => {
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const cellSize = canvas.width / N;
+        const c = Math.floor((e.clientX - rect.left) / cellSize);
+        const r = Math.floor((e.clientY - rect.top) / cellSize);
+        if (r >= 0 && r < N && c >= 0 && c < N) { grid[r][c] = drawVal; draw(); }
+    });
+    canvas.addEventListener('mouseup', () => { drawing = false; updateStats(); });
+    canvas.addEventListener('mouseleave', () => { drawing = false; });
+
+    ['gol-size', 'gol-fill', 'gol-speed'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            const valId = id + '-val';
+            if (id === 'gol-fill') document.getElementById(valId).textContent = this.value + '%';
+            else document.getElementById(valId).textContent = this.value;
+        });
+    });
+
+    init(true);
+    window._golDraw = draw;
+    window._golUpdateStats = updateStats;
+})();
+
+
+// ============================================================
+// 2c. 1D CELLULAR AUTOMATA (WOLFRAM)
+// ============================================================
+(function() {
+    function getVal(id) { return parseInt(document.getElementById(id).value); }
+
+    function getRuleBits(rule) { const bits = []; for (let i = 0; i < 8; i++) bits.push((rule >> i) & 1); return bits; }
+
+    function classifyRule(rule) {
+        const uniform = [0, 255, 32, 160, 128, 64, 8, 4, 2, 1, 136, 238, 252, 254];
+        const periodic = [50, 51, 108, 204, 170, 15, 58, 62, 78, 92, 94, 104, 118, 134, 142, 156, 178, 184, 188, 200, 206, 220, 232];
+        const chaotic = [18, 22, 30, 45, 60, 73, 75, 86, 89, 101, 102, 105, 109, 129, 135, 146, 149, 150, 151, 153, 154, 161, 169, 181, 182, 183, 195];
+        const complex = [54, 106, 110, 120, 122, 124, 126, 137, 193];
+
+        if (uniform.includes(rule)) return 'Class 1: Uniform';
+        if (periodic.includes(rule)) return 'Class 2: Periodic';
+        if (chaotic.includes(rule)) return 'Class 3: Chaotic';
+        if (complex.includes(rule)) return 'Class 4: Complex';
+        const bits = getRuleBits(rule);
+        const ones = bits.reduce((a, b) => a + b, 0);
+        if (ones <= 1 || ones >= 7) return 'Class 1: Uniform';
+        if (ones <= 3 || ones >= 6) return 'Class 2: Periodic';
+        return 'Class 3: Chaotic';
+    }
+
+    function drawRuleTable() {
+        const rule = getVal('ca-rule');
+        const bits = getRuleBits(rule);
+        const container = document.getElementById('ca-rule-display');
+        container.innerHTML = '';
+
+        var ruleOn = getCSSVar('--rule-on');
+        var ruleOff = getCSSVar('--rule-off');
+        var ruleResultOn = getCSSVar('--rule-result-on');
+        var blockBorder = getCSSVar('--mini-block-border');
+        var arrowColor = getCSSVar('--rule-arrow');
+
+        for (let i = 7; i >= 0; i--) {
+            const cell = document.createElement('div');
+            cell.className = 'rule-cell';
+
+            const pattern = document.createElement('div');
+            pattern.className = 'mini-pattern';
+
+            const patBits = [(i >> 2) & 1, (i >> 1) & 1, i & 1];
+            for (const b of patBits) {
+                const block = document.createElement('div');
+                block.className = 'mini-block';
+                block.style.background = b ? ruleOn : ruleOff;
+                block.style.border = '1px solid ' + blockBorder;
+                pattern.appendChild(block);
+            }
+            cell.appendChild(pattern);
+
+            const arrow = document.createElement('div');
+            arrow.style.color = arrowColor;
+            arrow.style.fontSize = '8px';
+            arrow.textContent = '\u2193';
+            cell.appendChild(arrow);
+
+            const result = document.createElement('div');
+            result.className = 'mini-pattern';
+            const rb = document.createElement('div');
+            rb.className = 'mini-block';
+            rb.style.background = bits[i] ? ruleResultOn : ruleOff;
+            rb.style.border = '1px solid ' + blockBorder;
+            rb.style.width = '8px';
+            rb.style.height = '8px';
+            result.appendChild(rb);
+            cell.appendChild(result);
+
+            container.appendChild(cell);
+        }
+    }
+
+    function generate() {
+        const rule = getVal('ca-rule');
+        const width = getVal('ca-width');
+        const gens = getVal('ca-gens');
+        const initType = document.getElementById('ca-init').value;
+        const bits = getRuleBits(rule);
+
+        const rows = [];
+        const firstRow = new Uint8Array(width);
+        if (initType === 'single') { firstRow[Math.floor(width / 2)] = 1; }
+        else { for (let i = 0; i < width; i++) firstRow[i] = Math.random() < 0.5 ? 1 : 0; }
+        rows.push(firstRow);
+
+        for (let g = 1; g < gens; g++) {
+            const prev = rows[g - 1];
+            const next = new Uint8Array(width);
+            for (let i = 0; i < width; i++) {
+                const l = prev[(i - 1 + width) % width];
+                const c = prev[i];
+                const r = prev[(i + 1) % width];
+                const idx = (l << 2) | (c << 1) | r;
+                next[i] = bits[idx];
+            }
+            rows.push(next);
+        }
+
+        const canvas = document.getElementById('ca-canvas');
+        const cellW = Math.max(1, Math.floor(900 / width));
+        const cellH = Math.max(1, Math.floor(500 / gens));
+        const cellSize = Math.min(cellW, cellH, 4);
+        canvas.width = cellSize * width;
+        canvas.height = cellSize * gens;
+
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = getCSSVar('--canvas-bg');
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (let g = 0; g < rows.length; g++) {
+            for (let i = 0; i < width; i++) {
+                if (rows[g][i]) {
+                    const hue = (g * 0.7 + 30) % 360;
+                    ctx.fillStyle = `hsl(${hue}, 75%, 55%)`;
+                    ctx.fillRect(i * cellSize, g * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+        document.getElementById('ca-rule-num').textContent = rule;
+        document.getElementById('ca-class').textContent = classifyRule(rule);
+        document.getElementById('ca-width-stat').textContent = width;
+    }
+
+    document.getElementById('ca-generate').addEventListener('click', generate);
+
+    document.getElementById('ca-rule').addEventListener('input', function() {
+        document.getElementById('ca-rule-val').textContent = this.value;
+        drawRuleTable();
+    });
+
+    document.querySelectorAll('.ca-preset').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const rule = parseInt(this.dataset.rule);
+            document.getElementById('ca-rule').value = rule;
+            document.getElementById('ca-rule-val').textContent = rule;
+            document.querySelectorAll('.ca-preset').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            drawRuleTable();
+            generate();
+        });
+    });
+
+    ['ca-width', 'ca-gens'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            document.getElementById(id + '-val').textContent = this.value;
+        });
+    });
+
+    drawRuleTable();
+    generate();
+    window._caDrawRuleTable = drawRuleTable;
+    window._caGenerate = generate;
+})();
+
+
+// ============================================================
+// 2d. PREFERENCE AGGREGATION (CONDORCET PARADOX)
+// ============================================================
+(function() {
+    const CAND_COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#a855f7', '#ec4899'];
+    const CAND_NAMES = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta'];
+
+    let voters = [];
+    let numCands = 4;
+    let numVoters = 99;
+
+    function getVal(id) { return parseInt(document.getElementById(id).value); }
+
+    function generateElection() {
+        numCands = getVal('vote-cands');
+        numVoters = getVal('vote-voters');
+        const pattern = document.getElementById('vote-pattern').value;
+
+        voters = [];
+        const cands = Array.from({length: numCands}, (_, i) => i);
+
+        if (pattern === 'random') {
+            for (let i = 0; i < numVoters; i++) voters.push(shuffle([...cands]));
+        } else if (pattern === 'condorcet') {
+            for (let i = 0; i < numVoters; i++) {
+                const group = i % 3;
+                const pref = [...cands];
+                if (group === 0) { pref[0] = 0; pref[1] = 1; if (numCands > 2) pref[2] = 2; }
+                else if (group === 1) { if (numCands > 2) { pref[0] = 1; pref[1] = 2; pref[2] = 0; } else { pref[0] = 1; pref[1] = 0; } }
+                else { if (numCands > 2) { pref[0] = 2; pref[1] = 0; pref[2] = 1; } else { pref[0] = 0; pref[1] = 1; } }
+                const used = new Set(pref.slice(0, Math.min(3, numCands)));
+                let pos = Math.min(3, numCands);
+                const rest = cands.filter(c => !used.has(c));
+                shuffle(rest);
+                for (const c of rest) pref[pos++] = c;
+                voters.push(pref.slice(0, numCands));
+            }
+        } else if (pattern === 'polarized') {
+            const half = Math.floor(numVoters / 2);
+            for (let i = 0; i < numVoters; i++) {
+                if (i < half) voters.push([...cands]);
+                else voters.push([...cands].reverse());
+            }
+        } else if (pattern === 'consensus') {
+            for (let i = 0; i < numVoters; i++) {
+                const pref = [...cands];
+                if (Math.random() < 0.7) {
+                    const rest = pref.slice(1);
+                    shuffle(rest);
+                    voters.push([pref[0], ...rest]);
+                } else voters.push(shuffle([...cands]));
+            }
+        }
+
+        runElection();
+    }
+
+    function plurality() {
+        const firstPlaceVotes = new Array(numCands).fill(0);
+        for (const v of voters) firstPlaceVotes[v[0]]++;
+        const winner = firstPlaceVotes.indexOf(Math.max(...firstPlaceVotes));
+        return { winner, votes: firstPlaceVotes, name: 'Plurality' };
+    }
+
+    function bordaCount() {
+        const scores = new Array(numCands).fill(0);
+        for (const v of voters) { for (let i = 0; i < v.length; i++) scores[v[i]] += (numCands - 1 - i); }
+        const winner = scores.indexOf(Math.max(...scores));
+        return { winner, scores, name: 'Borda Count' };
+    }
+
+    function condorcetMethod() {
+        const wins = new Array(numCands).fill(0);
+        const h2h = Array.from({length: numCands}, () => new Array(numCands).fill(0));
+        for (let a = 0; a < numCands; a++) {
+            for (let b = a + 1; b < numCands; b++) {
+                let aWins = 0, bWins = 0;
+                for (const v of voters) {
+                    const posA = v.indexOf(a);
+                    const posB = v.indexOf(b);
+                    if (posA < posB) aWins++; else bWins++;
+                }
+                h2h[a][b] = aWins;
+                h2h[b][a] = bWins;
+                if (aWins > bWins) wins[a]++;
+                else if (bWins > aWins) wins[b]++;
+            }
+        }
+        let winner = -1;
+        for (let i = 0; i < numCands; i++) { if (wins[i] === numCands - 1) { winner = i; break; } }
+        return { winner, wins, h2h, name: 'Condorcet' };
+    }
+
+    function instantRunoff() {
+        let remaining = Array.from({length: numCands}, (_, i) => i);
+        const eliminated = new Set();
+        let roundResults = [];
+        while (remaining.length > 1) {
+            const votes = new Array(numCands).fill(0);
+            for (const v of voters) { for (const c of v) { if (!eliminated.has(c)) { votes[c]++; break; } } }
+            let minVotes = Infinity;
+            for (const c of remaining) { if (votes[c] < minVotes) minVotes = votes[c]; }
+            const toEliminate = remaining.filter(c => votes[c] === minVotes);
+            for (const c of toEliminate) eliminated.add(c);
+            remaining = remaining.filter(c => !eliminated.has(c));
+            roundResults.push({ votes: [...votes], eliminated: [...toEliminate] });
+        }
+        const winner = remaining.length > 0 ? remaining[0] : -1;
+        return { winner, rounds: roundResults, name: 'Instant Runoff' };
+    }
+
+    function runElection() {
+        const p = plurality();
+        const b = bordaCount();
+        const c = condorcetMethod();
+        const irv = instantRunoff();
+
+        const methods = [p, b, c, irv];
+        const winners = methods.map(m => m.winner);
+        const allSame = winners.every(w => w === winners[0] && w !== -1);
+
+        document.getElementById('vote-n').textContent = numVoters;
+        document.getElementById('vote-c').textContent = numCands;
+        document.getElementById('vote-condorcet').textContent = c.winner >= 0 ? CAND_NAMES[c.winner] : (document.documentElement.lang === 'ro' ? 'Nu' : 'No');
+        document.getElementById('vote-condorcet').style.color = c.winner >= 0 ? '#22c55e' : '#ef4444';
+        document.getElementById('vote-agree').textContent = allSame ? (document.documentElement.lang === 'ro' ? 'Da' : 'Yes') : 'NU';
+        document.getElementById('vote-agree').style.color = allSame ? '#22c55e' : '#ef4444';
+
+        drawPrefChart(p);
+        drawH2H(c);
+
+        const resultsDiv = document.getElementById('vote-results');
+        resultsDiv.innerHTML = '';
+
+        for (const method of methods) {
+            const card = document.createElement('div');
+            card.className = 'vote-card';
+
+            const otherWinners = methods.filter(m => m !== method).map(m => m.winner);
+            if (method.winner >= 0 && otherWinners.some(w => w !== method.winner && w >= 0)) {
+                card.classList.add('highlight');
+            }
+
+            const h5 = document.createElement('h5');
+            h5.textContent = method.name;
+            card.appendChild(h5);
+
+            const winnerDiv = document.createElement('div');
+            winnerDiv.className = 'winner';
+            if (method.winner >= 0) {
+                winnerDiv.textContent = CAND_NAMES[method.winner];
+                winnerDiv.style.color = CAND_COLORS[method.winner];
+            } else {
+                winnerDiv.textContent = document.documentElement.lang === 'ro' ? 'F\u0103r\u0103 C\u00e2\u0219tig\u0103tor' : 'No Winner';
+                winnerDiv.style.color = '#ef4444';
+            }
+            card.appendChild(winnerDiv);
+
+            const details = document.createElement('div');
+            details.className = 'details';
+            if (method.votes) details.textContent = method.votes.slice(0, numCands).map((v, i) => CAND_NAMES[i] + ': ' + v).join(', ');
+            else if (method.scores) details.textContent = method.scores.slice(0, numCands).map((v, i) => CAND_NAMES[i] + ': ' + v).join(', ');
+            else if (method.wins) details.textContent = method.wins.slice(0, numCands).map((v, i) => CAND_NAMES[i] + ': ' + v + ' wins').join(', ');
+            else if (method.rounds) details.textContent = method.rounds.length + (document.documentElement.lang === 'ro' ? ' runde de eliminare' : ' rounds of elimination');
+            card.appendChild(details);
+
+            resultsDiv.appendChild(card);
+        }
+    }
+
+    function drawPrefChart(p) {
+        const canvas = document.getElementById('vote-pref-chart');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = getCSSVar('--chart-bg');
+        ctx.fillRect(0, 0, W, H);
+
+        const pad = {top: 30, right: 20, bottom: 40, left: 50};
+        const cw = W - pad.left - pad.right;
+        const ch = H - pad.top - pad.bottom;
+
+        ctx.fillStyle = getCSSVar('--stat-label');
+        ctx.font = '12px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('First-Place Votes (Plurality)', W/2, 18);
+
+        const maxVotes = Math.max(...p.votes.slice(0, numCands), 1);
+        const barW = cw / numCands;
+
+        for (let i = 0; i < numCands; i++) {
+            const h = (p.votes[i] / maxVotes) * ch;
+            const x = pad.left + i * barW + barW * 0.15;
+            const w = barW * 0.7;
+
+            ctx.fillStyle = CAND_COLORS[i];
+            ctx.fillRect(x, pad.top + ch - h, w, h);
+
+            ctx.fillStyle = getCSSVar('--label-bright');
+            ctx.font = '11px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(CAND_NAMES[i], x + w/2, pad.top + ch + 16);
+
+            ctx.fillStyle = getCSSVar('--info-text');
+            ctx.font = '10px Courier New';
+            ctx.fillText(p.votes[i], x + w/2, pad.top + ch - h - 5);
+        }
+
+        ctx.strokeStyle = getCSSVar('--inactive-bar');
+        ctx.beginPath();
+        ctx.moveTo(pad.left, pad.top);
+        ctx.lineTo(pad.left, pad.top + ch);
+        ctx.lineTo(pad.left + cw, pad.top + ch);
+        ctx.stroke();
+
+        ctx.fillStyle = getCSSVar('--axis-label');
+        ctx.font = '9px Courier New';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 4; i++) {
+            const y = pad.top + ch - (i / 4) * ch;
+            ctx.fillText(Math.round(maxVotes * i / 4), pad.left - 5, y + 3);
+        }
+    }
+
+    function drawH2H(c) {
+        const canvas = document.getElementById('vote-h2h');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = getCSSVar('--chart-bg');
+        ctx.fillRect(0, 0, W, H);
+
+        const pad = {top: 30, right: 15, bottom: 15, left: 60};
+        const cw = W - pad.left - pad.right;
+        const ch = H - pad.top - pad.bottom;
+
+        ctx.fillStyle = getCSSVar('--stat-label');
+        ctx.font = '12px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('Head-to-Head Matrix', W/2, 18);
+
+        const cellW = cw / numCands;
+        const cellH = ch / numCands;
+
+        ctx.font = '10px Segoe UI';
+        for (let j = 0; j < numCands; j++) {
+            ctx.fillStyle = CAND_COLORS[j];
+            ctx.textAlign = 'center';
+            ctx.fillText(CAND_NAMES[j].charAt(0), pad.left + j * cellW + cellW/2, pad.top - 5);
+        }
+
+        for (let i = 0; i < numCands; i++) {
+            ctx.fillStyle = CAND_COLORS[i];
+            ctx.textAlign = 'right';
+            ctx.fillText(CAND_NAMES[i].substring(0, 5), pad.left - 5, pad.top + i * cellH + cellH/2 + 4);
+
+            for (let j = 0; j < numCands; j++) {
+                const x = pad.left + j * cellW;
+                const y = pad.top + i * cellH;
+
+                if (i === j) {
+                    ctx.fillStyle = getCSSVar('--h2h-diag');
+                    ctx.fillRect(x + 1, y + 1, cellW - 2, cellH - 2);
+                    ctx.fillStyle = getCSSVar('--h2h-diag-text');
+                    ctx.textAlign = 'center';
+                    ctx.fillText('-', x + cellW/2, y + cellH/2 + 4);
+                } else {
+                    const val = c.h2h[i][j];
+                    const isWin = val > numVoters / 2;
+                    ctx.fillStyle = isWin ? getCSSVar('--h2h-win') : getCSSVar('--h2h-lose');
+                    ctx.fillRect(x + 1, y + 1, cellW - 2, cellH - 2);
+
+                    if (isWin) {
+                        ctx.strokeStyle = '#22c55e';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(x + 1, y + 1, cellW - 2, cellH - 2);
+                    }
+
+                    ctx.fillStyle = isWin ? '#22c55e' : getCSSVar('--info-text');
+                    ctx.font = '10px Courier New';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(val, x + cellW/2, y + cellH/2 + 4);
+                }
+            }
+        }
+    }
+
+    document.getElementById('vote-generate').addEventListener('click', generateElection);
+    document.getElementById('vote-recount').addEventListener('click', runElection);
+
+    ['vote-cands', 'vote-voters'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            document.getElementById(id + '-val').textContent = this.value;
+        });
+    });
+
+    generateElection();
+    window._voteDrawPref = function() { if (voters.length > 0) { generateElection(); } };
+})();
+
+// ============================================================
+// THEME / LANGUAGE SUPPORT
+// ============================================================
+function redrawAll() {
+    if (window._cltDrawSource) { window._cltDrawSource(); window._cltDrawHist(); }
+    if (window._golDraw) { window._golDraw(); window._golUpdateStats(); }
+    if (window._caDrawRuleTable) { window._caDrawRuleTable(); window._caGenerate(); }
+    if (window._voteDrawPref) { window._voteDrawPref(); }
+}
+
+function setTheme(theme) {
+    document.body.className = 'theme-' + theme;
+    localStorage.setItem('mt-theme', theme);
+    if (typeof redrawAll === 'function') redrawAll();
+}
+
+function toggleLang() {
+    const current = document.documentElement.lang || 'en';
+    const newLang = current === 'en' ? 'ro' : 'en';
+    document.documentElement.lang = newLang;
+    document.getElementById('langBtn').textContent = newLang === 'en' ? 'RO' : 'EN';
+    localStorage.setItem('mt-lang', newLang);
+    applyLanguage(newLang);
+}
+
+function applyLanguage(lang) {
+    document.querySelectorAll('[data-ro]').forEach(function(el) {
+        if (lang === 'ro') {
+            if (!el.dataset.en) el.dataset.en = el.innerHTML;
+            el.innerHTML = el.dataset.ro;
+        } else {
+            if (el.dataset.en) el.innerHTML = el.dataset.en;
+        }
+    });
+}
+
+// On load, restore saved preferences
+(function() {
+    var savedTheme = localStorage.getItem('mt-theme') || 'dark';
+    var savedLang = localStorage.getItem('mt-lang') || 'en';
+    document.body.className = 'theme-' + savedTheme;
+    if (savedTheme !== 'dark') redrawAll();
+    if (savedLang === 'ro') {
+        document.documentElement.lang = 'ro';
+        document.getElementById('langBtn').textContent = 'EN';
+        applyLanguage('ro');
+    }
+})();
+</script>
+</body>
+</html>

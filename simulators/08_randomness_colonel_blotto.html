@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulator 8: Randomness, Random Walks & Colonel Blotto</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body.theme-dark {
+  --bg-primary: #1a1a2e; --bg-secondary: #16213e; --bg-panel: #16213e; --bg-input: #0f3460;
+  --text-primary: #e0e0e0; --text-secondary: #aaa; --text-muted: #888;
+  --border-color: rgba(255,255,255,0.06); --border-hover: rgba(0,210,255,0.3);
+  --accent-cyan: #00d2ff; --accent-red: #e94560; --accent-green: #00ff88; --accent-gold: #ffd700; --accent-purple: #9b59b6;
+  --shadow: rgba(0,0,0,0.4); --canvas-bg: #0d1117;
+  --bg-header-start: #16213e; --bg-header-end: #0f3460;
+  --stat-bg: #0f3460; --grid-line: rgba(255,255,255,0.05); --grid-line-strong: rgba(255,255,255,0.13);
+  --text-chart: #666; --text-chart-light: #aaa; --text-chart-white: #fff; --text-chart-dim: #555;
+  --text-info: #bbb; --edge-line: rgba(255,255,255,0.07);
+  --btn-reset-bg: #333; --btn-reset-hover: #555;
+  --btn-event-bg: #ffd700; --btn-event-hover: #ffe44d;
+  --divider-color: #0f3460; --input-border: #233;
+  --bar-bg-dim: rgba(15,52,96,0.4);
+}
+body.theme-white {
+  --bg-primary: #f5f7fa; --bg-secondary: #ffffff; --bg-panel: #ffffff; --bg-input: #f0f2f5;
+  --text-primary: #1a1a2e; --text-secondary: #555566; --text-muted: #888899;
+  --border-color: rgba(0,0,0,0.1); --border-hover: rgba(0,130,200,0.4);
+  --accent-cyan: #0088cc; --accent-red: #d63031; --accent-green: #27ae60; --accent-gold: #f39c12; --accent-purple: #8e44ad;
+  --shadow: rgba(0,0,0,0.1); --canvas-bg: #ffffff;
+  --bg-header-start: #e8ecf1; --bg-header-end: #dce3ed;
+  --stat-bg: #e8ecf1; --grid-line: rgba(0,0,0,0.06); --grid-line-strong: rgba(0,0,0,0.12);
+  --text-chart: #999; --text-chart-light: #555; --text-chart-white: #222; --text-chart-dim: #aaa;
+  --text-info: #555; --edge-line: rgba(0,0,0,0.08);
+  --btn-reset-bg: #ddd; --btn-reset-hover: #ccc;
+  --btn-event-bg: #f39c12; --btn-event-hover: #e67e22;
+  --divider-color: #dce3ed; --input-border: #ccc;
+  --bar-bg-dim: rgba(0,0,0,0.06);
+}
+body.theme-sepia {
+  --bg-primary: #f4ecd8; --bg-secondary: #faf6eb; --bg-panel: #faf6eb; --bg-input: #efe7d3;
+  --text-primary: #433422; --text-secondary: #6b5b4a; --text-muted: #8b7b6a;
+  --border-color: rgba(100,70,30,0.15); --border-hover: rgba(160,100,30,0.4);
+  --accent-cyan: #b8860b; --accent-red: #a0522d; --accent-green: #6b8e23; --accent-gold: #cd853f; --accent-purple: #8b4513;
+  --shadow: rgba(100,70,30,0.15); --canvas-bg: #faf6eb;
+  --bg-header-start: #efe7d3; --bg-header-end: #e6dcc4;
+  --stat-bg: #efe7d3; --grid-line: rgba(100,70,30,0.08); --grid-line-strong: rgba(100,70,30,0.15);
+  --text-chart: #8b7b6a; --text-chart-light: #6b5b4a; --text-chart-white: #433422; --text-chart-dim: #a09080;
+  --text-info: #6b5b4a; --edge-line: rgba(100,70,30,0.1);
+  --btn-reset-bg: #e6dcc4; --btn-reset-hover: #d9ccb0;
+  --btn-event-bg: #cd853f; --btn-event-hover: #b8733a;
+  --divider-color: #e6dcc4; --input-border: #c4b08a;
+  --bar-bg-dim: rgba(100,70,30,0.08);
+}
+body.theme-ocean {
+  --bg-primary: #0b1628; --bg-secondary: #0f2035; --bg-panel: #132a42; --bg-input: #163352;
+  --text-primary: #d4e6f1; --text-secondary: #7fb3d3; --text-muted: #5a8faa;
+  --border-color: rgba(100,180,255,0.1); --border-hover: rgba(100,200,255,0.35);
+  --accent-cyan: #5dade2; --accent-red: #e74c3c; --accent-green: #48c9b0; --accent-gold: #f7dc6f; --accent-purple: #a569bd;
+  --shadow: rgba(0,20,50,0.5); --canvas-bg: #0b1628;
+  --bg-header-start: #132a42; --bg-header-end: #0f2035;
+  --stat-bg: #132a42; --grid-line: rgba(100,180,255,0.06); --grid-line-strong: rgba(100,180,255,0.12);
+  --text-chart: #5a8faa; --text-chart-light: #7fb3d3; --text-chart-white: #d4e6f1; --text-chart-dim: #3a6f8a;
+  --text-info: #7fb3d3; --edge-line: rgba(100,180,255,0.08);
+  --btn-reset-bg: #163352; --btn-reset-hover: #1a4060;
+  --btn-event-bg: #f7dc6f; --btn-event-hover: #f0c93a;
+  --divider-color: #132a42; --input-border: #1a4060;
+  --bar-bg-dim: rgba(100,180,255,0.08);
+}
+
+body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow-x:hidden}
+h1{text-align:center;padding:24px;font-size:1.8rem;background:linear-gradient(135deg,var(--bg-header-start),var(--bg-header-end));border-bottom:2px solid var(--accent-red);letter-spacing:1px;color:var(--text-primary)}
+h1 span{color:var(--accent-red)}
+.sim-section{max-width:1400px;margin:30px auto;padding:0 20px}
+.sim-title{font-size:1.4rem;color:var(--accent-cyan);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.sim-title .badge{background:var(--accent-red);color:#fff;font-size:0.7rem;padding:2px 10px;border-radius:10px;font-weight:700}
+.sim-subtitle{color:var(--text-muted);font-size:0.95rem;margin-bottom:16px;font-style:italic}
+.sim-container{display:grid;grid-template-columns:280px 1fr;gap:16px;background:var(--bg-panel);border-radius:12px;padding:20px;border:1px solid var(--border-color)}
+.controls{display:flex;flex-direction:column;gap:10px}
+.control-group{background:var(--bg-primary);border-radius:8px;padding:12px}
+.control-group label{display:block;font-size:0.78rem;color:var(--text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.control-group input[type=range]{width:100%;accent-color:var(--accent-red)}
+.control-group input[type=number]{width:100%;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--input-border);padding:6px;border-radius:4px;font-size:0.85rem}
+.control-group select{width:100%;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--input-border);padding:6px;border-radius:4px;font-size:0.85rem}
+.control-group .val{float:right;color:var(--accent-cyan);font-weight:700;font-size:0.85rem}
+.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s}
+.btn-play{background:var(--accent-cyan);color:var(--bg-primary)}.btn-play:hover{opacity:0.85}
+.btn-step{background:var(--accent-red);color:#fff}.btn-step:hover{opacity:0.85}
+.btn-reset{background:var(--btn-reset-bg);color:var(--text-primary)}.btn-reset:hover{background:var(--btn-reset-hover)}
+.btn-run{background:var(--accent-green);color:var(--bg-primary)}.btn-run:hover{opacity:0.85}
+.btn-event{background:var(--btn-event-bg);color:var(--bg-primary)}.btn-event:hover{background:var(--btn-event-hover)}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+canvas{border-radius:8px;background:var(--canvas-bg);display:block}
+.viz-area{display:flex;flex-direction:column;gap:12px;min-height:400px}
+.info-panels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+.info-box{background:var(--bg-primary);border-radius:8px;padding:14px;border-left:3px solid var(--accent-red)}
+.info-box.mechanism{border-left-color:var(--accent-cyan)}
+.info-box.examples{border-left-color:var(--accent-gold)}
+.info-box.insight{border-left-color:var(--accent-green)}
+.info-box h3{font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.info-box.mechanism h3{color:var(--accent-cyan)}
+.info-box.examples h3{color:var(--accent-gold)}
+.info-box.insight h3{color:var(--accent-green)}
+.info-box p,.info-box ul{font-size:0.82rem;color:var(--text-info);line-height:1.5}
+.info-box ul{padding-left:16px}
+.info-box li{margin-bottom:3px}
+.stats-bar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.stat{background:var(--stat-bg);padding:6px 14px;border-radius:6px;font-size:0.82rem;color:var(--text-primary)}
+.stat .num{color:var(--accent-cyan);font-weight:700;font-size:1.1rem}
+.divider{height:2px;background:linear-gradient(90deg,transparent,var(--divider-color),transparent);margin:40px 0}
+.viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.viz-grid-3{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.bf-inputs{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.bf-inputs input{width:45px;text-align:center;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--input-border);padding:4px;border-radius:4px;font-size:0.8rem}
+.bf-inputs .bf-lbl{font-size:0.65rem;color:var(--text-chart);text-align:center;display:block}
+@media(max-width:900px){.sim-container{grid-template-columns:1fr}.info-panels{grid-template-columns:1fr}.viz-grid{grid-template-columns:1fr}.viz-grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);backdrop-filter:blur(10px);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<h1 data-ro="Simulator 8: <span>Aleatoriu, Plimbări Aleatoare și Colonelul Blotto</span>">Simulator 8: <span>Randomness, Random Walks & Colonel Blotto</span></h1>
+
+<!-- ===================== 8a: Skill vs Luck ===================== -->
+<div class="sim-section" id="sec8a">
+<div class="sim-title"><span data-ro="8a. Descompunere Abilitate vs Noroc">8a. Skill vs Luck Decomposition</span> <span class="badge" data-ro="Paradoxul Abilității">Paradox of Skill</span></div>
+<div class="sim-subtitle" data-ro="Performanță = Abilitate + Noroc. Pe măsură ce abilitatea medie crește, norocul domină mai mult rezultatele -- paradoxul abilității.">Performance = Skill + Luck. As average skill rises, luck dominates outcomes more -- the paradox of skill.</div>
+<div class="sim-container">
+  <div class="controls">
+    <div class="control-group">
+      <label><span data-ro="Varianța Abilității">Skill Variance</span> <span class="val" id="v8a_skill">50</span></label>
+      <input type="range" id="s8a_skill" min="1" max="100" value="50">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Varianța Norocului">Luck Variance</span> <span class="val" id="v8a_luck">50</span></label>
+      <input type="range" id="s8a_luck" min="1" max="100" value="50">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Competitori">Competitors</span> <span class="val" id="v8a_comp">100</span></label>
+      <input type="range" id="s8a_comp" min="10" max="500" value="100" step="10">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Runde">Rounds</span> <span class="val" id="v8a_rounds">20</span></label>
+      <input type="range" id="s8a_rounds" min="1" max="100" value="20">
+    </div>
+    <div class="control-group">
+      <label data-ro="Distribuția Talentului">Talent Distribution</label>
+      <select id="s8a_talent">
+        <option value="wide" data-ro="Largă (câmp variat)">Wide (varied field)</option>
+        <option value="narrow" selected data-ro="Îngustă (câmp de elită)">Narrow (elite field)</option>
+        <option value="equal" data-ro="Egală (fără diferențe de abilitate)">Equal (no skill diff)</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-run" onclick="sim8a.run()" data-ro="Rulează Simularea">Run Simulation</button>
+      <button class="btn btn-reset" onclick="sim8a.reset()" data-ro="Resetează">Reset</button>
+    </div>
+  </div>
+  <div class="viz-area">
+    <div class="stats-bar">
+      <div class="stat"><span data-ro="Corelație Abilitate-Perf">Skill-Perf Correlation</span>: <span class="num" id="st8a_corr">--</span></div>
+      <div class="stat"><span data-ro="Dominanța Norocului">Luck Dominance</span>: <span class="num" id="st8a_luck" style="color:#ffd700">--</span></div>
+      <div class="stat"><span data-ro="Rang Perf Cel Mai Abil">Best Skill Perf Rank</span>: <span class="num" id="st8a_top">--</span></div>
+      <div class="stat"><span data-ro="Regresie r">Regression r</span>: <span class="num" id="st8a_reg">--</span></div>
+    </div>
+    <div class="viz-grid">
+      <canvas id="c8a_scatter" width="520" height="360"></canvas>
+      <canvas id="c8a_paradox" width="520" height="360"></canvas>
+    </div>
+    <canvas id="c8a_regress" width="1060" height="260"></canvas>
+  </div>
+</div>
+<div class="info-panels">
+  <div class="info-box mechanism">
+    <h3 data-ro="Cum Funcționează">Mechanism</h3>
+    <p data-ro="Performanță = Abilitate + Noroc. Când toată lumea este foarte abilă (varianță scăzută a abilității), norocul domină rezultatele. Acesta este &quot;Paradoxul Abilității&quot; -- pe măsură ce competiția se îmbunătățește, norocul devine MAI important, nu mai puțin. Performanții extremi din runda 1 tind să regreseze către medie în runda 2, deoarece rezultatul lor extrem a fost parțial noroc.">Performance = Skill + Luck. When everyone is highly skilled (low skill variance), luck dominates outcomes. This is the "Paradox of Skill" -- as competition improves, luck becomes MORE important, not less. Extreme performers in round 1 tend to regress toward average in round 2, because their extreme result was partly luck.</p>
+  </div>
+  <div class="info-box examples">
+    <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+    <ul>
+      <li data-ro="Rezultatele sezonului sportiv vs playoff">Sports season outcomes vs playoffs</li>
+      <li data-ro="Evaluarea performanței CEO-urilor">CEO performance evaluation</li>
+      <li data-ro="Randamentele fondurilor mutuale (majoritatea nu pot bate indicele)">Mutual fund returns (most can't beat index)</li>
+      <li data-ro="Scorurile testelor studenților de la o rundă la alta">Student test scores round-to-round</li>
+      <li data-ro="Factorii de succes ai startup-urilor">Startup success factors</li>
+    </ul>
+  </div>
+  <div class="info-box insight">
+    <h3 data-ro="Ideea Cheie">Key Insight</h3>
+    <p data-ro="Urmărește graficul de dispersie: cu varianță mare a abilității, punctele se grupează pe diagonală (abilitatea prezice performanța). Cu varianță scăzută, punctele se împrăștie peste tot -- norocul domină. Curba paradoxului arată acest lucru sistematic. Încearcă talent &quot;Egal&quot; pentru a vedea clasamente bazate exclusiv pe noroc.">Watch the scatter plot: with high skill variance, dots cluster near the diagonal (skill predicts performance). With low skill variance, dots scatter everywhere -- luck dominates. The paradox curve shows this systematically. Try "Equal" talent to see pure luck rankings.</p>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 8b: Random Walk ===================== -->
+<div class="sim-section" id="sec8b">
+<div class="sim-title"><span data-ro="8b. Simulator de Plimbare Aleatoare">8b. Random Walk Simulator</span> <span class="badge">1D & 2D</span></div>
+<div class="sim-subtitle" data-ro="Pașii pur aleatorii creează trasee care par pline de tendințe și tipare -- dar totul este zgomot. Deplasarea așteptată crește ca sqrt(t).">Purely random steps create paths that look full of trends and patterns -- but it is all noise. Expected displacement grows as sqrt(t).</div>
+<div class="sim-container">
+  <div class="controls">
+    <div class="control-group">
+      <label><span data-ro="Plimbăreți">Walkers</span> <span class="val" id="v8b_walkers">10</span></label>
+      <input type="range" id="s8b_walkers" min="1" max="50" value="10">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Pași">Steps</span> <span class="val" id="v8b_steps">500</span></label>
+      <input type="range" id="s8b_steps" min="50" max="5000" value="500" step="50">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Tendință (P sus)">Bias (P up)</span> <span class="val" id="v8b_bias">0.50</span></label>
+      <input type="range" id="s8b_bias" min="0" max="100" value="50">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Mărimea Pasului">Step Size</span> <span class="val" id="v8b_ss">1</span></label>
+      <input type="range" id="s8b_ss" min="1" max="10" value="1">
+    </div>
+    <div class="control-group">
+      <label data-ro="Dimensiune">Dimension</label>
+      <select id="s8b_dim">
+        <option value="1d" data-ro="Plimbare Aleatoare 1D">1D Random Walk</option>
+        <option value="2d" data-ro="Plimbare Aleatoare 2D">2D Random Walk</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Viteză">Speed</span> <span class="val" id="v8b_speed">70</span></label>
+      <input type="range" id="s8b_speed" min="1" max="100" value="70">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-step" onclick="sim8b.step()" data-ro="Pas">Step</button>
+      <button class="btn btn-play" id="btn8b_play" onclick="sim8b.togglePlay()" data-ro="Pornește">Play</button>
+      <button class="btn btn-reset" onclick="sim8b.reset()" data-ro="Resetează">Reset</button>
+    </div>
+  </div>
+  <div class="viz-area">
+    <div class="stats-bar">
+      <div class="stat"><span data-ro="Pas">Step</span>: <span class="num" id="st8b_step">0</span></div>
+      <div class="stat"><span data-ro="|Depl| Med">Avg |Disp|</span>: <span class="num" id="st8b_avg">0</span></div>
+      <div class="stat"><span data-ro="Predicție sqrt(t)">sqrt(t) Pred</span>: <span class="num" id="st8b_sqrt" style="color:#e94560">0</span></div>
+      <div class="stat"><span data-ro="|Depl| Max">Max |Disp|</span>: <span class="num" id="st8b_max">0</span></div>
+    </div>
+    <div class="viz-grid-3">
+      <canvas id="c8b_main" width="700" height="420"></canvas>
+      <canvas id="c8b_side" width="340" height="420"></canvas>
+    </div>
+  </div>
+</div>
+<div class="info-panels">
+  <div class="info-box mechanism">
+    <h3 data-ro="Cum Funcționează">Mechanism</h3>
+    <p data-ro="Deși sunt complet aleatorii, plimbările aleatoare au proprietăți STATISTICE previzibile: deplasarea așteptată crește ca sqrt(t), nu t. Traseul pare să aibă tendințe și tipare, dar este pur zgomot. De aceea vedem &quot;tipare&quot; în date aleatorii -- creierul nostru este o mașină de recunoaștere a tiparelor care găsește semnal în zgomot. În 1D și 2D, plimbările se întorc la origine de infinit de multe ori.">Despite being completely random, random walks have predictable STATISTICAL properties: expected displacement grows as sqrt(t), not t. The path looks like it has trends and patterns, but it is pure noise. This is why we see "patterns" in random data -- our brains are pattern-recognition machines that find signal in noise. In 1D and 2D, walks return to the origin infinitely often.</p>
+  </div>
+  <div class="info-box examples">
+    <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+    <ul>
+      <li data-ro="Mișcarea browniană a particulelor">Brownian motion of particles</li>
+      <li data-ro="Mișcările prețurilor bursiere (ipoteza plimbării aleatoare)">Stock price movements (random walk hypothesis)</li>
+      <li data-ro="Traseele de căutare a hranei ale animalelor">Animal foraging paths</li>
+      <li data-ro="Difuzia moleculelor">Diffusion of molecules</li>
+      <li data-ro="Problema ruinei jucătorului">Gambler's ruin problem</li>
+    </ul>
+  </div>
+  <div class="info-box insight">
+    <h3 data-ro="Ideea Cheie">Key Insight</h3>
+    <p data-ro="Anvelopa roșie punctată arată sqrt(t). Observă cum traseele reale rămân aproximativ în această anvelopă. Încearcă să adaugi o tendință ușoară (P sus > 0.5) pentru a vedea cum apare deplasarea sistematică. În modul 2D, traseele desenează curbe aleatoare frumoase care par intenționate dar sunt pur întâmplare.">The red dashed envelope shows sqrt(t). Notice how actual paths roughly stay within this envelope. Try adding a slight bias (P up > 0.5) to see drift emerge. In 2D mode, paths trace beautiful random curves that look purposeful but are pure chance.</p>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 8c: Efficient Market ===================== -->
+<div class="sim-section" id="sec8c">
+<div class="sim-title"><span data-ro="8c. Simulatorul Ipotezei Pieței Eficiente">8c. Efficient Market Hypothesis Simulator</span> <span class="badge" data-ro="IPE">EMH</span></div>
+<div class="sim-subtitle" data-ro="Dacă piețele sunt eficiente, prețurile reflectă toată informația. Schimbările viitoare sunt imprevizibile -- o plimbare aleatoare cu tendință.">If markets are efficient, prices reflect all information. Future changes are unpredictable -- a random walk with drift.</div>
+<div class="sim-container">
+  <div class="controls">
+    <div class="control-group">
+      <label><span data-ro="Tendință (%/perioadă)">Trend (%/period)</span> <span class="val" id="v8c_trend">0.05</span></label>
+      <input type="range" id="s8c_trend" min="-50" max="50" value="5">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Nivel Zgomot">Noise Level</span> <span class="val" id="v8c_noise">30</span></label>
+      <input type="range" id="s8c_noise" min="1" max="100" value="30">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Traderi Informați">Informed Traders</span> <span class="val" id="v8c_inf">50</span></label>
+      <input type="range" id="s8c_inf" min="0" max="200" value="50">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Traderi Neinformați">Uninformed Traders</span> <span class="val" id="v8c_uninf">50</span></label>
+      <input type="range" id="s8c_uninf" min="0" max="200" value="50">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Întârziere Informație">Info Delay</span> <span class="val" id="v8c_delay">3</span></label>
+      <input type="range" id="s8c_delay" min="0" max="20" value="3">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Perioade">Periods</span> <span class="val" id="v8c_periods">200</span></label>
+      <input type="range" id="s8c_periods" min="50" max="500" value="200" step="10">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-run" onclick="sim8c.run()" data-ro="Generează Piață">Generate Market</button>
+      <button class="btn btn-event" onclick="sim8c.injectEvent()" data-ro="Injectează Știre">Inject News</button>
+      <button class="btn btn-reset" onclick="sim8c.reset()" data-ro="Resetează">Reset</button>
+    </div>
+  </div>
+  <div class="viz-area">
+    <div class="stats-bar">
+      <div class="stat"><span data-ro="Preț">Price</span>: <span class="num" id="st8c_price">--</span></div>
+      <div class="stat"><span data-ro="Valoare">Value</span>: <span class="num" id="st8c_value" style="color:#ffd700">--</span></div>
+      <div class="stat"><span data-ro="Eroare Urmărire">Track Error</span>: <span class="num" id="st8c_track">--</span></div>
+      <div class="stat"><span data-ro="Autocorelație">Autocorrelation</span>: <span class="num" id="st8c_ac">--</span></div>
+      <div class="stat"><span data-ro="Evenimente">Events</span>: <span class="num" id="st8c_events" style="color:#e94560">0</span></div>
+    </div>
+    <div class="viz-grid-3">
+      <canvas id="c8c_price" width="700" height="380"></canvas>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <canvas id="c8c_returns" width="340" height="180"></canvas>
+        <canvas id="c8c_autocorr" width="340" height="180"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="info-panels">
+  <div class="info-box mechanism">
+    <h3 data-ro="Cum Funcționează">Mechanism</h3>
+    <p data-ro="Traderii informați împing prețurile către valoarea fundamentală; traderii neinformați adaugă zgomot. Dacă piețele sunt eficiente, prețurile reflectă deja toată informația disponibilă, deci schimbările viitoare ale prețului sunt imprevizibile (plimbare aleatoare). Informația nouă produce salturi instantanee. Randamentele ar trebui să arate autocorelație aproape zero -- fără tipare previzibile.">Informed traders push prices toward fundamental value; uninformed traders add noise. If markets are efficient, prices already reflect all available information, so future price changes are unpredictable (random walk). New information causes instant jumps. Returns should show near-zero autocorrelation -- no predictable patterns.</p>
+  </div>
+  <div class="info-box examples">
+    <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+    <ul>
+      <li data-ro="Investiții în indicele S&P 500 vs management activ">S&P 500 index investing vs active management</li>
+      <li data-ro="Reacțiile prețurilor la surprize de câștiguri">Earnings surprise price reactions</li>
+      <li data-ro="Volatilitatea piețelor de criptomonede">Cryptocurrency market volatility</li>
+      <li data-ro="Acuratețea piețelor de predicție (Polymarket)">Prediction market accuracy (Polymarket)</li>
+      <li data-ro="Crash-uri fulger din tranzacționarea algoritmică">Flash crashes from algorithmic trading</li>
+    </ul>
+  </div>
+  <div class="info-box insight">
+    <h3 data-ro="Ideea Cheie">Key Insight</h3>
+    <p data-ro="Încearcă să setezi traderi informați la 0 -- prețul rătăcește aleatoriu, deconectat de valoare. Adaugă mulți traderi informați pentru a vedea urmărire strânsă. &quot;Injectează Știre&quot; creează evenimente surpriză. Graficul de autocorelație ar trebui să arate bare în benzile roșii (nesemnificative) dacă piața este eficientă.">Try setting informed traders to 0 -- price wanders randomly, disconnected from value. Add many informed traders to see tight tracking. "Inject News" creates surprise events. The autocorrelation chart should show bars within the red bands (insignificant) if the market is efficient.</p>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 8d: Colonel Blotto ===================== -->
+<div class="sim-section" id="sec8d">
+<div class="sim-title"><span data-ro="8d. Jocul Colonelului Blotto">8d. Colonel Blotto Game</span> <span class="badge" data-ro="Alocare Strategică">Strategic Allocation</span></div>
+<div class="sim-subtitle" data-ro="Doi coloneli alocă trupe pe câmpuri de luptă. Nu există o singură strategie optimă -- este un joc de piatră-foarfecă-hârtie intranzitiv.">Two colonels allocate troops across battlefields. No single optimal strategy exists -- it is a game of intransitive rock-paper-scissors.</div>
+<div class="sim-container">
+  <div class="controls">
+    <div class="control-group">
+      <label><span data-ro="Trupe J1">P1 Troops</span> <span class="val" id="v8d_t1">100</span></label>
+      <input type="range" id="s8d_t1" min="10" max="500" value="100" step="10">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Trupe J2">P2 Troops</span> <span class="val" id="v8d_t2">100</span></label>
+      <input type="range" id="s8d_t2" min="10" max="500" value="100" step="10">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Câmpuri de Luptă">Battlefields</span> <span class="val" id="v8d_bf">5</span></label>
+      <input type="range" id="s8d_bf" min="2" max="10" value="5">
+    </div>
+    <div class="control-group">
+      <label data-ro="Strategia J1">P1 Strategy</label>
+      <select id="s8d_s1">
+        <option value="manual" data-ro="Introducere Manuală">Manual Input</option>
+        <option value="even" data-ro="Împărțire Egală">Even Split</option>
+        <option value="random" data-ro="Aleatoriu">Random</option>
+        <option value="concentrate" data-ro="Concentrare">Concentrate</option>
+        <option value="weighted" data-ro="Aleatoriu Ponderat">Weighted Random</option>
+        <option value="guerrilla" data-ro="Guerilla">Guerrilla</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label data-ro="Strategia J2">P2 Strategy</label>
+      <select id="s8d_s2">
+        <option value="even" data-ro="Împărțire Egală">Even Split</option>
+        <option value="random" data-ro="Aleatoriu">Random</option>
+        <option value="concentrate" data-ro="Concentrare">Concentrate</option>
+        <option value="weighted" data-ro="Aleatoriu Ponderat">Weighted Random</option>
+        <option value="guerrilla" data-ro="Guerilla">Guerrilla</option>
+      </select>
+    </div>
+    <div class="control-group" id="grp8d_manual">
+      <label><span data-ro="Alocare J1">P1 Allocation</span> <span class="val" id="v8d_rem" style="color:#ffd700" data-ro="Rămas: 0">Remaining: 0</span></label>
+      <div class="bf-inputs" id="bf_inputs"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-run" onclick="sim8d.fight()" data-ro="Luptă!">Fight!</button>
+      <button class="btn btn-event" onclick="sim8d.tournament()" data-ro="Turneu">Tournament</button>
+      <button class="btn btn-reset" onclick="sim8d.reset()" data-ro="Resetează">Reset</button>
+    </div>
+  </div>
+  <div class="viz-area">
+    <div class="stats-bar">
+      <div class="stat"><span data-ro="Victorii J1">P1 Wins</span>: <span class="num" id="st8d_p1" style="color:#ff6b6b">0</span></div>
+      <div class="stat"><span data-ro="Victorii J2">P2 Wins</span>: <span class="num" id="st8d_p2" style="color:#4dabf7">0</span></div>
+      <div class="stat"><span data-ro="Egaluri">Draws</span>: <span class="num" id="st8d_draw" style="color:#ffd700">0</span></div>
+      <div class="stat"><span data-ro="Câștigător">Winner</span>: <span class="num" id="st8d_winner">--</span></div>
+    </div>
+    <div class="viz-grid">
+      <canvas id="c8d_battle" width="520" height="340"></canvas>
+      <canvas id="c8d_heatmap" width="520" height="340"></canvas>
+    </div>
+  </div>
+</div>
+<div class="info-panels">
+  <div class="info-box mechanism">
+    <h3 data-ro="Cum Funcționează">Mechanism</h3>
+    <p data-ro="Fiecare colonel alocă N trupe pe K câmpuri de luptă. Fiecare câmp este câștigat de partea cu mai multe trupe. Câștigătorul ia cele mai multe câmpuri. NU există o singură strategie optimă -- strategiile sunt intranzitive (A bate pe B, B bate pe C, C bate pe A). Jucătorul mai slab ar trebui să concentreze forțele; jucătorul mai puternic ar trebui să le distribuie uniform.">Each colonel allocates N troops across K battlefields. Each battlefield is won by the side with more troops. Winner takes the most battlefields. There is NO single optimal strategy -- strategies are intransitive (A beats B, B beats C, C beats A). The weaker player should concentrate forces; the stronger player should spread evenly.</p>
+  </div>
+  <div class="info-box examples">
+    <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+    <ul>
+      <li data-ro="Alocarea resurselor campaniei politice (state pivotante)">Political campaign resource allocation (swing states)</li>
+      <li data-ro="Strategie militară și desfășurarea forțelor">Military strategy and force deployment</li>
+      <li data-ro="Competiție de afaceri pe segmente de piață">Business competition across market segments</li>
+      <li data-ro="Alocarea plafonului salarial în echipe sportive">Sports team salary cap allocation</li>
+      <li data-ro="Bugetul de publicitate pe canale">Advertising budget across channels</li>
+    </ul>
+  </div>
+  <div class="info-box insight">
+    <h3 data-ro="Ideea Cheie">Key Insight</h3>
+    <p data-ro="Rulează turneul pentru a vedea heatmap-ul: nicio strategie nu domină toate celelalte! &quot;Egal&quot; bate &quot;Guerilla&quot; în medie, dar &quot;Concentrare&quot; bate &quot;Egal&quot;, și &quot;Aleatoriu&quot; poate bate &quot;Concentrare&quot;. Încearcă trupe asimetrice: partea mai slabă trebuie să folosească strategii cu varianță mare pentru a avea vreo șansă.">Run the tournament to see the heatmap: no strategy dominates all others! "Even" beats "Guerrilla" on average, but "Concentrate" beats "Even," and "Random" can beat "Concentrate." Try asymmetric troops: the weaker side must use high-variance strategies to have any chance.</p>
+  </div>
+</div>
+</div>
+
+<script>
+// ==========================================
+// THEME & LANGUAGE UTILITIES
+// ==========================================
+function getThemeColors() {
+  var s = getComputedStyle(document.body);
+  return {
+    gridLine: s.getPropertyValue('--grid-line').trim(),
+    gridLineStrong: s.getPropertyValue('--grid-line-strong').trim(),
+    textChart: s.getPropertyValue('--text-chart').trim(),
+    textChartLight: s.getPropertyValue('--text-chart-light').trim(),
+    textChartWhite: s.getPropertyValue('--text-chart-white').trim(),
+    textChartDim: s.getPropertyValue('--text-chart-dim').trim(),
+    accentCyan: s.getPropertyValue('--accent-cyan').trim(),
+    accentRed: s.getPropertyValue('--accent-red').trim(),
+    accentGreen: s.getPropertyValue('--accent-green').trim(),
+    accentGold: s.getPropertyValue('--accent-gold').trim(),
+    canvasBg: s.getPropertyValue('--canvas-bg').trim(),
+    edgeLine: s.getPropertyValue('--edge-line').trim(),
+    barBgDim: s.getPropertyValue('--bar-bg-dim').trim(),
+    textInfo: s.getPropertyValue('--text-info').trim()
+  };
+}
+
+function redrawAll() {
+  try { sim8a.reset(); } catch(e){}
+  try { sim8b.reset(); } catch(e){}
+  try { sim8c.reset(); } catch(e){}
+  try { sim8d.reset(); } catch(e){}
+}
+
+// ==========================================
+// UTILITIES
+// ==========================================
+function bindSlider(id, valId, fmt) {
+  const el = document.getElementById(id);
+  const vel = document.getElementById(valId);
+  el.addEventListener('input', () => { vel.textContent = fmt ? fmt(el.value) : el.value; });
+}
+function gaussRand(m, s) {
+  const u = 1 - Math.random(), v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v) * s + m;
+}
+function corr(x, y) {
+  const n = x.length; if (n < 2) return 0;
+  const mx = x.reduce((a, b) => a + b, 0) / n, my = y.reduce((a, b) => a + b, 0) / n;
+  let num = 0, dx2 = 0, dy2 = 0;
+  for (let i = 0; i < n; i++) { const dx = x[i] - mx, dy = y[i] - my; num += dx * dy; dx2 += dx * dx; dy2 += dy * dy; }
+  return Math.sqrt(dx2 * dy2) === 0 ? 0 : num / Math.sqrt(dx2 * dy2);
+}
+function rankArr(a) {
+  const idx = a.map((v, i) => ({ v, i })); idx.sort((a, b) => b.v - a.v);
+  const r = new Array(a.length); idx.forEach((it, rk) => r[it.i] = rk); return r;
+}
+function variance(a) { const m = a.reduce((s, v) => s + v, 0) / a.length; return a.reduce((s, v) => s + (v - m) ** 2, 0) / a.length; }
+
+// ==========================================
+// 8a. SKILL vs LUCK
+// ==========================================
+const sim8a = (() => {
+  let data = null;
+  bindSlider('s8a_skill', 'v8a_skill'); bindSlider('s8a_luck', 'v8a_luck');
+  bindSlider('s8a_comp', 'v8a_comp'); bindSlider('s8a_rounds', 'v8a_rounds');
+
+  function run() {
+    const sv = +document.getElementById('s8a_skill').value / 100;
+    const lv = +document.getElementById('s8a_luck').value / 100;
+    const n = +document.getElementById('s8a_comp').value;
+    const rounds = +document.getElementById('s8a_rounds').value;
+    const talentType = document.getElementById('s8a_talent').value;
+
+    const skills = [];
+    for (let i = 0; i < n; i++) {
+      if (talentType === 'equal') skills.push(50);
+      else if (talentType === 'narrow') skills.push(50 + gaussRand(0, 5 * sv));
+      else skills.push(50 + gaussRand(0, 20 * sv));
+    }
+
+    const roundPerf = [];
+    for (let r = 0; r < rounds; r++) {
+      const rp = [];
+      for (let i = 0; i < n; i++) rp.push(skills[i] + gaussRand(0, 20 * lv));
+      roundPerf.push(rp);
+    }
+
+    const avgPerf = skills.map((_, i) => roundPerf.reduce((s, rp) => s + rp[i], 0) / rounds);
+    const sr = rankArr(skills), pr = rankArr(avgPerf);
+    const c = corr(sr, pr);
+    const topI = skills.indexOf(Math.max(...skills));
+    const sVarA = variance(skills), lVarA = variance(roundPerf[0].map((p, i) => p - skills[i]));
+    const luckDom = lVarA / (sVarA + lVarA + 1e-10);
+    const r1 = roundPerf[0], r2 = roundPerf[Math.min(1, rounds - 1)];
+    const regC = corr(r1, r2);
+
+    data = { skills, avgPerf, sr, pr, r1, r2, n, c, luckDom, regC, sv, lv };
+    document.getElementById('st8a_corr').textContent = c.toFixed(3);
+    document.getElementById('st8a_luck').textContent = (luckDom * 100).toFixed(1) + '%';
+    document.getElementById('st8a_top').textContent = '#' + (pr[topI] + 1);
+    document.getElementById('st8a_reg').textContent = regC.toFixed(3);
+    drawScatter(); drawParadox(); drawRegress();
+  }
+
+  function drawScatter() {
+    if (!data) return;
+    const { sr, pr, n, c } = data;
+    const cv = document.getElementById('c8a_scatter'), ctx = cv.getContext('2d');
+    const tc = getThemeColors();
+    const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    const p = { l: 50, r: 15, t: 20, b: 35 }, pw = W - p.l - p.r, ph = H - p.t - p.b;
+    var lang = document.documentElement.lang || 'en';
+    // Grid
+    ctx.strokeStyle = tc.gridLine; ctx.fillStyle = tc.textChart; ctx.font = '10px sans-serif';
+    for (let i = 0; i <= 4; i++) {
+      const frac = i / 4, rank = Math.round(frac * n);
+      const py = p.t + frac * ph, px = p.l + frac * pw;
+      ctx.beginPath(); ctx.moveTo(p.l, py); ctx.lineTo(W - p.r, py); ctx.stroke();
+      ctx.fillText(rank, 5, py + 4);
+      ctx.beginPath(); ctx.moveTo(px, p.t); ctx.lineTo(px, H - p.b + 5); ctx.stroke();
+      ctx.fillText(rank, px - 5, H - p.b + 20);
+    }
+    // Diagonal
+    ctx.strokeStyle = tc.gridLineStrong; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(p.l, p.t); ctx.lineTo(p.l + pw, p.t + ph); ctx.stroke();
+    ctx.setLineDash([]);
+    // Points
+    for (let i = 0; i < n; i++) {
+      const x = p.l + (sr[i] / n) * pw, y = p.t + (pr[i] / n) * ph;
+      const dist = Math.abs(sr[i] - pr[i]) / n;
+      const hue = dist < 0.2 ? 120 : dist < 0.5 ? 60 : 0;
+      ctx.fillStyle = `hsla(${hue},80%,60%,0.65)`;
+      ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = tc.textChartLight; ctx.font = '11px sans-serif';
+    ctx.fillText(lang === 'ro' ? 'Rang Abilitate (cel mai bun=0)' : 'Skill Rank (best=0)', W / 2 - 50, H - 5);
+    ctx.save(); ctx.translate(12, H / 2 + 40); ctx.rotate(-Math.PI / 2);
+    ctx.fillText(lang === 'ro' ? 'Rang Performanță' : 'Performance Rank', 0, 0); ctx.restore();
+    ctx.fillStyle = tc.accentCyan; ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(`r = ${c.toFixed(3)}`, W - 100, p.t + 18);
+  }
+
+  function drawParadox() {
+    const cv = document.getElementById('c8a_paradox'), ctx = cv.getContext('2d');
+    const tc = getThemeColors();
+    const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    const lv = +document.getElementById('s8a_luck').value / 100;
+    const n = +document.getElementById('s8a_comp').value;
+    var lang = document.documentElement.lang || 'en';
+    const pts = [];
+    for (let sv = 2; sv <= 100; sv += 3) {
+      const svN = sv / 100, sk = [], pf = [];
+      for (let i = 0; i < n; i++) { const s = 50 + gaussRand(0, 20 * svN); sk.push(s); pf.push(s + gaussRand(0, 20 * lv)); }
+      pts.push({ x: sv, y: corr(rankArr(sk), rankArr(pf)) });
+    }
+    const p = { l: 50, r: 15, t: 20, b: 35 }, pw = W - p.l - p.r, ph = H - p.t - p.b;
+    // Grid
+    ctx.strokeStyle = tc.gridLine; ctx.fillStyle = tc.textChart; ctx.font = '10px sans-serif';
+    for (let y = 0; y <= 1; y += 0.25) {
+      const py = p.t + (1 - y) * ph;
+      ctx.beginPath(); ctx.moveTo(p.l, py); ctx.lineTo(W - p.r, py); ctx.stroke();
+      ctx.fillText(y.toFixed(2), 10, py + 4);
+    }
+    for (let x = 0; x <= 100; x += 20) {
+      const px = p.l + (x / 100) * pw;
+      ctx.beginPath(); ctx.moveTo(px, p.t); ctx.lineTo(px, H - p.b + 5); ctx.stroke();
+      ctx.fillText(x, px - 5, H - p.b + 18);
+    }
+    // Curve
+    ctx.strokeStyle = tc.accentRed; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let i = 0; i < pts.length; i++) {
+      const px = p.l + (pts[i].x / 100) * pw, py = p.t + (1 - pts[i].y) * ph;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    // Current position
+    if (data) {
+      const sv = +document.getElementById('s8a_skill').value;
+      const px = p.l + (sv / 100) * pw, py = p.t + (1 - data.c) * ph;
+      ctx.fillStyle = '#ffd43b'; ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffd43b'; ctx.font = 'bold 11px sans-serif'; ctx.fillText(lang === 'ro' ? 'TU' : 'YOU', px + 10, py - 5);
+    }
+    ctx.fillStyle = tc.textChartLight; ctx.font = '11px sans-serif';
+    ctx.fillText(lang === 'ro' ? 'Varianța Abilității' : 'Skill Variance', W / 2 - 30, H - 5);
+    ctx.save(); ctx.translate(12, H / 2 + 50); ctx.rotate(-Math.PI / 2);
+    ctx.fillText(lang === 'ro' ? 'Corelație Abilitate-Perf' : 'Skill-Perf Correlation', 0, 0); ctx.restore();
+    ctx.fillStyle = tc.accentRed + '88'; ctx.font = '10px sans-serif';
+    ctx.fillText(lang === 'ro' ? 'Varianță scăzută = norocul domină' : 'Low variance = luck dominates', p.l + 5, p.t + 15);
+    ctx.fillStyle = tc.accentGreen + '88'; ctx.fillText(lang === 'ro' ? 'Mare = abilitatea se vede' : 'High = skill shows', W - 130, H - p.b - 10);
+  }
+
+  function drawRegress() {
+    if (!data) return;
+    const { r1, r2, n } = data;
+    const cv = document.getElementById('c8a_regress'), ctx = cv.getContext('2d');
+    const tc = getThemeColors();
+    const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    var lang = document.documentElement.lang || 'en';
+    const p = { l: 50, r: 15, t: 20, b: 30 }, pw = W - p.l - p.r, ph = H - p.t - p.b;
+    const mn = Math.min(Math.min(...r1), Math.min(...r2)), mx = Math.max(Math.max(...r1), Math.max(...r2));
+    const rng = mx - mn || 1;
+    // Diagonal
+    ctx.strokeStyle = tc.gridLineStrong; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(p.l, p.t + ph); ctx.lineTo(p.l + pw, p.t); ctx.stroke();
+    ctx.setLineDash([]);
+    // Mean lines
+    const m1 = r1.reduce((a, b) => a + b, 0) / n, m2 = r2.reduce((a, b) => a + b, 0) / n;
+    ctx.strokeStyle = tc.accentCyan + '22'; ctx.setLineDash([3, 3]);
+    const mx1 = p.l + ((m1 - mn) / rng) * pw, my2 = p.t + (1 - (m2 - mn) / rng) * ph;
+    ctx.beginPath(); ctx.moveTo(mx1, p.t); ctx.lineTo(mx1, p.t + ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(p.l, my2); ctx.lineTo(p.l + pw, my2); ctx.stroke();
+    ctx.setLineDash([]);
+    // Points
+    for (let i = 0; i < n; i++) {
+      const x = p.l + ((r1[i] - mn) / rng) * pw, y = p.t + (1 - (r2[i] - mn) / rng) * ph;
+      const regressed = Math.abs(r2[i] - m2) < Math.abs(r1[i] - m1);
+      ctx.fillStyle = regressed ? 'rgba(74,222,128,0.6)' : 'rgba(233,69,96,0.5)';
+      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = tc.textChartLight; ctx.font = '11px sans-serif';
+    ctx.fillText(lang === 'ro' ? 'Performanță Runda 1' : 'Round 1 Performance', W / 2 - 55, H - 5);
+    ctx.save(); ctx.translate(12, H / 2 + 50); ctx.rotate(-Math.PI / 2); ctx.fillText(lang === 'ro' ? 'Performanță Runda 2' : 'Round 2 Performance', 0, 0); ctx.restore();
+    ctx.fillStyle = '#4ade80'; ctx.font = '10px sans-serif'; ctx.fillText(lang === 'ro' ? 'Verde = a regresat la medie' : 'Green = regressed to mean', W - 180, p.t + 15);
+    ctx.fillStyle = tc.accentRed; ctx.fillText(lang === 'ro' ? 'Roșu = nu a regresat' : 'Red = did not regress', W - 180, p.t + 30);
+  }
+
+  function reset() {
+    data = null;
+    var lang = document.documentElement.lang || 'en';
+    ['c8a_scatter', 'c8a_paradox', 'c8a_regress'].forEach(id => {
+      const cv = document.getElementById(id), ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.fillStyle = getThemeColors().textChartDim; ctx.font = '13px sans-serif';
+      ctx.fillText(lang === 'ro' ? 'Apasă "Rulează Simularea"' : 'Click "Run Simulation"', cv.width / 2 - 70, cv.height / 2);
+    });
+    ['st8a_corr', 'st8a_luck', 'st8a_top', 'st8a_reg'].forEach(id => document.getElementById(id).textContent = '--');
+  }
+
+  reset();
+  return { run, reset };
+})();
+
+// ==========================================
+// 8b. RANDOM WALK
+// ==========================================
+const sim8b = (() => {
+  let walkers = [], curStep = 0, maxSteps = 500, playing = false, timer = null;
+  bindSlider('s8b_walkers', 'v8b_walkers'); bindSlider('s8b_steps', 'v8b_steps');
+  bindSlider('s8b_bias', 'v8b_bias', v => (v / 100).toFixed(2));
+  bindSlider('s8b_ss', 'v8b_ss'); bindSlider('s8b_speed', 'v8b_speed');
+
+  function reset() {
+    playing = false; clearInterval(timer);
+    var lang = document.documentElement.lang || 'en';
+    document.getElementById('btn8b_play').textContent = lang === 'ro' ? 'Pornește' : 'Play';
+    const nw = +document.getElementById('s8b_walkers').value;
+    maxSteps = +document.getElementById('s8b_steps').value;
+    curStep = 0; walkers = [];
+    const dim = document.getElementById('s8b_dim').value;
+    for (let i = 0; i < nw; i++) {
+      walkers.push(dim === '1d' ? { pos: [0], x: 0 } : { px: [0], py: [0], x: 0, y: 0, dist: [0] });
+    }
+    draw();
+  }
+
+  function step() {
+    if (curStep >= maxSteps) return;
+    curStep++;
+    const bias = +document.getElementById('s8b_bias').value / 100;
+    const ss = +document.getElementById('s8b_ss').value;
+    const dim = document.getElementById('s8b_dim').value;
+    for (const w of walkers) {
+      if (dim === '1d') {
+        w.x += (Math.random() < bias ? 1 : -1) * ss;
+        w.pos.push(w.x);
+      } else {
+        const a = Math.random() * 2 * Math.PI;
+        w.x += Math.cos(a) * ss; w.y += Math.sin(a) * ss;
+        w.px.push(w.x); w.py.push(w.y);
+        w.dist.push(Math.sqrt(w.x * w.x + w.y * w.y));
+      }
+    }
+    draw();
+  }
+
+  function togglePlay() {
+    playing = !playing;
+    var lang = document.documentElement.lang || 'en';
+    document.getElementById('btn8b_play').textContent = playing ? (lang === 'ro' ? 'Pauză' : 'Pause') : (lang === 'ro' ? 'Pornește' : 'Play');
+    if (playing) {
+      const speed = +document.getElementById('s8b_speed').value;
+      const batch = Math.max(1, Math.floor(speed / 15));
+      const interval = Math.max(5, 100 - speed);
+      timer = setInterval(() => {
+        for (let i = 0; i < batch; i++) {
+          if (curStep >= maxSteps) { playing = false; clearInterval(timer); document.getElementById('btn8b_play').textContent = (lang === 'ro' ? 'Pornește' : 'Play'); return; }
+          step();
+        }
+      }, interval);
+    } else clearInterval(timer);
+  }
+
+  function draw() {
+    const dim = document.getElementById('s8b_dim').value;
+    const ss = +document.getElementById('s8b_ss').value;
+    document.getElementById('st8b_step').textContent = curStep;
+    document.getElementById('st8b_sqrt').textContent = (Math.sqrt(curStep) * ss).toFixed(2);
+    dim === '1d' ? draw1D() : draw2D();
+  }
+
+  function draw1D() {
+    const cm = document.getElementById('c8b_main'), ctx = cm.getContext('2d');
+    const tc = getThemeColors();
+    const W = cm.width, H = cm.height; ctx.clearRect(0, 0, W, H);
+    if (!walkers.length) return;
+    var lang = document.documentElement.lang || 'en';
+    let mn = 0, mx = 0;
+    for (const w of walkers) for (const p of w.pos) { mn = Math.min(mn, p); mx = Math.max(mx, p); }
+    const rng = Math.max(mx - mn, 10);
+    const pad = { l: 50, r: 10, t: 15, b: 25 }, pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    // Zero line
+    const zy = pad.t + (mx / rng) * ph;
+    ctx.strokeStyle = tc.gridLineStrong; ctx.setLineDash([4, 4]); ctx.beginPath();
+    ctx.moveTo(pad.l, zy); ctx.lineTo(W - pad.r, zy); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = tc.textChart; ctx.font = '10px sans-serif'; ctx.fillText('0', pad.l - 15, zy + 4);
+    // sqrt(t) envelope
+    const ss = +document.getElementById('s8b_ss').value;
+    ctx.strokeStyle = tc.accentRed + '44'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+    for (const sign of [1, -1]) {
+      ctx.beginPath();
+      for (let t = 0; t <= curStep; t += Math.max(1, Math.floor(curStep / 80))) {
+        const px = pad.l + (t / maxSteps) * pw;
+        const val = sign * Math.sqrt(t) * ss;
+        const py = pad.t + ((mx - val) / rng) * ph;
+        t === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    // Paths
+    const colors = walkers.map((_, i) => `hsla(${(i / walkers.length) * 360},70%,60%,0.65)`);
+    let totalD = 0, maxD = 0;
+    for (let wi = 0; wi < walkers.length; wi++) {
+      const w = walkers[wi];
+      ctx.strokeStyle = colors[wi]; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let t = 0; t < w.pos.length; t++) {
+        const px = pad.l + (t / maxSteps) * pw, py = pad.t + ((mx - w.pos[t]) / rng) * ph;
+        t === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      const last = Math.abs(w.pos[w.pos.length - 1]);
+      totalD += last; maxD = Math.max(maxD, last);
+    }
+    document.getElementById('st8b_avg').textContent = (totalD / walkers.length).toFixed(2);
+    document.getElementById('st8b_max').textContent = maxD.toFixed(2);
+    ctx.fillStyle = tc.accentRed; ctx.font = '10px sans-serif'; ctx.fillText(lang === 'ro' ? 'anvelopă sqrt(t)' : 'sqrt(t) envelope', W - 110, pad.t + 12);
+
+    // Side: displacement distribution
+    const cs = document.getElementById('c8b_side'), sctx = cs.getContext('2d');
+    const SW = cs.width, SH = cs.height; sctx.clearRect(0, 0, SW, SH);
+    sctx.fillStyle = tc.textChart; sctx.font = 'bold 10px sans-serif'; sctx.fillText(lang === 'ro' ? 'DISTRIBUȚIA DEPLASĂRII' : 'DISPLACEMENT DISTRIBUTION', 15, 15);
+    const disps = walkers.map(w => w.pos[w.pos.length - 1]);
+    const dMin = Math.min(...disps, -5), dMax = Math.max(...disps, 5), dRng = dMax - dMin || 10;
+    const bins = 20, bSize = dRng / bins, bc = new Array(bins).fill(0);
+    for (const d of disps) bc[Math.min(bins - 1, Math.max(0, Math.floor((d - dMin) / bSize)))]++;
+    const maxB = Math.max(...bc, 1), barW = (SW - 50) / bins;
+    const sp = { l: 35, t: 25, b: 30 }, sph = SH - sp.t - sp.b;
+    for (let i = 0; i < bins; i++) {
+      const bh = (bc[i] / maxB) * sph;
+      sctx.fillStyle = `hsla(${200 + (i / bins) * 160},70%,60%,0.7)`;
+      sctx.fillRect(sp.l + i * barW, sp.t + sph - bh, barW - 1, bh);
+    }
+    // Normal overlay
+    const mean = disps.reduce((a, b) => a + b, 0) / disps.length;
+    const std = Math.sqrt(disps.reduce((s, d) => s + (d - mean) ** 2, 0) / disps.length) || 1;
+    sctx.strokeStyle = '#ffd43b88'; sctx.lineWidth = 2;
+    sctx.beginPath();
+    for (let i = 0; i < bins; i++) {
+      const x = dMin + (i + 0.5) * bSize;
+      const exp = (walkers.length * bSize / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mean) / std) ** 2);
+      const px = sp.l + (i + 0.5) * barW, py = sp.t + sph - (exp / maxB) * sph;
+      i === 0 ? sctx.moveTo(px, py) : sctx.lineTo(px, py);
+    }
+    sctx.stroke();
+    sctx.fillStyle = '#ffd43b'; sctx.font = '9px sans-serif'; sctx.fillText(lang === 'ro' ? 'Fit normal' : 'Normal fit', SW - 65, sp.t + 10);
+    sctx.fillStyle = tc.textChart; sctx.fillText(lang === 'ro' ? 'Deplasare' : 'Displacement', SW / 2 - 25, SH - 5);
+  }
+
+  function draw2D() {
+    const cm = document.getElementById('c8b_main'), ctx = cm.getContext('2d');
+    const tc = getThemeColors();
+    const W = cm.width, H = cm.height; ctx.clearRect(0, 0, W, H);
+    if (!walkers.length || !walkers[0].px) return;
+    var lang = document.documentElement.lang || 'en';
+    let mnx = 0, mxx = 0, mny = 0, mxy = 0;
+    for (const w of walkers) for (let i = 0; i < w.px.length; i++) {
+      mnx = Math.min(mnx, w.px[i]); mxx = Math.max(mxx, w.px[i]);
+      mny = Math.min(mny, w.py[i]); mxy = Math.max(mxy, w.py[i]);
+    }
+    const rng = Math.max(mxx - mnx, mxy - mny, 10);
+    const cx = (mnx + mxx) / 2, cy = (mny + mxy) / 2;
+    const pad = 25, pw = W - pad * 2, ph = H - pad * 2;
+    // Origin
+    const ox = pad + ((0 - cx + rng / 2) / rng) * pw, oy = pad + ((0 - cy + rng / 2) / rng) * ph;
+    ctx.strokeStyle = tc.gridLineStrong; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(ox - 8, oy); ctx.lineTo(ox + 8, oy); ctx.moveTo(ox, oy - 8); ctx.lineTo(ox, oy + 8); ctx.stroke();
+
+    const colors = walkers.map((_, i) => `hsla(${(i / walkers.length) * 360},70%,60%,0.55)`);
+    let totalD = 0, maxD = 0;
+    for (let wi = 0; wi < walkers.length; wi++) {
+      const w = walkers[wi];
+      ctx.strokeStyle = colors[wi]; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let t = 0; t < w.px.length; t++) {
+        const px = pad + ((w.px[t] - cx + rng / 2) / rng) * pw;
+        const py = pad + ((w.py[t] - cy + rng / 2) / rng) * ph;
+        t === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      const li = w.px.length - 1;
+      const lpx = pad + ((w.px[li] - cx + rng / 2) / rng) * pw;
+      const lpy = pad + ((w.py[li] - cy + rng / 2) / rng) * ph;
+      ctx.fillStyle = colors[wi]; ctx.beginPath(); ctx.arc(lpx, lpy, 4, 0, Math.PI * 2); ctx.fill();
+      const d = w.dist[w.dist.length - 1]; totalD += d; maxD = Math.max(maxD, d);
+    }
+    document.getElementById('st8b_avg').textContent = (totalD / walkers.length).toFixed(2);
+    document.getElementById('st8b_max').textContent = maxD.toFixed(2);
+
+    // Side: distance over time
+    const cs = document.getElementById('c8b_side'), sctx = cs.getContext('2d');
+    const SW = cs.width, SH = cs.height; sctx.clearRect(0, 0, SW, SH);
+    sctx.fillStyle = tc.textChart; sctx.font = 'bold 10px sans-serif'; sctx.fillText(lang === 'ro' ? 'DISTANȚA DE LA ORIGINE' : 'DISTANCE FROM ORIGIN', 15, 15);
+    let maxDist = 0;
+    for (const w of walkers) for (const d of w.dist) maxDist = Math.max(maxDist, d);
+    maxDist = Math.max(maxDist, 5);
+    const sp = { l: 35, t: 25, b: 25 }, spw = SW - sp.l - 10, sph = SH - sp.t - sp.b;
+    // sqrt(t) curve
+    const ss = +document.getElementById('s8b_ss').value;
+    sctx.strokeStyle = tc.accentRed + '66'; sctx.lineWidth = 2; sctx.setLineDash([4, 4]);
+    sctx.beginPath();
+    for (let t = 0; t <= curStep; t += Math.max(1, Math.floor(curStep / 60))) {
+      const px = sp.l + (t / maxSteps) * spw, py = sp.t + sph - (Math.sqrt(t) * ss / maxDist) * sph;
+      t === 0 ? sctx.moveTo(px, py) : sctx.lineTo(px, py);
+    }
+    sctx.stroke(); sctx.setLineDash([]);
+    for (let wi = 0; wi < walkers.length; wi++) {
+      const w = walkers[wi];
+      sctx.strokeStyle = colors[wi]; sctx.lineWidth = 1;
+      sctx.beginPath();
+      for (let t = 0; t < w.dist.length; t++) {
+        const px = sp.l + (t / maxSteps) * spw, py = sp.t + sph - (w.dist[t] / maxDist) * sph;
+        t === 0 ? sctx.moveTo(px, py) : sctx.lineTo(px, py);
+      }
+      sctx.stroke();
+    }
+    sctx.fillStyle = tc.accentRed; sctx.font = '9px sans-serif'; sctx.fillText('sqrt(t)', SW - 45, sp.t + 10);
+    sctx.fillStyle = tc.textChart; sctx.fillText(lang === 'ro' ? 'Pas' : 'Step', SW / 2 - 10, SH - 5);
+  }
+
+  reset();
+  return { step, togglePlay, reset };
+})();
+
+// ==========================================
+// 8c. EFFICIENT MARKET HYPOTHESIS
+// ==========================================
+const sim8c = (() => {
+  let prices = [], values = [], events = [], returns = [];
+  bindSlider('s8c_trend', 'v8c_trend', v => (v / 100).toFixed(2));
+  bindSlider('s8c_noise', 'v8c_noise'); bindSlider('s8c_inf', 'v8c_inf');
+  bindSlider('s8c_uninf', 'v8c_uninf'); bindSlider('s8c_delay', 'v8c_delay');
+  bindSlider('s8c_periods', 'v8c_periods');
+
+  function run() {
+    const periods = +document.getElementById('s8c_periods').value;
+    const trend = +document.getElementById('s8c_trend').value / 1000;
+    const noise = +document.getElementById('s8c_noise').value / 100;
+    const inf = +document.getElementById('s8c_inf').value;
+    const uninf = +document.getElementById('s8c_uninf').value;
+    const delay = +document.getElementById('s8c_delay').value;
+    let price = 100, value = 100;
+    prices = [price]; values = [value]; returns = []; events = [];
+    for (let t = 1; t < periods; t++) {
+      value *= (1 + trend + gaussRand(0, 0.01));
+      if (Math.random() < 0.03) {
+        const imp = gaussRand(0, 0.08); value *= (1 + imp);
+        events.push({ t, imp });
+      }
+      const ev = t >= delay ? values[Math.max(0, t - delay)] : values[0];
+      const total = inf + uninf || 1;
+      const iSig = inf > 0 ? (ev - price) / price * 0.1 * (inf / total) : 0;
+      const uNoise = uninf > 0 ? gaussRand(0, noise * 0.02) * (uninf / total) : 0;
+      const ret = iSig + uNoise + gaussRand(0, noise * 0.01) + trend;
+      price *= (1 + ret);
+      prices.push(price); values.push(value); returns.push(ret);
+    }
+    draw();
+  }
+
+  function injectEvent() {
+    if (!prices.length) { run(); return; }
+    const t = prices.length - 1, imp = gaussRand(0, 0.1);
+    values[values.length - 1] *= (1 + imp);
+    events.push({ t, imp });
+    // Simulate 20 more periods
+    const noise = +document.getElementById('s8c_noise').value / 100;
+    const inf = +document.getElementById('s8c_inf').value;
+    const uninf = +document.getElementById('s8c_uninf').value;
+    const delay = +document.getElementById('s8c_delay').value;
+    const trend = +document.getElementById('s8c_trend').value / 1000;
+    for (let i = 0; i < 20; i++) {
+      const t2 = prices.length;
+      let value = values[values.length - 1] * (1 + trend + gaussRand(0, 0.01));
+      const ev = t2 >= delay ? values[Math.max(0, t2 - delay)] : values[0];
+      let price = prices[prices.length - 1];
+      const total = inf + uninf || 1;
+      const iSig = inf > 0 ? (ev - price) / price * 0.1 * (inf / total) : 0;
+      const uNoise = uninf > 0 ? gaussRand(0, noise * 0.02) * (uninf / total) : 0;
+      const ret = iSig + uNoise + gaussRand(0, noise * 0.01) + trend;
+      price *= (1 + ret);
+      prices.push(price); values.push(value); returns.push(ret);
+    }
+    draw();
+  }
+
+  function autocorrelation(data, lag) {
+    const n = data.length, m = data.reduce((a, b) => a + b, 0) / n;
+    let num = 0, den = 0;
+    for (let i = 0; i < n; i++) { den += (data[i] - m) ** 2; if (i >= lag) num += (data[i] - m) * (data[i - lag] - m); }
+    return den === 0 ? 0 : num / den;
+  }
+
+  function draw() {
+    if (!prices.length) return;
+    document.getElementById('st8c_price').textContent = prices[prices.length - 1].toFixed(2);
+    document.getElementById('st8c_value').textContent = values[values.length - 1].toFixed(2);
+    const te = Math.sqrt(prices.reduce((s, p, i) => s + (p - values[i]) ** 2, 0) / prices.length);
+    document.getElementById('st8c_track').textContent = te.toFixed(2);
+    document.getElementById('st8c_events').textContent = events.length;
+    if (returns.length > 10) document.getElementById('st8c_ac').textContent = autocorrelation(returns, 1).toFixed(4);
+    drawPrice(); drawReturns(); drawAutocorr();
+  }
+
+  function drawPrice() {
+    const cv = document.getElementById('c8c_price'), ctx = cv.getContext('2d');
+    const tc = getThemeColors();
+    const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    var lang = document.documentElement.lang || 'en';
+    const all = [...prices, ...values];
+    const mn = Math.min(...all), mx = Math.max(...all), rng = Math.max(mx - mn, 1);
+    const p = { l: 55, r: 10, t: 20, b: 25 }, pw = W - p.l - p.r, ph = H - p.t - p.b;
+    // Grid
+    ctx.strokeStyle = tc.gridLine; ctx.fillStyle = tc.textChart; ctx.font = '10px sans-serif';
+    for (let y = 0; y <= 4; y++) {
+      const val = mn + (y / 4) * rng, py = p.t + ph - (y / 4) * ph;
+      ctx.beginPath(); ctx.moveTo(p.l, py); ctx.lineTo(W - p.r, py); ctx.stroke();
+      ctx.fillText(val.toFixed(0), 5, py + 4);
+    }
+    // Candlestick
+    const cw = Math.max(2, pw / prices.length);
+    for (let i = 1; i < prices.length; i++) {
+      const x = p.l + (i / prices.length) * pw;
+      const open = prices[i - 1], close = prices[i];
+      const yO = p.t + ph - ((open - mn) / rng) * ph;
+      const yC = p.t + ph - ((close - mn) / rng) * ph;
+      ctx.fillStyle = close >= open ? '#4ade80' : tc.accentRed;
+      ctx.fillRect(x - cw / 2, Math.min(yO, yC), cw, Math.max(Math.abs(yC - yO), 1));
+    }
+    // Fundamental value
+    ctx.strokeStyle = '#ffd43baa'; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+    ctx.beginPath();
+    for (let i = 0; i < values.length; i++) {
+      const x = p.l + (i / values.length) * pw, y = p.t + ph - ((values[i] - mn) / rng) * ph;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+    // Events
+    for (const ev of events) {
+      const x = p.l + (ev.t / prices.length) * pw;
+      ctx.strokeStyle = ev.imp > 0 ? '#4ade80' : tc.accentRed; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, p.t); ctx.lineTo(x, p.t + ph); ctx.stroke();
+      ctx.fillStyle = ev.imp > 0 ? '#4ade80' : tc.accentRed;
+      ctx.beginPath(); ctx.moveTo(x, p.t - 2); ctx.lineTo(x - 4, p.t - 10); ctx.lineTo(x + 4, p.t - 10); ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = '#ffd43b'; ctx.font = '10px sans-serif'; ctx.fillText(lang === 'ro' ? '-- Valoare Fundamentală' : '-- Fundamental Value', W - 140, p.t + 12);
+    ctx.fillStyle = '#4ade80'; ctx.fillText(lang === 'ro' ? 'Preț' : 'Price', p.l + 5, p.t + 12);
+  }
+
+  function drawReturns() {
+    const cv = document.getElementById('c8c_returns'), ctx = cv.getContext('2d');
+    const tc = getThemeColors();
+    const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    var lang = document.documentElement.lang || 'en';
+    ctx.fillStyle = tc.textChart; ctx.font = 'bold 10px sans-serif'; ctx.fillText(lang === 'ro' ? 'DISTRIBUȚIA RANDAMENTELOR' : 'RETURNS DISTRIBUTION', 15, 15);
+    if (returns.length < 5) return;
+    const mn = Math.min(...returns), mx = Math.max(...returns), rng = Math.max(mx - mn, 0.001);
+    const bins = 25, bs = rng / bins, bc = new Array(bins).fill(0);
+    for (const r of returns) bc[Math.min(bins - 1, Math.max(0, Math.floor((r - mn) / bs)))]++;
+    const maxB = Math.max(...bc, 1), barW = (W - 45) / bins;
+    const sp = { l: 30, t: 22, b: 20 }, ph = H - sp.t - sp.b;
+    for (let i = 0; i < bins; i++) {
+      const bh = (bc[i] / maxB) * ph;
+      ctx.fillStyle = `hsla(${120 + (Math.abs(i - bins / 2) / (bins / 2)) * 240},70%,60%,0.65)`;
+      ctx.fillRect(sp.l + i * barW, sp.t + ph - bh, barW - 1, bh);
+    }
+    ctx.fillStyle = tc.textChart; ctx.font = '9px sans-serif'; ctx.fillText(lang === 'ro' ? 'Randamente' : 'Returns', W / 2 - 15, H - 3);
+  }
+
+  function drawAutocorr() {
+    const cv = document.getElementById('c8c_autocorr'), ctx = cv.getContext('2d');
+    const tc = getThemeColors();
+    const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    var lang = document.documentElement.lang || 'en';
+    ctx.fillStyle = tc.textChart; ctx.font = 'bold 10px sans-serif'; ctx.fillText(lang === 'ro' ? 'AUTOCORELAȚIE' : 'AUTOCORRELATION', 15, 15);
+    if (returns.length < 20) return;
+    const maxLag = Math.min(20, Math.floor(returns.length / 4));
+    const acV = []; for (let l = 1; l <= maxLag; l++) acV.push(autocorrelation(returns, l));
+    const sp = { l: 30, t: 22, b: 20 }, pw = W - sp.l - 10, ph = H - sp.t - sp.b;
+    const barW = pw / maxLag;
+    const zy = sp.t + ph / 2;
+    ctx.strokeStyle = tc.gridLineStrong; ctx.beginPath(); ctx.moveTo(sp.l, zy); ctx.lineTo(W - 10, zy); ctx.stroke();
+    // Significance bounds
+    const sig = 1.96 / Math.sqrt(returns.length);
+    ctx.strokeStyle = tc.accentRed + '44'; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(sp.l, zy - sig * ph / 2); ctx.lineTo(W - 10, zy - sig * ph / 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(sp.l, zy + sig * ph / 2); ctx.lineTo(W - 10, zy + sig * ph / 2); ctx.stroke();
+    ctx.setLineDash([]);
+    for (let i = 0; i < acV.length; i++) {
+      const x = sp.l + (i + 0.5) * barW, bh = acV[i] * ph / 2;
+      ctx.fillStyle = Math.abs(acV[i]) > sig ? tc.accentRed : tc.accentCyan;
+      if (bh >= 0) ctx.fillRect(x - barW / 3, zy - bh, barW * 0.6, bh);
+      else ctx.fillRect(x - barW / 3, zy, barW * 0.6, -bh);
+    }
+    ctx.fillStyle = tc.textChart; ctx.font = '9px sans-serif'; ctx.fillText('Lag', W / 2 - 8, H - 3);
+  }
+
+  function reset() {
+    prices = []; values = []; events = []; returns = [];
+    var lang = document.documentElement.lang || 'en';
+    ['st8c_price', 'st8c_value', 'st8c_track', 'st8c_ac'].forEach(id => document.getElementById(id).textContent = '--');
+    document.getElementById('st8c_events').textContent = '0';
+    ['c8c_price', 'c8c_returns', 'c8c_autocorr'].forEach(id => {
+      const cv = document.getElementById(id), ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.fillStyle = getThemeColors().textChartDim; ctx.font = '13px sans-serif';
+      ctx.fillText(lang === 'ro' ? 'Apasă "Generează Piață"' : 'Click "Generate Market"', cv.width / 2 - 80, cv.height / 2);
+    });
+  }
+  reset();
+  return { run, injectEvent, reset };
+})();
+
+// ==========================================
+// 8d. COLONEL BLOTTO
+// ==========================================
+const sim8d = (() => {
+  let p1W = 0, p2W = 0, draws = 0, lastResult = null, tournResult = null;
+  bindSlider('s8d_t1', 'v8d_t1'); bindSlider('s8d_t2', 'v8d_t2'); bindSlider('s8d_bf', 'v8d_bf');
+
+  function updateManual() {
+    const bf = +document.getElementById('s8d_bf').value;
+    const t = +document.getElementById('s8d_t1').value;
+    const c = document.getElementById('bf_inputs'); c.innerHTML = '';
+    const per = Math.floor(t / bf), rem = t - per * bf;
+    var lang = document.documentElement.lang || 'en';
+    for (let i = 0; i < bf; i++) {
+      const d = document.createElement('div'); d.style.textAlign = 'center';
+      d.innerHTML = `<span class="bf-lbl">${lang === 'ro' ? 'CL' : 'BF'}${i + 1}</span><input type="number" class="bf-in" value="${per + (i < rem ? 1 : 0)}" min="0" max="${t}">`;
+      c.appendChild(d);
+    }
+    document.querySelectorAll('.bf-in').forEach(inp => inp.addEventListener('input', updateRem));
+    updateRem();
+  }
+
+  function updateRem() {
+    const t = +document.getElementById('s8d_t1').value;
+    let sum = 0; document.querySelectorAll('.bf-in').forEach(inp => sum += +inp.value || 0);
+    const el = document.getElementById('v8d_rem');
+    const rem = t - sum;
+    var lang = document.documentElement.lang || 'en';
+    el.textContent = (lang === 'ro' ? `Rămas: ${rem}` : `Remaining: ${rem}`);
+    el.style.color = rem === 0 ? '#4ade80' : rem > 0 ? '#ffd700' : getThemeColors().accentRed;
+  }
+
+  document.getElementById('s8d_bf').addEventListener('input', updateManual);
+  document.getElementById('s8d_t1').addEventListener('input', updateManual);
+  document.getElementById('s8d_s1').addEventListener('change', () => {
+    document.getElementById('grp8d_manual').style.display = document.getElementById('s8d_s1').value === 'manual' ? '' : 'none';
+  });
+
+  function genStrat(type, troops, fields) {
+    const a = new Array(fields).fill(0);
+    if (type === 'even') {
+      const per = Math.floor(troops / fields), rem = troops - per * fields;
+      for (let i = 0; i < fields; i++) a[i] = per + (i < rem ? 1 : 0);
+    } else if (type === 'random') {
+      let rem = troops;
+      for (let i = 0; i < fields - 1; i++) { a[i] = Math.floor(Math.random() * (rem + 1)); rem -= a[i]; }
+      a[fields - 1] = rem;
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    } else if (type === 'concentrate') {
+      const tgt = Math.ceil(fields / 2), per = Math.floor(troops / tgt), rem = troops - per * tgt;
+      const idx = []; while (idx.length < tgt) { const r = Math.floor(Math.random() * fields); if (!idx.includes(r)) idx.push(r); }
+      for (let i = 0; i < tgt; i++) a[idx[i]] = per + (i < rem ? 1 : 0);
+    } else if (type === 'weighted') {
+      const w = []; for (let i = 0; i < fields; i++) w.push(Math.random());
+      const tw = w.reduce((a, b) => a + b, 0); let rem = troops;
+      for (let i = 0; i < fields - 1; i++) { a[i] = Math.round((w[i] / tw) * troops); rem -= a[i]; }
+      a[fields - 1] = Math.max(0, rem);
+    } else if (type === 'guerrilla') {
+      const nt = Math.max(1, Math.ceil(fields / 3)), tgts = [];
+      while (tgts.length < nt) { const r = Math.floor(Math.random() * fields); if (!tgts.includes(r)) tgts.push(r); }
+      const per = Math.floor(troops / nt), rem = troops - per * nt;
+      for (let i = 0; i < nt; i++) a[tgts[i]] = per + (i < rem ? 1 : 0);
+    }
+    return a;
+  }
+
+  function fight() {
+    const t1 = +document.getElementById('s8d_t1').value, t2 = +document.getElementById('s8d_t2').value;
+    const bf = +document.getElementById('s8d_bf').value;
+    const s1 = document.getElementById('s8d_s1').value, s2 = document.getElementById('s8d_s2').value;
+    let a1;
+    if (s1 === 'manual') {
+      a1 = []; document.querySelectorAll('.bf-in').forEach(inp => a1.push(+inp.value || 0));
+      const sum = a1.reduce((a, b) => a + b, 0);
+      if (sum !== t1) { a1 = a1.map(v => Math.round(v * t1 / Math.max(sum, 1))); a1[0] += t1 - a1.reduce((a, b) => a + b, 0); }
+    } else a1 = genStrat(s1, t1, bf);
+    const a2 = genStrat(s2, t2, bf);
+    let w1 = 0, w2 = 0; const res = [];
+    for (let i = 0; i < bf; i++) {
+      if (a1[i] > a2[i]) { w1++; res.push(1); }
+      else if (a2[i] > a1[i]) { w2++; res.push(2); }
+      else res.push(0);
+    }
+    let winner;
+    if (w1 > w2) { winner = 'P1'; p1W++; }
+    else if (w2 > w1) { winner = 'P2'; p2W++; }
+    else { winner = 'Draw'; draws++; }
+    lastResult = { a1, a2, res, w1, w2, winner };
+    document.getElementById('st8d_p1').textContent = p1W;
+    document.getElementById('st8d_p2').textContent = p2W;
+    document.getElementById('st8d_draw').textContent = draws;
+    var lang = document.documentElement.lang || 'en';
+    var winTxt = winner;
+    if (lang === 'ro') { winTxt = winner === 'Draw' ? 'Egal' : winner === 'P1' ? 'J1' : 'J2'; }
+    document.getElementById('st8d_winner').textContent = winTxt;
+    document.getElementById('st8d_winner').style.color = winner === 'P1' ? '#ff6b6b' : winner === 'P2' ? '#4dabf7' : '#ffd700';
+    drawBattle();
+  }
+
+  function tournament() {
+    const t1 = +document.getElementById('s8d_t1').value, t2 = +document.getElementById('s8d_t2').value;
+    const bf = +document.getElementById('s8d_bf').value;
+    const strats = ['even', 'random', 'concentrate', 'weighted', 'guerrilla'];
+    const rounds = 100, res = {};
+    for (const s1 of strats) {
+      res[s1] = {};
+      for (const s2 of strats) {
+        let wins = 0;
+        for (let r = 0; r < rounds; r++) {
+          const a1 = genStrat(s1, t1, bf), a2 = genStrat(s2, t2, bf);
+          let w1 = 0, w2 = 0;
+          for (let i = 0; i < bf; i++) { if (a1[i] > a2[i]) w1++; else if (a2[i] > a1[i]) w2++; }
+          if (w1 > w2) wins++;
+        }
+        res[s1][s2] = wins / rounds;
+      }
+    }
+    tournResult = { strats, res };
+    drawHeatmap();
+  }
+
+  function drawBattle() {
+    const cv = document.getElementById('c8d_battle'), ctx = cv.getContext('2d');
+    const tc = getThemeColors();
+    const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    var lang = document.documentElement.lang || 'en';
+    if (!lastResult) { ctx.fillStyle = tc.textChartDim; ctx.font = '13px sans-serif'; ctx.fillText(lang === 'ro' ? 'Apasă "Luptă!"' : 'Click "Fight!" to battle', W / 2 - 70, H / 2); return; }
+    const { a1, a2, res, w1, w2, winner } = lastResult, bf = a1.length;
+    const maxT = Math.max(Math.max(...a1), Math.max(...a2), 1);
+    const pad = { l: 40, r: 10, t: 30, b: 30 }, pw = W - pad.l - pad.r, ph = (H - pad.t - pad.b) / 2 - 8;
+    const cy = pad.t + ph + 8, barArea = pw / bf;
+    // Center line
+    ctx.strokeStyle = tc.gridLineStrong; ctx.beginPath(); ctx.moveTo(pad.l, cy); ctx.lineTo(W - pad.r, cy); ctx.stroke();
+    for (let i = 0; i < bf; i++) {
+      const cx2 = pad.l + (i + 0.5) * barArea, bw = barArea * 0.55;
+      // P1 (up)
+      const h1 = (a1[i] / maxT) * ph;
+      ctx.fillStyle = res[i] === 1 ? '#ff6b6b' : '#ff6b6b44';
+      ctx.fillRect(cx2 - bw / 2, cy - h1 - 2, bw, h1);
+      // P2 (down)
+      const h2 = (a2[i] / maxT) * ph;
+      ctx.fillStyle = res[i] === 2 ? '#4dabf7' : '#4dabf744';
+      ctx.fillRect(cx2 - bw / 2, cy + 2, bw, h2);
+      // Values
+      ctx.fillStyle = tc.textChartWhite; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(a1[i], cx2, cy - h1 - 6);
+      ctx.fillText(a2[i], cx2, cy + h2 + 14);
+      // Winner
+      ctx.fillStyle = res[i] === 1 ? '#ff6b6b' : res[i] === 2 ? '#4dabf7' : '#ffd700';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText(res[i] === 1 ? (lang === 'ro' ? 'V' : 'W') : res[i] === 2 ? (lang === 'ro' ? 'P' : 'L') : (lang === 'ro' ? 'E' : 'D'), cx2, pad.t - 5);
+      ctx.fillStyle = tc.textChart; ctx.font = '9px sans-serif';
+      ctx.fillText(`${lang === 'ro' ? 'CL' : 'BF'}${i + 1}`, cx2, H - 5);
+    }
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ff6b6b'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(lang === 'ro' ? `J1: ${w1} victorii` : `P1: ${w1} wins`, 5, 18);
+    ctx.fillStyle = '#4dabf7'; ctx.fillText(lang === 'ro' ? `J2: ${w2} victorii` : `P2: ${w2} wins`, 5, H - 10);
+    var winTxt = winner;
+    if (lang === 'ro') { winTxt = winner === 'Draw' ? 'Egal' : winner === 'P1' ? 'J1' : 'J2'; }
+    const wc = winner === 'P1' ? '#ff6b6b' : winner === 'P2' ? '#4dabf7' : '#ffd700';
+    ctx.fillStyle = wc; ctx.font = 'bold 14px sans-serif'; ctx.fillText((lang === 'ro' ? 'Câștigător: ' : 'Winner: ') + winTxt, W - 120, 18);
+  }
+
+  function drawHeatmap() {
+    const cv = document.getElementById('c8d_heatmap'), ctx = cv.getContext('2d');
+    const tc = getThemeColors();
+    const W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    var lang = document.documentElement.lang || 'en';
+    if (!tournResult) { ctx.fillStyle = tc.textChartDim; ctx.font = '13px sans-serif'; ctx.fillText(lang === 'ro' ? 'Apasă "Turneu"' : 'Click "Tournament" to run', W / 2 - 80, H / 2); return; }
+    const { strats, res } = tournResult, n = strats.length;
+    const labelsEn = { even: 'Even', random: 'Random', concentrate: 'Conc.', weighted: 'Weight', guerrilla: 'Guerr.' };
+    const labelsRo = { even: 'Egal', random: 'Aleat.', concentrate: 'Conc.', weighted: 'Pond.', guerrilla: 'Guer.' };
+    var labels = lang === 'ro' ? labelsRo : labelsEn;
+    const pad = { l: 80, t: 55, r: 15, b: 60 }, cw = (W - pad.l - pad.r) / n, ch = (H - pad.t - pad.b) / n;
+    // Column headers
+    ctx.fillStyle = '#4dabf7'; ctx.font = 'bold 9px sans-serif';
+    for (let j = 0; j < n; j++) {
+      ctx.save(); ctx.translate(pad.l + (j + 0.5) * cw, pad.t - 8); ctx.rotate(-Math.PI / 4);
+      ctx.fillText(labels[strats[j]], 0, 0); ctx.restore();
+    }
+    // Rows
+    for (let i = 0; i < n; i++) {
+      ctx.fillStyle = '#ff6b6b'; ctx.font = 'bold 9px sans-serif';
+      ctx.fillText(labels[strats[i]], 5, pad.t + (i + 0.5) * ch + 4);
+      for (let j = 0; j < n; j++) {
+        const wr = res[strats[i]][strats[j]];
+        const x = pad.l + j * cw, y = pad.t + i * ch;
+        const r = Math.round(wr * 255), b = Math.round((1 - wr) * 255);
+        ctx.fillStyle = `rgb(${r},${Math.min(r, b) * 0.3 | 0},${b})`;
+        ctx.fillRect(x + 1, y + 1, cw - 2, ch - 2);
+        ctx.fillStyle = tc.textChartWhite; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText((wr * 100).toFixed(0) + '%', x + cw / 2, y + ch / 2 + 4);
+      }
+    }
+    ctx.textAlign = 'left';
+    // Avg win rates
+    ctx.fillStyle = tc.textChartLight; ctx.font = '9px sans-serif';
+    let ty = pad.t + n * ch + 10;
+    ctx.fillText(lang === 'ro' ? 'Rata medie de câștig J1 pe strategie:' : 'P1 avg win rate by strategy:', 5, ty); ty += 13;
+    for (const s of strats) {
+      let total = 0; for (const s2 of strats) total += res[s][s2];
+      const avg = total / n;
+      ctx.fillStyle = avg > 0.5 ? '#4ade80' : avg < 0.5 ? tc.accentRed : '#ffd700';
+      ctx.fillText(`${labels[s]}: ${(avg * 100).toFixed(1)}%`, 5, ty); ty += 12;
+    }
+    ctx.fillStyle = '#ff6b6b'; ctx.font = '10px sans-serif'; ctx.fillText(lang === 'ro' ? 'J1 (rânduri)' : 'P1 (rows)', 5, pad.t - 28);
+    ctx.fillStyle = '#4dabf7'; ctx.fillText(lang === 'ro' ? 'J2 (coloane)' : 'P2 (cols)', pad.l + (n * cw) / 2 - 20, pad.t - 28);
+  }
+
+  function reset() {
+    p1W = 0; p2W = 0; draws = 0; lastResult = null; tournResult = null;
+    document.getElementById('st8d_p1').textContent = '0';
+    document.getElementById('st8d_p2').textContent = '0';
+    document.getElementById('st8d_draw').textContent = '0';
+    document.getElementById('st8d_winner').textContent = '--';
+    updateManual();
+    var lang = document.documentElement.lang || 'en';
+    ['c8d_battle', 'c8d_heatmap'].forEach(id => {
+      const cv = document.getElementById(id), ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.fillStyle = getThemeColors().textChartDim; ctx.font = '13px sans-serif';
+      ctx.fillText(id === 'c8d_battle' ? (lang === 'ro' ? 'Apasă "Luptă!"' : 'Click "Fight!"') : (lang === 'ro' ? 'Apasă "Turneu"' : 'Click "Tournament"'), cv.width / 2 - 50, cv.height / 2);
+    });
+  }
+
+  updateManual();
+  reset();
+  return { fight, tournament, reset };
+})();
+</script>
+
+<script>
+function setTheme(t){document.body.className='theme-'+t;localStorage.setItem('mt-theme',t);if(typeof redrawAll==='function')redrawAll();}
+function toggleLang(){var c=document.documentElement.lang||'en',n=c==='en'?'ro':'en';document.documentElement.lang=n;document.getElementById('langBtn').textContent=n==='en'?'RO':'EN';localStorage.setItem('mt-lang',n);applyLanguage(n);}
+function applyLanguage(lang){document.querySelectorAll('[data-ro]').forEach(function(el){if(lang==='ro'){if(!el.dataset.en)el.dataset.en=el.innerHTML;el.innerHTML=el.dataset.ro;}else{if(el.dataset.en)el.innerHTML=el.dataset.en;}});}
+(function(){var t=localStorage.getItem('mt-theme')||'dark',l=localStorage.getItem('mt-lang')||'en';document.body.className='theme-'+t;if(l==='ro'){document.documentElement.lang='ro';document.getElementById('langBtn').textContent='EN';setTimeout(function(){applyLanguage('ro');},100);}})();
+</script>
+
+</body>
+</html>

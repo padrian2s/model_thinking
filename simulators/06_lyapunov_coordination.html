@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulator 6: Lyapunov Functions & Coordination/Culture</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body.theme-dark {
+  --bg-primary: #0a0e17; --bg-secondary: #12182a; --bg-panel: #16213e; --bg-input: #1a1a2e;
+  --text-primary: #f0f0f0; --text-secondary: #8899aa; --text-muted: #667788;
+  --border-color: rgba(255,255,255,0.06); --border-hover: rgba(0,210,255,0.3);
+  --accent-cyan: #00d2ff; --accent-red: #e94560; --accent-green: #6bcb77; --accent-gold: #ffd93d; --accent-purple: #9b59b6;
+  --shadow: rgba(0,0,0,0.4); --canvas-bg: #0a0e17;
+}
+body.theme-white {
+  --bg-primary: #f5f7fa; --bg-secondary: #ffffff; --bg-panel: #ffffff; --bg-input: #f0f2f5;
+  --text-primary: #1a1a2e; --text-secondary: #555566; --text-muted: #888899;
+  --border-color: rgba(0,0,0,0.1); --border-hover: rgba(0,130,200,0.4);
+  --accent-cyan: #0088cc; --accent-red: #d63031; --accent-green: #27ae60; --accent-gold: #f39c12; --accent-purple: #8e44ad;
+  --shadow: rgba(0,0,0,0.1); --canvas-bg: #ffffff;
+}
+body.theme-sepia {
+  --bg-primary: #f4ecd8; --bg-secondary: #faf6eb; --bg-panel: #faf6eb; --bg-input: #efe7d3;
+  --text-primary: #433422; --text-secondary: #6b5b4a; --text-muted: #8b7b6a;
+  --border-color: rgba(100,70,30,0.15); --border-hover: rgba(160,100,30,0.4);
+  --accent-cyan: #b8860b; --accent-red: #a0522d; --accent-green: #6b8e23; --accent-gold: #cd853f; --accent-purple: #8b4513;
+  --shadow: rgba(100,70,30,0.15); --canvas-bg: #faf6eb;
+}
+body.theme-ocean {
+  --bg-primary: #0b1628; --bg-secondary: #0f2035; --bg-panel: #132a42; --bg-input: #163352;
+  --text-primary: #d4e6f1; --text-secondary: #7fb3d3; --text-muted: #5a8faa;
+  --border-color: rgba(100,180,255,0.1); --border-hover: rgba(100,200,255,0.35);
+  --accent-cyan: #5dade2; --accent-red: #e74c3c; --accent-green: #48c9b0; --accent-gold: #f7dc6f; --accent-purple: #a569bd;
+  --shadow: rgba(0,20,50,0.5); --canvas-bg: #0b1628;
+}
+
+body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow-x:hidden;transition:background 0.3s,color 0.3s}
+h1{text-align:center;padding:24px;font-size:1.8rem;background:linear-gradient(135deg,var(--bg-panel),var(--bg-secondary));border-bottom:2px solid var(--accent-red);letter-spacing:1px;color:var(--text-primary)}
+h1 span{color:var(--accent-red)}
+.sim-section{max-width:1400px;margin:30px auto;padding:0 20px}
+.sim-title{font-size:1.4rem;color:var(--accent-cyan);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.sim-title .badge{background:var(--accent-red);color:#fff;font-size:0.7rem;padding:2px 10px;border-radius:10px;font-weight:700}
+.sim-subtitle{color:var(--text-muted);font-size:0.95rem;margin-bottom:16px;font-style:italic}
+.sim-container{display:grid;grid-template-columns:280px 1fr;gap:16px;background:var(--bg-panel);border-radius:12px;padding:20px;border:1px solid var(--border-color)}
+.controls{display:flex;flex-direction:column;gap:10px}
+.control-group{background:var(--bg-input);border-radius:8px;padding:12px}
+.control-group label{display:block;font-size:0.78rem;color:var(--text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.control-group input[type=range]{width:100%;accent-color:var(--accent-red)}
+.control-group select{width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:6px;border-radius:4px;font-size:0.85rem}
+.control-group .val{float:right;color:var(--accent-cyan);font-weight:700;font-size:0.85rem}
+.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s}
+.btn-play{background:var(--accent-cyan);color:var(--bg-primary)}.btn-play:hover{opacity:0.85}
+.btn-step{background:var(--accent-red);color:#fff}.btn-step:hover{opacity:0.85}
+.btn-reset{background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-color)}.btn-reset:hover{opacity:0.85}
+.btn-perturb{background:var(--accent-gold);color:var(--bg-primary)}.btn-perturb:hover{opacity:0.85}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+canvas{border-radius:8px;background:var(--canvas-bg);display:block}
+.viz-area{display:flex;flex-direction:column;gap:12px;min-height:400px}
+.info-panels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+.info-box{background:var(--bg-input);border-radius:8px;padding:14px;border-left:3px solid var(--accent-red)}
+.info-box.mechanism{border-left-color:var(--accent-cyan)}
+.info-box.examples{border-left-color:var(--accent-gold)}
+.info-box.insight{border-left-color:var(--accent-green)}
+.info-box h3{font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.info-box.mechanism h3{color:var(--accent-cyan)}
+.info-box.examples h3{color:var(--accent-gold)}
+.info-box.insight h3{color:var(--accent-green)}
+.info-box p,.info-box ul{font-size:0.82rem;color:var(--text-secondary);line-height:1.5}
+.info-box ul{padding-left:16px}
+.info-box li{margin-bottom:3px}
+.stats-bar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.stat{background:var(--bg-secondary);padding:6px 14px;border-radius:6px;font-size:0.82rem;color:var(--text-primary)}
+.stat .num{color:var(--accent-cyan);font-weight:700;font-size:1.1rem}
+.divider{height:2px;background:linear-gradient(90deg,transparent,var(--border-color),transparent);margin:40px 0}
+.viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.payoff-grid{display:grid;gap:2px;margin-top:6px}
+.payoff-cell{background:var(--bg-secondary);padding:4px;text-align:center;font-size:0.75rem;border-radius:3px;color:var(--text-primary)}
+.payoff-cell.header{background:var(--bg-input);color:var(--accent-cyan);font-weight:700}
+.payoff-cell.nash{border:2px solid var(--accent-green)}
+.payoff-cell input{width:36px;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-color);text-align:center;padding:2px;border-radius:3px;font-size:0.75rem}
+.checkbox-row{display:flex;align-items:center;gap:6px;font-size:0.82rem}
+.checkbox-row input[type=checkbox]{accent-color:var(--accent-red)}
+@media(max-width:900px){.sim-container{grid-template-columns:1fr}.info-panels{grid-template-columns:1fr}.viz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);backdrop-filter:blur(10px);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<h1><span data-ro="Simulator 6:">Simulator 6:</span> <span data-ro="Funcții Lyapunov și Coordonare/Cultură">Lyapunov Functions & Coordination/Culture</span></h1>
+
+<!-- ===================== 6a: Lyapunov Function Visualizer ===================== -->
+<div class="sim-section" id="sec6a">
+  <div class="sim-title"><span data-ro="6a. Vizualizator Funcții Lyapunov">6a. Lyapunov Function Visualizer</span> <span class="badge" data-ro="Dovada Echilibrului">Equilibrium Proof</span></div>
+  <div class="sim-subtitle" data-ro="O funcție Lyapunov este o &quot;energie&quot; care scade mereu -- demonstrând că sistemul trebuie să ajungă la echilibru">A Lyapunov function is an "energy" that always decreases -- proving the system must reach equilibrium</div>
+  <div class="sim-container">
+    <div class="controls">
+      <div class="control-group">
+        <label data-ro="Sistem">System</label>
+        <select id="s6a_system" onchange="sim6a.changeSystem()">
+          <option value="exchange" data-ro="Economie de Schimb">Exchange Economy</option>
+          <option value="congestion" data-ro="Congestie / Selecția Activității">Congestion / Activity Selection</option>
+          <option value="majority" data-ro="Model de Majoritate Locală">Local Majority Model</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label data-ro="Condiție Inițială">Initial Condition</label>
+        <select id="s6a_init">
+          <option value="random" data-ro="Aleatoare">Random</option>
+          <option value="extreme" data-ro="Departe de Echilibru">Far from Equilibrium</option>
+          <option value="near" data-ro="Aproape de Echilibru">Near Equilibrium</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Pas de Timp">Time Step</span> <span class="val" id="v6a_dt">0.05</span></label>
+        <input type="range" id="s6a_dt" min="1" max="20" value="5">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Viteză">Speed</span> <span class="val" id="v6a_speed">5</span></label>
+        <input type="range" id="s6a_speed" min="1" max="10" value="5">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-step" onclick="sim6a.step()" data-ro="Pas">Step</button>
+        <button class="btn btn-play" id="btn6a_play" onclick="sim6a.togglePlay()" data-ro="Pornește">Play</button>
+        <button class="btn btn-perturb" onclick="sim6a.perturb()" data-ro="Perturbă">Perturb</button>
+        <button class="btn btn-reset" onclick="sim6a.reset()" data-ro="Resetează">Reset</button>
+      </div>
+    </div>
+    <div class="viz-area">
+      <div class="stats-bar">
+        <div class="stat"><span data-ro="Pas:">Step:</span> <span class="num" id="st6a_step">0</span></div>
+        <div class="stat"><span data-ro="Lyapunov V:">Lyapunov V:</span> <span class="num" id="st6a_lyap" style="color:var(--accent-red)">--</span></div>
+        <div class="stat"><span data-ro="Stare:">Status:</span> <span class="num" id="st6a_status" style="color:var(--accent-gold)" data-ro="În curs...">Running</span></div>
+      </div>
+      <div class="viz-grid">
+        <canvas id="c6a_phase" width="520" height="340"></canvas>
+        <canvas id="c6a_lyapunov" width="520" height="340"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="info-panels">
+    <div class="info-box mechanism">
+      <h3 data-ro="Cum Funcționează">Mechanism</h3>
+      <p data-ro="O funcție Lyapunov este o funcție cu valori reale peste configurațiile sistemului care (1) scade cu o sumă fixă ori de câte ori sistemul nu este la echilibru, și (2) are o valoare minimă. Dacă poți găsi o astfel de funcție, DEMONSTREZI convergența către echilibru. Rata de scădere limitează viteza de convergență -- ca o bilă care se rostogolește la vale, energia potențială este funcția Lyapunov.">A Lyapunov function is a real-valued function over system configurations that (1) decreases by a fixed amount whenever the system is not at equilibrium, and (2) has a minimum value. If you can find such a function, you PROVE convergence to equilibrium. The rate of decrease bounds convergence speed -- like a ball rolling downhill, potential energy is the Lyapunov function.</p>
+    </div>
+    <div class="info-box examples">
+      <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+      <ul>
+        <li data-ro="Prețurile pieței converg către prețul de echilibru">Market prices converging to clearing price</li>
+        <li data-ro="Reglarea temperaturii de către termostat">Thermostat temperature regulation</li>
+        <li data-ro="Traficul care se stabilizează în tipare zilnice">Traffic settling into daily patterns</li>
+        <li data-ro="Convergența negocierilor în negociere">Negotiation convergence in bargaining</li>
+        <li data-ro="Auto-organizarea activităților urbane">Urban activity self-organization</li>
+      </ul>
+    </div>
+    <div class="info-box insight">
+      <h3 data-ro="Ideea Cheie">Key Insight</h3>
+      <p data-ro="Chiar și fără coordonare centrală, sistemele se pot auto-organiza către echilibru. Existența unei funcții Lyapunov demonstrează aceasta matematic. Observați cum V(t) scade monoton -- nu poate crește niciodată -- garantând că sistemul încetează să se schimbe.">Even without central coordination, systems can self-organize to equilibrium. The existence of a Lyapunov function proves this mathematically. Watch how V(t) monotonically decreases -- it can never increase -- guaranteeing the system stops changing.</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 6b: Coordination Game ===================== -->
+<div class="sim-section" id="sec6b">
+  <div class="sim-title"><span data-ro="6b. Simulator Joc de Coordonare">6b. Coordination Game Simulator</span> <span class="badge" data-ro="Echilibre Multiple">Multiple Equilibria</span></div>
+  <div class="sim-subtitle" data-ro="Ce echilibru atinge o populație depinde de condițiile inițiale, masa critică și dinamică">Which equilibrium a population reaches depends on initial conditions, critical mass, and dynamics</div>
+  <div class="sim-container">
+    <div class="controls">
+      <div class="control-group">
+        <label><span data-ro="Număr de Strategii">Number of Strategies</span> <span class="val" id="v6b_strats">2</span></label>
+        <input type="range" id="s6b_strats" min="2" max="4" value="2">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Dimensiunea Populației">Population Size</span> <span class="val" id="v6b_pop">200</span></label>
+        <input type="range" id="s6b_pop" min="50" max="500" value="200" step="10">
+      </div>
+      <div class="control-group">
+        <label data-ro="Regula de Actualizare">Update Rule</label>
+        <select id="s6b_update">
+          <option value="best" data-ro="Cel Mai Bun Răspuns">Best Response</option>
+          <option value="imitate" data-ro="Imitație">Imitation</option>
+          <option value="myopic" data-ro="Cel Mai Bun Răspuns Miop">Myopic Best Response</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Nivel de Zgomot">Noise Level</span> <span class="val" id="v6b_noise">0.02</span></label>
+        <input type="range" id="s6b_noise" min="0" max="20" value="2">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Distribuție Inițială (Strategia A %)">Initial Distribution (Strategy A %)</span><span class="val" id="v6b_initA">50</span></label>
+        <input type="range" id="s6b_initA" min="5" max="95" value="50">
+      </div>
+      <div class="control-group">
+        <label data-ro="Matricea Câștigurilor (rând=strategia mea, coloană=oponent)">Payoff Matrix (row=my strategy, col=opponent)</label>
+        <div id="payoffEditor"></div>
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Viteză">Speed</span> <span class="val" id="v6b_speed">5</span></label>
+        <input type="range" id="s6b_speed" min="1" max="10" value="5">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-step" onclick="sim6b.step()" data-ro="Pas">Step</button>
+        <button class="btn btn-play" id="btn6b_play" onclick="sim6b.togglePlay()" data-ro="Pornește">Play</button>
+        <button class="btn btn-reset" onclick="sim6b.reset()" data-ro="Resetează">Reset</button>
+      </div>
+    </div>
+    <div class="viz-area">
+      <div class="stats-bar">
+        <div class="stat"><span data-ro="Pas:">Step:</span> <span class="num" id="st6b_step">0</span></div>
+        <div class="stat"><span data-ro="Convergent:">Converged:</span> <span class="num" id="st6b_conv" style="color:var(--accent-gold)">No</span></div>
+        <div class="stat" id="st6b_shares"></div>
+      </div>
+      <div class="viz-grid">
+        <canvas id="c6b_pop" width="520" height="340"></canvas>
+        <canvas id="c6b_basin" width="520" height="340"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="info-panels">
+    <div class="info-box mechanism">
+      <h3 data-ro="Cum Funcționează">Mechanism</h3>
+      <p data-ro="Jocurile de coordonare au echilibre multiple. Ce echilibru atinge societatea depinde de istorie, masă critică și uneori noroc. Odată stabilite, echilibrele se auto-întăresc -- toți conduc pe dreapta pentru că toți ceilalți o fac. Trecerea între echilibre necesită acțiune colectivă coordonată (precum schimbul din Suedia &quot;Dagen H&quot; din 1967).">Coordination games have multiple equilibria. Which equilibrium society reaches depends on history, critical mass, and sometimes luck. Once established, equilibria are self-reinforcing -- everyone drives on the right because everyone else does. Switching between equilibria requires coordinated collective action (like Sweden's "Dagen H" switch in 1967).</p>
+    </div>
+    <div class="info-box examples">
+      <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+      <ul>
+        <li data-ro="Convenții de conducere (stânga vs dreapta)">Driving conventions (left vs right)</li>
+        <li data-ro="Standarde tehnologice (VHS vs Betamax, USB-C)">Technology standards (VHS vs Betamax, USB-C)</li>
+        <li data-ro="Convenții lingvistice și ortografie">Language conventions and spelling</li>
+        <li data-ro="Norme sociale (bacșiș, stiluri de salut)">Social norms (tipping, greeting styles)</li>
+        <li data-ro="Sisteme de măsură (metric vs imperial)">Measurement systems (metric vs imperial)</li>
+      </ul>
+    </div>
+    <div class="info-box insight">
+      <h3 data-ro="Ideea Cheie">Key Insight</h3>
+      <p data-ro="Condițiile inițiale contează enorm. Un mic avantaj timpuriu pentru un standard sau o convenție poate escalada prin feedback pozitiv în dominanță totală. Diagrama &quot;bazinul de atracție&quot; arată ce condiții de start duc la ce echilibru -- limita este punctul de basculare.">Initial conditions matter enormously. A small early advantage for one standard or convention can snowball through positive feedback into total dominance. The "basin of attraction" diagram shows which starting conditions lead to which equilibrium -- the boundary is the tipping point.</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 6c: Culture Formation (Axelrod) ===================== -->
+<div class="sim-section" id="sec6c">
+  <div class="sim-title"><span data-ro="6c. Modelul Formării Culturii">6c. Culture Formation Model</span> <span class="badge">Axelrod</span></div>
+  <div class="sim-subtitle" data-ro="Oamenii similari interacționează mai mult și devin mai similari -- creând convergență locală dar diversitate globală">Similar people interact more and become more similar -- creating local convergence but global diversity</div>
+  <div class="sim-container">
+    <div class="controls">
+      <div class="control-group">
+        <label><span data-ro="Dimensiune Grilă">Grid Size</span> <span class="val" id="v6c_grid">20</span></label>
+        <input type="range" id="s6c_grid" min="8" max="40" value="20">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Trăsături (dimensiuni)">Features (dimensions)</span> <span class="val" id="v6c_feat">5</span></label>
+        <input type="range" id="s6c_feat" min="2" max="10" value="5">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Caracteristici per Trăsătură">Traits per Feature</span> <span class="val" id="v6c_traits">6</span></label>
+        <input type="range" id="s6c_traits" min="2" max="15" value="6">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Raza de Interacțiune">Interaction Radius</span> <span class="val" id="v6c_radius">1</span></label>
+        <input type="range" id="s6c_radius" min="1" max="4" value="1">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Rata de Mutație">Mutation Rate</span> <span class="val" id="v6c_mut">0.000</span></label>
+        <input type="range" id="s6c_mut" min="0" max="50" value="0">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Viteză">Speed</span> <span class="val" id="v6c_speed">5</span></label>
+        <input type="range" id="s6c_speed" min="1" max="10" value="5">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-step" onclick="sim6c.step()" data-ro="Pas (x50)">Step (x50)</button>
+        <button class="btn btn-play" id="btn6c_play" onclick="sim6c.togglePlay()" data-ro="Pornește">Play</button>
+        <button class="btn btn-reset" onclick="sim6c.reset()" data-ro="Resetează">Reset</button>
+      </div>
+    </div>
+    <div class="viz-area">
+      <div class="stats-bar">
+        <div class="stat"><span data-ro="Interacțiuni:">Interactions:</span> <span class="num" id="st6c_step">0</span></div>
+        <div class="stat"><span data-ro="Culturi Distincte:">Distinct Cultures:</span> <span class="num" id="st6c_cultures" style="color:var(--accent-green)">--</span></div>
+        <div class="stat"><span data-ro="Granițe Active:">Active Boundaries:</span> <span class="num" id="st6c_active" style="color:var(--accent-gold)">--</span></div>
+      </div>
+      <div class="viz-grid">
+        <canvas id="c6c_grid" width="520" height="400"></canvas>
+        <canvas id="c6c_chart" width="520" height="400"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="info-panels">
+    <div class="info-box mechanism">
+      <h3 data-ro="Cum Funcționează">Mechanism</h3>
+      <p data-ro="Fiecare agent are mai multe trăsături culturale (limbă, preferință alimentară, gust muzical etc.). Agenții interacționează cu vecinii cu o probabilitate proporțională cu similaritatea lor culturală. Când interacționează, adoptă o trăsătură diferită unul de la celălalt. Aceasta creează homofilie + influență socială: oamenii similari interacționează mai mult și devin și mai similari, dar vecinii diferiți rareori interacționează și rămân diferiți -- creând granițe culturale stabile.">Each agent has multiple cultural features (language, food preference, music taste, etc.). Agents interact with neighbors with probability proportional to their cultural similarity. When interacting, they adopt one differing trait from each other. This creates homophily + social influence: similar people interact more and become even more similar, but dissimilar neighbors rarely interact and remain different -- creating stable cultural boundaries.</p>
+    </div>
+    <div class="info-box examples">
+      <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+      <ul>
+        <li data-ro="Formarea culturii naționale și regionale">National and regional culture formation</li>
+        <li data-ro="Regiuni de dialecte lingvistice">Language dialect regions</li>
+        <li data-ro="Comunitățile scenei muzicale">Music scene communities</li>
+        <li data-ro="Cultura corporativă în organizații">Corporate culture in organizations</li>
+        <li data-ro="Formarea comunităților online (Reddit, Discord)">Online community formation (Reddit, Discord)</li>
+      </ul>
+    </div>
+    <div class="info-box insight">
+      <h3 data-ro="Ideea Cheie">Key Insight</h3>
+      <p data-ro="Mai multe trăsături = mai multe bariere posibile = diversitate mai stabilă. Cu puține trăsături, convergența globală este probabilă. Cu multe trăsături, lumea se fragmentează în regiuni culturale stabile. Aceasta explică de ce diversitatea culturală persistă în ciuda globalizării -- cu cât sunt mai multe dimensiuni ale culturii, cu atât este mai greu ca două grupuri să fie suficient de similare pentru a interacționa.">More features = more possible barriers = more stable diversity. With few features, global convergence is likely. With many features, the world fragments into stable cultural regions. This explains why cultural diversity persists despite globalization -- the more dimensions of culture there are, the harder it is for two groups to be similar enough to interact.</p>
+    </div>
+  </div>
+</div>
+
+<div style="height:40px"></div>
+
+<script>
+// ============================================================
+// THEME HELPER: get CSS variable value
+// ============================================================
+function getThemeColor(varName){
+  return getComputedStyle(document.body).getPropertyValue(varName).trim();
+}
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+function rng(){return Math.random()}
+function rngInt(lo,hi){return Math.floor(rng()*(hi-lo+1))+lo}
+function hsl(h,s,l){return `hsl(${h},${s}%,${l}%)`}
+
+function bindSlider(id,valId,cb,transform){
+  const s=document.getElementById(id),v=document.getElementById(valId);
+  s.addEventListener('input',()=>{
+    const val=transform?transform(+s.value):s.value;
+    v.textContent=typeof val==='number'?val.toFixed(val<1?3:0):val;
+    if(cb) cb(+s.value);
+  });
+}
+
+// ============================================================
+// 6a: LYAPUNOV FUNCTION VISUALIZER
+// ============================================================
+const sim6a=(()=>{
+  const cPhase=document.getElementById('c6a_phase');
+  const cLyap=document.getElementById('c6a_lyapunov');
+  const ctxP=cPhase.getContext('2d');
+  const ctxL=cLyap.getContext('2d');
+  const W=520,H=340;
+
+  let state=[];
+  let trajectory=[];
+  let lyapHistory=[];
+  let stepCount=0;
+  let playing=false;
+  let timer=null;
+  let equilibriumPoint=[];
+  let systemType='exchange';
+
+  function getSystem(){
+    return document.getElementById('s6a_system').value;
+  }
+
+  function initState(){
+    systemType=getSystem();
+    const initType=document.getElementById('s6a_init').value;
+    stepCount=0;
+    trajectory=[];
+    lyapHistory=[];
+
+    if(systemType==='exchange'){
+      equilibriumPoint=[5,3];
+      if(initType==='random'){state=[rng()*10,rng()*6];}
+      else if(initType==='extreme'){state=[9.5,0.5];}
+      else {state=[5.2,2.8];}
+    } else if(systemType==='congestion'){
+      equilibriumPoint=[0.33,0.33];
+      if(initType==='random'){
+        let a=rng()*0.8,b=rng()*(0.95-a);
+        state=[a,b];
+      } else if(initType==='extreme'){state=[0.8,0.15];}
+      else {state=[0.35,0.30];}
+    } else {
+      equilibriumPoint=[0.75,0.75];
+      if(initType==='random'){state=[rng(),rng()];}
+      else if(initType==='extreme'){state=[0.1,0.9];}
+      else {state=[0.7,0.72];}
+    }
+    const v=computeLyapunov(state);
+    trajectory.push({s:[...state],v});
+    lyapHistory.push(v);
+  }
+
+  function computeLyapunov(s){
+    if(systemType==='exchange'){
+      const dx=s[0]-equilibriumPoint[0], dy=s[1]-equilibriumPoint[1];
+      return dx*dx+dy*dy;
+    } else if(systemType==='congestion'){
+      const c=1/3;
+      const fC=1-s[0]-s[1];
+      return (s[0]-c)**2+(s[1]-c)**2+(fC-c)**2;
+    } else {
+      const dx=s[0]-equilibriumPoint[0], dy=s[1]-equilibriumPoint[1];
+      return dx*dx+dy*dy;
+    }
+  }
+
+  function dynamicsStep(s,dt){
+    const ns=[...s];
+    if(systemType==='exchange'){
+      const dx=s[0]-equilibriumPoint[0], dy=s[1]-equilibriumPoint[1];
+      ns[0]-=dx*dt*0.3+(rng()-0.5)*dt*0.05;
+      ns[1]-=dy*dt*0.3+(rng()-0.5)*dt*0.05;
+      ns[0]=clamp(ns[0],0,10);
+      ns[1]=clamp(ns[1],0,6);
+    } else if(systemType==='congestion'){
+      const c=1/3;
+      ns[0]-=(s[0]-c)*dt*0.5+(rng()-0.5)*dt*0.02;
+      ns[1]-=(s[1]-c)*dt*0.5+(rng()-0.5)*dt*0.02;
+      ns[0]=clamp(ns[0],0.01,0.95);
+      ns[1]=clamp(ns[1],0.01,0.95-ns[0]);
+    } else {
+      const dx=s[0]-equilibriumPoint[0], dy=s[1]-equilibriumPoint[1];
+      ns[0]-=dx*dt*0.4+(rng()-0.5)*dt*0.03;
+      ns[1]-=dy*dt*0.4+(rng()-0.5)*dt*0.03;
+      ns[0]=clamp(ns[0],0,1);
+      ns[1]=clamp(ns[1],0,1);
+    }
+    return ns;
+  }
+
+  function doStep(){
+    const dt=+document.getElementById('s6a_dt').value/100;
+    state=dynamicsStep(state,dt);
+    const v=computeLyapunov(state);
+    trajectory.push({s:[...state],v});
+    lyapHistory.push(v);
+    stepCount++;
+
+    var lang=document.documentElement.lang||'en';
+    const isEq=v<0.001;
+    document.getElementById('st6a_step').textContent=stepCount;
+    document.getElementById('st6a_lyap').textContent=v.toFixed(4);
+    document.getElementById('st6a_status').textContent=isEq?(lang==='ro'?'ECHILIBRU':'EQUILIBRIUM'):(lang==='ro'?'Convergent...':'Converging...');
+    document.getElementById('st6a_status').style.color=isEq?getThemeColor('--accent-green'):getThemeColor('--accent-gold');
+
+    draw();
+  }
+
+  function perturb(){
+    if(systemType==='exchange'){
+      state[0]+=(rng()-0.5)*3;
+      state[1]+=(rng()-0.5)*2;
+      state[0]=clamp(state[0],0,10);
+      state[1]=clamp(state[1],0,6);
+    } else if(systemType==='congestion'){
+      state[0]+=(rng()-0.5)*0.3;
+      state[1]+=(rng()-0.5)*0.3;
+      state[0]=clamp(state[0],0.01,0.9);
+      state[1]=clamp(state[1],0.01,0.9-state[0]);
+    } else {
+      state[0]+=(rng()-0.5)*0.4;
+      state[1]+=(rng()-0.5)*0.4;
+      state[0]=clamp(state[0],0,1);
+      state[1]=clamp(state[1],0,1);
+    }
+    const v=computeLyapunov(state);
+    trajectory.push({s:[...state],v});
+    lyapHistory.push(v);
+    draw();
+  }
+
+  function drawPhasePortrait(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var borderColor=getThemeColor('--border-color');
+    var accentRed=getThemeColor('--accent-red');
+    var accentGreen=getThemeColor('--accent-green');
+
+    ctxP.fillStyle=canvasBg;
+    ctxP.fillRect(0,0,W,H);
+
+    const pad=50;
+    let xRange,yRange,xLabel,yLabel;
+    var lang=document.documentElement.lang||'en';
+
+    if(systemType==='exchange'){
+      xRange=[0,10];yRange=[0,6];
+      xLabel=lang==='ro'?'Preț A':'Price A';
+      yLabel=lang==='ro'?'Preț B':'Price B';
+    } else if(systemType==='congestion'){
+      xRange=[0,1];yRange=[0,1];
+      xLabel=lang==='ro'?'Fracțiune la A':'Fraction at A';
+      yLabel=lang==='ro'?'Fracțiune la B':'Fraction at B';
+    } else {
+      xRange=[0,1];yRange=[0,1];
+      xLabel=lang==='ro'?'Acord S':'Agreement L';
+      yLabel=lang==='ro'?'Acord D':'Agreement R';
+    }
+
+    function toX(v){return pad+(v-xRange[0])/(xRange[1]-xRange[0])*(W-pad-20);}
+    function toY(v){return H-30-(v-yRange[0])/(yRange[1]-yRange[0])*(H-pad-10);}
+
+    // draw energy contours
+    const steps=40;
+    for(let i=0;i<steps;i++){
+      for(let j=0;j<steps;j++){
+        const x=xRange[0]+i*(xRange[1]-xRange[0])/steps;
+        const y=yRange[0]+j*(yRange[1]-yRange[0])/steps;
+        const v=computeLyapunov([x,y]);
+        const maxV=systemType==='exchange'?50:systemType==='congestion'?0.3:0.5;
+        const norm=Math.min(v/maxV,1);
+        const hue=240-norm*200;
+        ctxP.fillStyle=`hsla(${hue},60%,${15+norm*20}%,0.8)`;
+        const cw=(W-pad-20)/steps+1;
+        const ch=(H-pad-10)/steps+1;
+        ctxP.fillRect(toX(x),toY(y)-ch,cw,ch);
+      }
+    }
+
+    // axes
+    ctxP.strokeStyle=borderColor;
+    ctxP.lineWidth=1;
+    ctxP.beginPath();
+    ctxP.moveTo(pad,10);ctxP.lineTo(pad,H-30);ctxP.lineTo(W-10,H-30);
+    ctxP.stroke();
+    ctxP.fillStyle=textMuted;
+    ctxP.font='11px sans-serif';
+    ctxP.fillText(xLabel,W/2,H-8);
+    ctxP.save();
+    ctxP.translate(12,H/2);
+    ctxP.rotate(-Math.PI/2);
+    ctxP.fillText(yLabel,0,0);
+    ctxP.restore();
+
+    // equilibrium point
+    const eqX=toX(equilibriumPoint[0]),eqY=toY(equilibriumPoint[1]);
+    ctxP.beginPath();
+    ctxP.arc(eqX,eqY,8,0,Math.PI*2);
+    ctxP.strokeStyle=accentGreen;
+    ctxP.lineWidth=2;
+    ctxP.stroke();
+    ctxP.fillStyle=accentGreen+'4d';
+    ctxP.fill();
+    ctxP.fillStyle=accentGreen;
+    ctxP.font='10px sans-serif';
+    ctxP.fillText(lang==='ro'?'EQ':'EQ',eqX+10,eqY-5);
+
+    // trajectory
+    if(trajectory.length>1){
+      ctxP.strokeStyle=accentRed+'cc';
+      ctxP.lineWidth=1.5;
+      ctxP.beginPath();
+      for(let i=0;i<trajectory.length;i++){
+        const x=toX(trajectory[i].s[0]),y=toY(trajectory[i].s[1]);
+        if(i===0) ctxP.moveTo(x,y); else ctxP.lineTo(x,y);
+      }
+      ctxP.stroke();
+
+      for(let i=Math.max(0,trajectory.length-30);i<trajectory.length;i++){
+        const x=toX(trajectory[i].s[0]),y=toY(trajectory[i].s[1]);
+        const alpha=0.3+(i-Math.max(0,trajectory.length-30))/30*0.7;
+        ctxP.fillStyle=`rgba(233,69,96,${alpha})`;
+        ctxP.beginPath();
+        ctxP.arc(x,y,2,0,Math.PI*2);
+        ctxP.fill();
+      }
+    }
+
+    // current position
+    if(trajectory.length){
+      const last=trajectory[trajectory.length-1];
+      const cx=toX(last.s[0]),cy=toY(last.s[1]);
+      ctxP.beginPath();
+      ctxP.arc(cx,cy,5,0,Math.PI*2);
+      ctxP.fillStyle='#fff';
+      ctxP.fill();
+      ctxP.strokeStyle=accentRed;
+      ctxP.lineWidth=2;
+      ctxP.stroke();
+    }
+
+    // title
+    ctxP.fillStyle=textMuted;
+    ctxP.font='11px sans-serif';
+    ctxP.fillText(lang==='ro'?'Portret de Fază / Spațiul Stărilor':'Phase Portrait / State Space',pad+5,22);
+  }
+
+  function drawLyapunovChart(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var borderColor=getThemeColor('--border-color');
+    var accentRed=getThemeColor('--accent-red');
+    var accentGreen=getThemeColor('--accent-green');
+    var accentCyan=getThemeColor('--accent-cyan');
+
+    ctxL.fillStyle=canvasBg;
+    ctxL.fillRect(0,0,W,H);
+    const pad=55;
+
+    ctxL.strokeStyle=borderColor;
+    ctxL.lineWidth=1;
+    ctxL.beginPath();
+    ctxL.moveTo(pad,10);ctxL.lineTo(pad,H-30);ctxL.lineTo(W-10,H-30);
+    ctxL.stroke();
+
+    var lang=document.documentElement.lang||'en';
+    ctxL.fillStyle=textMuted;
+    ctxL.font='11px sans-serif';
+    ctxL.fillText(lang==='ro'?'V(t) - Valoarea Funcției Lyapunov':'V(t) - Lyapunov Function Value',pad+5,18);
+    ctxL.fillText(lang==='ro'?'Pas de Timp':'Time Step',W-70,H-10);
+
+    if(lyapHistory.length<2) return;
+
+    const maxV=Math.max(...lyapHistory)*1.1+0.01;
+    const n=lyapHistory.length;
+    const xS=(W-pad-20)/Math.max(n-1,1);
+    const yS=(H-50)/maxV;
+
+    // fill area
+    ctxL.globalAlpha=0.15;
+    ctxL.fillStyle=accentRed;
+    ctxL.beginPath();
+    ctxL.moveTo(pad,H-30);
+    for(let i=0;i<n;i++){
+      ctxL.lineTo(pad+i*xS,H-30-lyapHistory[i]*yS);
+    }
+    ctxL.lineTo(pad+(n-1)*xS,H-30);
+    ctxL.fill();
+    ctxL.globalAlpha=1;
+
+    // line
+    ctxL.strokeStyle=accentRed;
+    ctxL.lineWidth=2;
+    ctxL.beginPath();
+    for(let i=0;i<n;i++){
+      const x=pad+i*xS, y=H-30-lyapHistory[i]*yS;
+      if(i===0) ctxL.moveTo(x,y); else ctxL.lineTo(x,y);
+    }
+    ctxL.stroke();
+
+    // zero line
+    ctxL.strokeStyle=accentGreen+'66';
+    ctxL.setLineDash([4,4]);
+    ctxL.beginPath();
+    ctxL.moveTo(pad,H-30);
+    ctxL.lineTo(W-10,H-30);
+    ctxL.stroke();
+    ctxL.setLineDash([]);
+
+    // y-axis labels
+    ctxL.fillStyle=textMuted;
+    ctxL.fillText(maxV.toFixed(2),5,18);
+    ctxL.fillText('0',pad-15,H-26);
+
+    // annotation
+    ctxL.fillStyle=accentRed;
+    ctxL.font='bold 11px sans-serif';
+    const lastV=lyapHistory[lyapHistory.length-1];
+    ctxL.fillText(`V = ${lastV.toFixed(4)}`,W-120,40);
+
+    // arrow showing "must decrease"
+    if(n>5){
+      ctxL.fillStyle=accentCyan+'99';
+      ctxL.font='10px sans-serif';
+      ctxL.fillText(lang==='ro'?'Mereu descrescătoare (monotonă)':'Always decreasing (monotonic)',pad+5,H-38);
+    }
+  }
+
+  function draw(){
+    drawPhasePortrait();
+    drawLyapunovChart();
+  }
+
+  function reset(){
+    stopPlay();
+    initState();
+    draw();
+  }
+
+  function changeSystem(){reset();}
+
+  function togglePlay(){if(playing)stopPlay();else startPlay();}
+  function startPlay(){
+    playing=true;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn6a_play').textContent=lang==='ro'?'Pauză':'Pause';
+    const spd=+document.getElementById('s6a_speed').value;
+    timer=setInterval(doStep,200/spd);
+  }
+  function stopPlay(){
+    playing=false;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn6a_play').textContent=lang==='ro'?'Pornește':'Play';
+    if(timer)clearInterval(timer);timer=null;
+  }
+
+  bindSlider('s6a_dt','v6a_dt',null,v=>(v/100).toFixed(2));
+  bindSlider('s6a_speed','v6a_speed',v=>{if(playing){stopPlay();startPlay();}});
+
+  reset();
+  return {step:doStep,togglePlay,reset,perturb,changeSystem,draw};
+})();
+
+
+// ============================================================
+// 6b: COORDINATION GAME SIMULATOR
+// ============================================================
+const sim6b=(()=>{
+  const cPop=document.getElementById('c6b_pop');
+  const cBasin=document.getElementById('c6b_basin');
+  const ctxP=cPop.getContext('2d');
+  const ctxB=cBasin.getContext('2d');
+  const W=520,H=340;
+
+  let stratColors=[];
+  const stratNames=['A','B','C','D'];
+
+  function getStratColors(){
+    return [getThemeColor('--accent-red'),getThemeColor('--accent-cyan'),getThemeColor('--accent-green'),getThemeColor('--accent-gold')];
+  }
+
+  let nStrats=2;
+  let popSize=200;
+  let population=[];
+  let payoffs=[];
+  let history=[];
+  let stepCount=0;
+  let playing=false;
+  let timer=null;
+
+  function defaultPayoffs(n){
+    const p=[];
+    for(let i=0;i<n;i++){
+      p[i]=[];
+      for(let j=0;j<n;j++){
+        p[i][j]= i===j ? (3+rng()*2) : (rng()*1.5);
+      }
+    }
+    p[0][0]=5;
+    if(n>=2) p[1][1]=4;
+    if(n>=3) p[2][2]=3.5;
+    if(n>=4) p[3][3]=3;
+    return p;
+  }
+
+  function buildPayoffEditor(){
+    const container=document.getElementById('payoffEditor');
+    const n=nStrats;
+    let html=`<div class="payoff-grid" style="grid-template-columns:30px repeat(${n},1fr)">`;
+    html+=`<div class="payoff-cell header"></div>`;
+    for(let j=0;j<n;j++) html+=`<div class="payoff-cell header">${stratNames[j]}</div>`;
+    for(let i=0;i<n;i++){
+      html+=`<div class="payoff-cell header">${stratNames[i]}</div>`;
+      for(let j=0;j<n;j++){
+        const val=payoffs[i]?payoffs[i][j]||0:0;
+        html+=`<div class="payoff-cell${i===j?' nash':''}"><input type="number" step="0.5" value="${val.toFixed(1)}" data-i="${i}" data-j="${j}" onchange="sim6b.updatePayoff(this)"></div>`;
+      }
+    }
+    html+=`</div>`;
+    container.innerHTML=html;
+  }
+
+  function updatePayoff(el){
+    const i=+el.dataset.i, j=+el.dataset.j;
+    payoffs[i][j]=+el.value;
+  }
+
+  function initPopulation(){
+    nStrats=+document.getElementById('s6b_strats').value;
+    popSize=+document.getElementById('s6b_pop').value;
+    const initA=+document.getElementById('s6b_initA').value/100;
+
+    if(!payoffs.length || payoffs.length!==nStrats){
+      payoffs=defaultPayoffs(nStrats);
+    }
+    buildPayoffEditor();
+
+    population=[];
+    history=[];
+    stepCount=0;
+
+    if(nStrats===2){
+      const nA=Math.round(popSize*initA);
+      for(let i=0;i<popSize;i++) population.push(i<nA?0:1);
+    } else {
+      for(let i=0;i<popSize;i++){
+        if(rng()<initA) population.push(0);
+        else population.push(rngInt(1,nStrats-1));
+      }
+    }
+    for(let i=population.length-1;i>0;i--){
+      const j=Math.floor(rng()*(i+1));
+      [population[i],population[j]]=[population[j],population[i]];
+    }
+    recordHistory();
+  }
+
+  function getShares(){
+    const shares=new Array(nStrats).fill(0);
+    for(const s of population) shares[s]++;
+    return shares.map(c=>c/popSize);
+  }
+
+  function recordHistory(){
+    history.push(getShares());
+  }
+
+  function expectedPayoff(myStrat,shares){
+    let total=0;
+    for(let j=0;j<nStrats;j++){
+      total+=payoffs[myStrat][j]*shares[j];
+    }
+    return total;
+  }
+
+  function doStep(){
+    const noise=+document.getElementById('s6b_noise').value/1000;
+    const updateRule=document.getElementById('s6b_update').value;
+    const shares=getShares();
+
+    const newPop=[...population];
+    for(let i=0;i<popSize;i++){
+      if(rng()<noise){
+        newPop[i]=rngInt(0,nStrats-1);
+        continue;
+      }
+
+      if(updateRule==='best'){
+        let bestStrat=0, bestPay=-Infinity;
+        for(let s=0;s<nStrats;s++){
+          const ep=expectedPayoff(s,shares);
+          if(ep>bestPay){bestPay=ep;bestStrat=s;}
+        }
+        newPop[i]=bestStrat;
+      } else if(updateRule==='imitate'){
+        const other=rngInt(0,popSize-1);
+        const myPay=expectedPayoff(population[i],shares);
+        const otherPay=expectedPayoff(population[other],shares);
+        if(otherPay>myPay && rng()<(otherPay-myPay)/(Math.abs(otherPay)+Math.abs(myPay)+0.01)){
+          newPop[i]=population[other];
+        }
+      } else {
+        let bestStrat=population[i], bestPay=expectedPayoff(population[i],shares);
+        for(let s=0;s<nStrats;s++){
+          const ep=expectedPayoff(s,shares);
+          if(ep>bestPay+0.1){bestPay=ep;bestStrat=s;}
+        }
+        newPop[i]=bestStrat;
+      }
+    }
+    population=newPop;
+    stepCount++;
+    recordHistory();
+    updateStats();
+    draw();
+  }
+
+  function updateStats(){
+    stratColors=getStratColors();
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('st6b_step').textContent=stepCount;
+    const shares=getShares();
+    const maxShare=Math.max(...shares);
+    const converged=maxShare>0.95;
+    document.getElementById('st6b_conv').textContent=converged?(lang==='ro'?'DA':'YES'):(lang==='ro'?'Nu':'No');
+    document.getElementById('st6b_conv').style.color=converged?getThemeColor('--accent-green'):getThemeColor('--accent-gold');
+
+    let sharesStr='';
+    for(let i=0;i<nStrats;i++){
+      sharesStr+=`<span style="color:${stratColors[i]}">${stratNames[i]}: ${(shares[i]*100).toFixed(0)}%</span>  `;
+    }
+    document.getElementById('st6b_shares').innerHTML=sharesStr;
+  }
+
+  function drawPopChart(){
+    stratColors=getStratColors();
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var textSecondary=getThemeColor('--text-secondary');
+    var borderColor=getThemeColor('--border-color');
+
+    ctxP.fillStyle=canvasBg;
+    ctxP.fillRect(0,0,W,H);
+    const pad=50;
+
+    ctxP.strokeStyle=borderColor;
+    ctxP.lineWidth=1;
+    ctxP.beginPath();
+    ctxP.moveTo(pad,10);ctxP.lineTo(pad,H-30);ctxP.lineTo(W-10,H-30);
+    ctxP.stroke();
+
+    var lang=document.documentElement.lang||'en';
+    ctxP.fillStyle=textMuted;
+    ctxP.font='11px sans-serif';
+    ctxP.fillText(lang==='ro'?'Cota Populației în Timp (Zonă Stivuită)':'Population Share Over Time (Stacked Area)',pad+5,18);
+    ctxP.fillText(lang==='ro'?'Pas':'Step',W-40,H-10);
+    ctxP.fillText('100%',pad-40,20);
+    ctxP.fillText('0%',pad-25,H-26);
+
+    if(history.length<2) return;
+
+    const n=history.length;
+    const xS=(W-pad-20)/Math.max(n-1,1);
+
+    for(let s=nStrats-1;s>=0;s--){
+      ctxP.globalAlpha=0.7;
+      ctxP.fillStyle=stratColors[s];
+      ctxP.beginPath();
+      ctxP.moveTo(pad,H-30);
+      for(let i=0;i<n;i++){
+        let cumulative=0;
+        for(let k=0;k<=s;k++) cumulative+=history[i][k];
+        ctxP.lineTo(pad+i*xS,H-30-cumulative*(H-50));
+      }
+      for(let i=n-1;i>=0;i--){
+        let cumulative=0;
+        for(let k=0;k<s;k++) cumulative+=history[i][k];
+        ctxP.lineTo(pad+i*xS,H-30-cumulative*(H-50));
+      }
+      ctxP.closePath();
+      ctxP.fill();
+      ctxP.globalAlpha=1;
+    }
+
+    for(let s=0;s<nStrats;s++){
+      ctxP.fillStyle=stratColors[s];
+      ctxP.fillRect(pad+10+s*70,H-18,10,3);
+      ctxP.fillStyle=textSecondary;
+      ctxP.font='10px sans-serif';
+      ctxP.fillText(`${lang==='ro'?'Strategia':'Strategy'} ${stratNames[s]}`,pad+24+s*70,H-14);
+    }
+  }
+
+  function drawBasinDiagram(){
+    stratColors=getStratColors();
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var textSecondary=getThemeColor('--text-secondary');
+    var borderColor=getThemeColor('--border-color');
+    var accentGold=getThemeColor('--accent-gold');
+
+    ctxB.fillStyle=canvasBg;
+    ctxB.fillRect(0,0,W,H);
+    var lang=document.documentElement.lang||'en';
+
+    if(nStrats!==2){
+      ctxB.fillStyle=textMuted;
+      ctxB.font='13px sans-serif';
+      ctxB.textAlign='center';
+      ctxB.fillText(lang==='ro'?'Diagrama Bazinului de Atracție':'Basin of Attraction diagram',W/2,H/2-10);
+      ctxB.fillText(lang==='ro'?'(afișată pentru jocuri cu 2 strategii)':'(shown for 2-strategy games)',W/2,H/2+10);
+      ctxB.textAlign='left';
+      return;
+    }
+
+    const pad=50;
+    ctxB.fillStyle=textMuted;
+    ctxB.font='11px sans-serif';
+    ctxB.fillText(lang==='ro'?'Analiza Bazinului de Atracție':'Basin of Attraction Analysis',pad+5,18);
+
+    const a00=payoffs[0][0],a01=payoffs[0][1],a10=payoffs[1][0],a11=payoffs[1][1];
+    const denom=(a00-a01-a10+a11);
+    let tippingPoint=denom!==0?(a11-a01)/denom:0.5;
+    tippingPoint=clamp(tippingPoint,0,1);
+
+    const barY=80;
+    const barH=40;
+    const barW=W-pad-30;
+
+    const aWidth=tippingPoint*barW;
+    const gradA=ctxB.createLinearGradient(pad,0,pad+aWidth,0);
+    gradA.addColorStop(0,stratColors[0]);
+    gradA.addColorStop(1,stratColors[0]+'4d');
+    ctxB.fillStyle=gradA;
+    ctxB.fillRect(pad,barY,aWidth,barH);
+
+    const gradB=ctxB.createLinearGradient(pad+aWidth,0,pad+barW,0);
+    gradB.addColorStop(0,stratColors[1]+'4d');
+    gradB.addColorStop(1,stratColors[1]);
+    ctxB.fillStyle=gradB;
+    ctxB.fillRect(pad+aWidth,barY,barW-aWidth,barH);
+
+    ctxB.strokeStyle=accentGold;
+    ctxB.lineWidth=2;
+    ctxB.setLineDash([4,3]);
+    ctxB.beginPath();
+    ctxB.moveTo(pad+tippingPoint*barW,barY-15);
+    ctxB.lineTo(pad+tippingPoint*barW,barY+barH+15);
+    ctxB.stroke();
+    ctxB.setLineDash([]);
+
+    ctxB.fillStyle=accentGold;
+    ctxB.font='bold 12px sans-serif';
+    ctxB.textAlign='center';
+    ctxB.fillText(`${lang==='ro'?'Punct de Basculare':'Tipping Point'}: ${(tippingPoint*100).toFixed(0)}% A`,pad+tippingPoint*barW,barY-20);
+
+    ctxB.font='bold 13px sans-serif';
+    ctxB.fillStyle=stratColors[0];
+    ctxB.fillText(lang==='ro'?'Bazin A':'Basin of A',pad+aWidth/2,barY+barH/2+5);
+    ctxB.fillStyle=stratColors[1];
+    ctxB.fillText(lang==='ro'?'Bazin B':'Basin of B',pad+aWidth+(barW-aWidth)/2,barY+barH/2+5);
+
+    ctxB.fillStyle=textMuted;
+    ctxB.font='11px sans-serif';
+    ctxB.fillText(lang==='ro'?'Fracțiunea inițială care joacă A':'Initial fraction playing A',W/2,barY+barH+35);
+    ctxB.fillText('0%',pad,barY+barH+35);
+    ctxB.fillText('100%',pad+barW-20,barY+barH+35);
+    ctxB.textAlign='left';
+
+    const curA=getShares()[0];
+    const markerX=pad+curA*barW;
+    ctxB.beginPath();
+    ctxB.moveTo(markerX,barY+barH+5);
+    ctxB.lineTo(markerX-6,barY+barH+18);
+    ctxB.lineTo(markerX+6,barY+barH+18);
+    ctxB.closePath();
+    ctxB.fillStyle='#fff';
+    ctxB.fill();
+
+    const py=barY+barH+60;
+    ctxB.fillStyle=textMuted;
+    ctxB.font='11px sans-serif';
+    ctxB.fillText(lang==='ro'?'Câștigurile Așteptate vs. Fracțiunea care joacă A':'Expected Payoffs vs. Fraction playing A',pad+5,py);
+
+    const graphH=H-py-40;
+    const graphW=W-pad-30;
+
+    const maxPay=Math.max(a00,a01,a10,a11)*1.2;
+    ctxB.strokeStyle=borderColor;
+    ctxB.lineWidth=0.5;
+    ctxB.beginPath();
+    ctxB.moveTo(pad,py+10);ctxB.lineTo(pad,py+10+graphH);ctxB.lineTo(pad+graphW,py+10+graphH);
+    ctxB.stroke();
+
+    // E[A] line
+    ctxB.strokeStyle=stratColors[0];
+    ctxB.lineWidth=2;
+    ctxB.beginPath();
+    for(let i=0;i<=100;i++){
+      const p=i/100;
+      const eA=a00*p+a01*(1-p);
+      const x=pad+p*graphW;
+      const y=py+10+graphH-(eA/maxPay)*graphH;
+      if(i===0) ctxB.moveTo(x,y); else ctxB.lineTo(x,y);
+    }
+    ctxB.stroke();
+
+    // E[B] line
+    ctxB.strokeStyle=stratColors[1];
+    ctxB.lineWidth=2;
+    ctxB.beginPath();
+    for(let i=0;i<=100;i++){
+      const p=i/100;
+      const eB=a10*p+a11*(1-p);
+      const x=pad+p*graphW;
+      const y=py+10+graphH-(eB/maxPay)*graphH;
+      if(i===0) ctxB.moveTo(x,y); else ctxB.lineTo(x,y);
+    }
+    ctxB.stroke();
+
+    // crossing point
+    const crossX=pad+tippingPoint*graphW;
+    const crossPay=a00*tippingPoint+a01*(1-tippingPoint);
+    const crossY=py+10+graphH-(crossPay/maxPay)*graphH;
+    ctxB.beginPath();
+    ctxB.arc(crossX,crossY,4,0,Math.PI*2);
+    ctxB.fillStyle=accentGold;
+    ctxB.fill();
+
+    // legend
+    ctxB.fillStyle=stratColors[0]; ctxB.fillRect(pad+10,py+graphH+15,10,3);
+    ctxB.fillStyle=textSecondary; ctxB.font='10px sans-serif';
+    ctxB.fillText(lang==='ro'?'E[câștig A]':'E[payoff A]',pad+24,py+graphH+19);
+    ctxB.fillStyle=stratColors[1]; ctxB.fillRect(pad+110,py+graphH+15,10,3);
+    ctxB.fillStyle=textSecondary;
+    ctxB.fillText(lang==='ro'?'E[câștig B]':'E[payoff B]',pad+124,py+graphH+19);
+  }
+
+  function draw(){
+    drawPopChart();
+    drawBasinDiagram();
+  }
+
+  function reset(){
+    stopPlay();
+    payoffs=defaultPayoffs(+document.getElementById('s6b_strats').value);
+    initPopulation();
+    updateStats();
+    draw();
+  }
+
+  function togglePlay(){if(playing)stopPlay();else startPlay();}
+  function startPlay(){
+    playing=true;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn6b_play').textContent=lang==='ro'?'Pauză':'Pause';
+    const spd=+document.getElementById('s6b_speed').value;
+    timer=setInterval(doStep,200/spd);
+  }
+  function stopPlay(){
+    playing=false;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn6b_play').textContent=lang==='ro'?'Pornește':'Play';
+    if(timer)clearInterval(timer);timer=null;
+  }
+
+  bindSlider('s6b_strats','v6b_strats',v=>{nStrats=v;reset();});
+  bindSlider('s6b_pop','v6b_pop',v=>{popSize=v;reset();});
+  bindSlider('s6b_noise','v6b_noise',null,v=>(v/1000).toFixed(3));
+  bindSlider('s6b_initA','v6b_initA');
+  bindSlider('s6b_speed','v6b_speed',v=>{if(playing){stopPlay();startPlay();}});
+
+  reset();
+  return {step:doStep,togglePlay,reset,updatePayoff,draw};
+})();
+
+
+// ============================================================
+// 6c: AXELROD CULTURE FORMATION MODEL
+// ============================================================
+const sim6c=(()=>{
+  const cGrid=document.getElementById('c6c_grid');
+  const cChart=document.getElementById('c6c_chart');
+  const ctxG=cGrid.getContext('2d');
+  const ctxC=cChart.getContext('2d');
+  const W=520,H=400;
+
+  let gridSize=20;
+  let nFeatures=5;
+  let nTraits=6;
+  let radius=1;
+  let mutRate=0;
+  let grid=[];
+  let cultureHistory=[];
+  let activeHistory=[];
+  let interactions=0;
+  let playing=false;
+  let timer=null;
+
+  function initGrid(){
+    gridSize=+document.getElementById('s6c_grid').value;
+    nFeatures=+document.getElementById('s6c_feat').value;
+    nTraits=+document.getElementById('s6c_traits').value;
+    radius=+document.getElementById('s6c_radius').value;
+    mutRate=+document.getElementById('s6c_mut').value/100000;
+    grid=[];
+    cultureHistory=[];
+    activeHistory=[];
+    interactions=0;
+
+    for(let y=0;y<gridSize;y++){
+      grid[y]=[];
+      for(let x=0;x<gridSize;x++){
+        const traits=[];
+        for(let f=0;f<nFeatures;f++){
+          traits.push(rngInt(0,nTraits-1));
+        }
+        grid[y][x]=traits;
+      }
+    }
+    recordStats();
+  }
+
+  function similarity(a,b){
+    let same=0;
+    for(let f=0;f<nFeatures;f++){
+      if(a[f]===b[f]) same++;
+    }
+    return same/nFeatures;
+  }
+
+  function getNeighbors(x,y){
+    const neighbors=[];
+    for(let dy=-radius;dy<=radius;dy++){
+      for(let dx=-radius;dx<=radius;dx++){
+        if(dx===0&&dy===0) continue;
+        const nx=(x+dx+gridSize)%gridSize;
+        const ny=(y+dy+gridSize)%gridSize;
+        neighbors.push({x:nx,y:ny});
+      }
+    }
+    return neighbors;
+  }
+
+  function doInteraction(){
+    const x=rngInt(0,gridSize-1), y=rngInt(0,gridSize-1);
+    const agent=grid[y][x];
+
+    const neighbors=getNeighbors(x,y);
+    const nbr=neighbors[rngInt(0,neighbors.length-1)];
+    const other=grid[nbr.y][nbr.x];
+
+    const sim=similarity(agent,other);
+
+    if(sim>0 && sim<1 && rng()<sim){
+      const diffFeatures=[];
+      for(let f=0;f<nFeatures;f++){
+        if(agent[f]!==other[f]) diffFeatures.push(f);
+      }
+      if(diffFeatures.length>0){
+        const f=diffFeatures[rngInt(0,diffFeatures.length-1)];
+        grid[y][x][f]=other[f];
+      }
+    }
+
+    if(rng()<mutRate){
+      const mx=rngInt(0,gridSize-1),my=rngInt(0,gridSize-1);
+      const mf=rngInt(0,nFeatures-1);
+      grid[my][mx][mf]=rngInt(0,nTraits-1);
+    }
+
+    interactions++;
+  }
+
+  function doStep(){
+    const batchSize=50;
+    for(let i=0;i<batchSize;i++) doInteraction();
+    recordStats();
+    draw();
+  }
+
+  function countCultures(){
+    const cultures=new Set();
+    for(let y=0;y<gridSize;y++){
+      for(let x=0;x<gridSize;x++){
+        cultures.add(grid[y][x].join(','));
+      }
+    }
+    return cultures.size;
+  }
+
+  function countActiveBoundaries(){
+    let active=0;
+    for(let y=0;y<gridSize;y++){
+      for(let x=0;x<gridSize;x++){
+        const nbrs=getNeighbors(x,y);
+        for(const n of nbrs){
+          const sim=similarity(grid[y][x],grid[n.y][n.x]);
+          if(sim>0 && sim<1) active++;
+        }
+      }
+    }
+    return Math.floor(active/2);
+  }
+
+  function recordStats(){
+    const nc=countCultures();
+    const ab=countActiveBoundaries();
+    cultureHistory.push(nc);
+    activeHistory.push(ab);
+    document.getElementById('st6c_step').textContent=interactions;
+    document.getElementById('st6c_cultures').textContent=nc;
+    document.getElementById('st6c_active').textContent=ab;
+  }
+
+  function cultureToColor(traits){
+    let h=0,s=0,l=0;
+    for(let f=0;f<traits.length;f++){
+      h+=traits[f]*((f+1)*67);
+      s+=traits[f]*((f+1)*31);
+      l+=traits[f]*((f+1)*13);
+    }
+    h=h%360;
+    s=50+(s%30);
+    l=35+(l%30);
+    return hsl(h,s,l);
+  }
+
+  function drawGrid(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+
+    ctxG.fillStyle=canvasBg;
+    ctxG.fillRect(0,0,W,H);
+
+    const cellW=Math.min((W-20)/gridSize,(H-30)/gridSize);
+    const offX=(W-cellW*gridSize)/2;
+    const offY=(H-30-cellW*gridSize)/2+10;
+
+    for(let y=0;y<gridSize;y++){
+      for(let x=0;x<gridSize;x++){
+        ctxG.fillStyle=cultureToColor(grid[y][x]);
+        ctxG.fillRect(offX+x*cellW,offY+y*cellW,cellW-0.5,cellW-0.5);
+      }
+    }
+
+    ctxG.strokeStyle='rgba(0,0,0,0.6)';
+    ctxG.lineWidth=1;
+    for(let y=0;y<gridSize;y++){
+      for(let x=0;x<gridSize;x++){
+        if(x<gridSize-1){
+          const sim=similarity(grid[y][x],grid[y][x+1]);
+          if(sim<1){
+            ctxG.strokeStyle=`rgba(255,255,255,${(1-sim)*0.5})`;
+            ctxG.beginPath();
+            ctxG.moveTo(offX+(x+1)*cellW,offY+y*cellW);
+            ctxG.lineTo(offX+(x+1)*cellW,offY+(y+1)*cellW);
+            ctxG.stroke();
+          }
+        }
+        if(y<gridSize-1){
+          const sim=similarity(grid[y][x],grid[y+1][x]);
+          if(sim<1){
+            ctxG.strokeStyle=`rgba(255,255,255,${(1-sim)*0.5})`;
+            ctxG.beginPath();
+            ctxG.moveTo(offX+x*cellW,offY+(y+1)*cellW);
+            ctxG.lineTo(offX+(x+1)*cellW,offY+(y+1)*cellW);
+            ctxG.stroke();
+          }
+        }
+      }
+    }
+
+    var lang=document.documentElement.lang||'en';
+    ctxG.fillStyle=textMuted;
+    ctxG.font='11px sans-serif';
+    ctxG.fillText(lang==='ro'?'Grilă Culturală (culoare = cultură, linii albe = granițe)':'Cultural Grid (color = culture, white lines = boundaries)',10,H-8);
+  }
+
+  function drawCharts(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var borderColor=getThemeColor('--border-color');
+    var accentGreen=getThemeColor('--accent-green');
+    var accentGold=getThemeColor('--accent-gold');
+
+    ctxC.fillStyle=canvasBg;
+    ctxC.fillRect(0,0,W,H);
+    const pad=55;
+    const halfH=H/2-10;
+
+    ctxC.strokeStyle=borderColor;
+    ctxC.lineWidth=1;
+    ctxC.beginPath();
+    ctxC.moveTo(pad,10);ctxC.lineTo(pad,halfH);ctxC.lineTo(W-10,halfH);
+    ctxC.stroke();
+
+    var lang=document.documentElement.lang||'en';
+    ctxC.fillStyle=textMuted;
+    ctxC.font='11px sans-serif';
+    ctxC.fillText(lang==='ro'?'Culturi Distincte în Timp':'Distinct Cultures Over Time',pad+5,22);
+
+    if(cultureHistory.length>1){
+      const maxC=Math.max(...cultureHistory);
+      const n=cultureHistory.length;
+      const xS=(W-pad-20)/Math.max(n-1,1);
+      const yS=(halfH-30)/Math.max(maxC,1);
+
+      ctxC.globalAlpha=0.15;
+      ctxC.fillStyle=accentGreen;
+      ctxC.beginPath();
+      ctxC.moveTo(pad,halfH);
+      for(let i=0;i<n;i++){
+        ctxC.lineTo(pad+i*xS,halfH-cultureHistory[i]*yS);
+      }
+      ctxC.lineTo(pad+(n-1)*xS,halfH);
+      ctxC.fill();
+      ctxC.globalAlpha=1;
+
+      ctxC.strokeStyle=accentGreen;
+      ctxC.lineWidth=2;
+      ctxC.beginPath();
+      for(let i=0;i<n;i++){
+        const x=pad+i*xS,y=halfH-cultureHistory[i]*yS;
+        if(i===0) ctxC.moveTo(x,y); else ctxC.lineTo(x,y);
+      }
+      ctxC.stroke();
+
+      ctxC.fillStyle=textMuted;
+      ctxC.fillText(maxC.toString(),pad-30,20);
+      ctxC.fillText('0',pad-15,halfH-2);
+    }
+
+    const botY=halfH+20;
+    const botH=H-botY-20;
+    ctxC.strokeStyle=borderColor;
+    ctxC.lineWidth=1;
+    ctxC.beginPath();
+    ctxC.moveTo(pad,botY);ctxC.lineTo(pad,botY+botH);ctxC.lineTo(W-10,botY+botH);
+    ctxC.stroke();
+
+    ctxC.fillStyle=textMuted;
+    ctxC.font='11px sans-serif';
+    ctxC.fillText(lang==='ro'?'Granițe Active (unde interacțiunea este încă posibilă)':'Active Boundaries (where interaction is still possible)',pad+5,botY+12);
+
+    if(activeHistory.length>1){
+      const maxA=Math.max(...activeHistory,1);
+      const n=activeHistory.length;
+      const xS=(W-pad-20)/Math.max(n-1,1);
+      const yS=(botH-25)/Math.max(maxA,1);
+
+      ctxC.globalAlpha=0.15;
+      ctxC.fillStyle=accentGold;
+      ctxC.beginPath();
+      ctxC.moveTo(pad,botY+botH);
+      for(let i=0;i<n;i++){
+        ctxC.lineTo(pad+i*xS,botY+botH-activeHistory[i]*yS);
+      }
+      ctxC.lineTo(pad+(n-1)*xS,botY+botH);
+      ctxC.fill();
+      ctxC.globalAlpha=1;
+
+      ctxC.strokeStyle=accentGold;
+      ctxC.lineWidth=2;
+      ctxC.beginPath();
+      for(let i=0;i<n;i++){
+        const x=pad+i*xS,y=botY+botH-activeHistory[i]*yS;
+        if(i===0) ctxC.moveTo(x,y); else ctxC.lineTo(x,y);
+      }
+      ctxC.stroke();
+
+      ctxC.fillStyle=textMuted;
+      ctxC.fillText(maxA.toString(),pad-35,botY+14);
+      ctxC.fillText('0',pad-15,botY+botH-2);
+
+      ctxC.fillText(lang==='ro'?'Lot (x50 interacțiuni)':'Batch (x50 interactions)',W-170,botY+botH+14);
+    }
+  }
+
+  function draw(){
+    drawGrid();
+    drawCharts();
+  }
+
+  function togglePlay(){if(playing)stopPlay();else startPlay();}
+  function startPlay(){
+    playing=true;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn6c_play').textContent=lang==='ro'?'Pauză':'Pause';
+    const spd=+document.getElementById('s6c_speed').value;
+    timer=setInterval(doStep,300/spd);
+  }
+  function stopPlay(){
+    playing=false;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn6c_play').textContent=lang==='ro'?'Pornește':'Play';
+    if(timer)clearInterval(timer);timer=null;
+  }
+
+  function reset(){
+    stopPlay();
+    initGrid();
+    draw();
+  }
+
+  bindSlider('s6c_grid','v6c_grid',()=>reset());
+  bindSlider('s6c_feat','v6c_feat',()=>reset());
+  bindSlider('s6c_traits','v6c_traits',()=>reset());
+  bindSlider('s6c_radius','v6c_radius',()=>{radius=+document.getElementById('s6c_radius').value;});
+  bindSlider('s6c_mut','v6c_mut',v=>{mutRate=v/100000;},v=>(v/100000).toFixed(3));
+  bindSlider('s6c_speed','v6c_speed',()=>{if(playing){stopPlay();startPlay();}});
+
+  reset();
+  return {step:doStep,togglePlay,reset,draw};
+})();
+
+// ============================================================
+// REDRAW ALL (called on theme switch)
+// ============================================================
+function redrawAll(){
+  if(typeof sim6a!=='undefined' && sim6a.draw) sim6a.draw();
+  if(typeof sim6b!=='undefined' && sim6b.draw) sim6b.draw();
+  if(typeof sim6c!=='undefined' && sim6c.draw) sim6c.draw();
+}
+</script>
+
+<script>
+function setTheme(t){document.body.className='theme-'+t;localStorage.setItem('mt-theme',t);if(typeof redrawAll==='function')redrawAll();}
+function toggleLang(){var c=document.documentElement.lang||'en',n=c==='en'?'ro':'en';document.documentElement.lang=n;document.getElementById('langBtn').textContent=n==='en'?'RO':'EN';localStorage.setItem('mt-lang',n);applyLanguage(n);}
+function applyLanguage(lang){document.querySelectorAll('[data-ro]').forEach(function(el){if(lang==='ro'){if(!el.dataset.en)el.dataset.en=el.innerHTML;el.innerHTML=el.dataset.ro;}else{if(el.dataset.en)el.innerHTML=el.dataset.en;}});if(typeof redrawAll==='function')redrawAll();}
+(function(){var t=localStorage.getItem('mt-theme')||'dark',l=localStorage.getItem('mt-lang')||'en';document.body.className='theme-'+t;if(l==='ro'){document.documentElement.lang='ro';document.getElementById('langBtn').textContent='EN';setTimeout(function(){applyLanguage('ro');},100);}})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulator 5: Diversity, Innovation & Markov Processes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body.theme-dark {
+  --bg-primary: #0a0e17; --bg-secondary: #12182a; --bg-panel: #16213e; --bg-input: #1a1a2e;
+  --text-primary: #f0f0f0; --text-secondary: #8899aa; --text-muted: #667788;
+  --border-color: rgba(255,255,255,0.06); --border-hover: rgba(0,210,255,0.3);
+  --accent-cyan: #00d2ff; --accent-red: #e94560; --accent-green: #6bcb77; --accent-gold: #ffd93d; --accent-purple: #9b59b6;
+  --shadow: rgba(0,0,0,0.4); --canvas-bg: #0a0e17;
+}
+body.theme-white {
+  --bg-primary: #f5f7fa; --bg-secondary: #ffffff; --bg-panel: #ffffff; --bg-input: #f0f2f5;
+  --text-primary: #1a1a2e; --text-secondary: #555566; --text-muted: #888899;
+  --border-color: rgba(0,0,0,0.1); --border-hover: rgba(0,130,200,0.4);
+  --accent-cyan: #0088cc; --accent-red: #d63031; --accent-green: #27ae60; --accent-gold: #f39c12; --accent-purple: #8e44ad;
+  --shadow: rgba(0,0,0,0.1); --canvas-bg: #ffffff;
+}
+body.theme-sepia {
+  --bg-primary: #f4ecd8; --bg-secondary: #faf6eb; --bg-panel: #faf6eb; --bg-input: #efe7d3;
+  --text-primary: #433422; --text-secondary: #6b5b4a; --text-muted: #8b7b6a;
+  --border-color: rgba(100,70,30,0.15); --border-hover: rgba(160,100,30,0.4);
+  --accent-cyan: #b8860b; --accent-red: #a0522d; --accent-green: #6b8e23; --accent-gold: #cd853f; --accent-purple: #8b4513;
+  --shadow: rgba(100,70,30,0.15); --canvas-bg: #faf6eb;
+}
+body.theme-ocean {
+  --bg-primary: #0b1628; --bg-secondary: #0f2035; --bg-panel: #132a42; --bg-input: #163352;
+  --text-primary: #d4e6f1; --text-secondary: #7fb3d3; --text-muted: #5a8faa;
+  --border-color: rgba(100,180,255,0.1); --border-hover: rgba(100,200,255,0.35);
+  --accent-cyan: #5dade2; --accent-red: #e74c3c; --accent-green: #48c9b0; --accent-gold: #f7dc6f; --accent-purple: #a569bd;
+  --shadow: rgba(0,20,50,0.5); --canvas-bg: #0b1628;
+}
+
+body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow-x:hidden;transition:background 0.3s,color 0.3s}
+h1{text-align:center;padding:24px;font-size:1.8rem;background:linear-gradient(135deg,var(--bg-panel),var(--bg-secondary));border-bottom:2px solid var(--accent-red);letter-spacing:1px;color:var(--text-primary)}
+h1 span{color:var(--accent-red)}
+.sim-section{max-width:1400px;margin:30px auto;padding:0 20px}
+.sim-title{font-size:1.4rem;color:var(--accent-cyan);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.sim-title .badge{background:var(--accent-red);color:#fff;font-size:0.7rem;padding:2px 10px;border-radius:10px;font-weight:700}
+.sim-subtitle{color:var(--text-muted);font-size:0.95rem;margin-bottom:16px;font-style:italic}
+.sim-container{display:grid;grid-template-columns:280px 1fr;gap:16px;background:var(--bg-panel);border-radius:12px;padding:20px;border:1px solid var(--border-color)}
+.controls{display:flex;flex-direction:column;gap:10px}
+.control-group{background:var(--bg-input);border-radius:8px;padding:12px}
+.control-group label{display:block;font-size:0.78rem;color:var(--text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.control-group input[type=range]{width:100%;accent-color:var(--accent-red)}
+.control-group select{width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:6px;border-radius:4px;font-size:0.85rem}
+.control-group .val{float:right;color:var(--accent-cyan);font-weight:700;font-size:0.85rem}
+.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s}
+.btn-play{background:var(--accent-cyan);color:var(--bg-primary)}.btn-play:hover{opacity:0.85}
+.btn-step{background:var(--accent-red);color:#fff}.btn-step:hover{opacity:0.85}
+.btn-reset{background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-color)}.btn-reset:hover{opacity:0.85}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+.viz-area{display:flex;flex-direction:column;gap:12px;min-height:400px}
+canvas{border-radius:8px;background:var(--canvas-bg);display:block}
+.info-panels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+.info-box{background:var(--bg-input);border-radius:8px;padding:14px;border-left:3px solid var(--accent-red)}
+.info-box.mechanism{border-left-color:var(--accent-cyan)}
+.info-box.examples{border-left-color:var(--accent-gold)}
+.info-box.insight{border-left-color:var(--accent-green)}
+.info-box h3{font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.info-box.mechanism h3{color:var(--accent-cyan)}
+.info-box.examples h3{color:var(--accent-gold)}
+.info-box.insight h3{color:var(--accent-green)}
+.info-box p,.info-box ul{font-size:0.82rem;color:var(--text-secondary);line-height:1.5}
+.info-box ul{padding-left:16px}
+.info-box li{margin-bottom:3px}
+.stats-bar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.stat{background:var(--bg-secondary);padding:6px 14px;border-radius:6px;font-size:0.82rem;color:var(--text-primary)}
+.stat .num{color:var(--accent-cyan);font-weight:700;font-size:1.1rem}
+.divider{height:2px;background:linear-gradient(90deg,transparent,var(--border-color),transparent);margin:40px 0}
+.checkbox-row{display:flex;align-items:center;gap:6px;font-size:0.82rem}
+.checkbox-row input[type=checkbox]{accent-color:var(--accent-red)}
+.viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:900px){.sim-container{grid-template-columns:1fr}.info-panels{grid-template-columns:1fr}.viz-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);backdrop-filter:blur(10px);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<h1><span data-ro="Simulator 5:">Simulator 5:</span> <span data-ro="Diversitate, Inovație și Procese Markov">Diversity, Innovation & Markov Processes</span></h1>
+
+<!-- ===================== 5a: Rugged Landscape ===================== -->
+<div class="sim-section" id="sec5a">
+  <div class="sim-title"><span data-ro="5a. Peisaj Accidentat / Căutare pe Colină">5a. Rugged Landscape / Hill Climbing</span> <span class="badge" data-ro="Modelul NK">NK Model</span></div>
+  <div class="sim-subtitle" data-ro="Cum diversitatea pozițiilor de start și a strategiilor depășește omogenitatea pe peisaje complexe de fitness">How diversity of starting positions and strategies outperforms homogeneity on complex fitness landscapes</div>
+  <div class="sim-container">
+    <div class="controls">
+      <div class="control-group">
+        <label><span data-ro="Rugozitate (K)">Ruggedness (K)</span> <span class="val" id="v5a_k">3</span></label>
+        <input type="range" id="s5a_k" min="1" max="8" value="3">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Număr de Vârfuri">Number of Peaks</span> <span class="val" id="v5a_peaks">5</span></label>
+        <input type="range" id="s5a_peaks" min="2" max="20" value="5">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Agenți per Echipă">Agents per Team</span> <span class="val" id="v5a_agents">8</span></label>
+        <input type="range" id="s5a_agents" min="1" max="20" value="8">
+      </div>
+      <div class="control-group">
+        <label data-ro="Strategie">Strategy</label>
+        <select id="s5a_strategy">
+          <option value="hill" data-ro="Căutare pe Colină">Hill Climbing</option>
+          <option value="random_restart" data-ro="Repornire Aleatoare">Random Restart</option>
+          <option value="annealing" data-ro="Recoacere Simulată">Simulated Annealing</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <div class="checkbox-row">
+          <input type="checkbox" id="s5a_diverse" checked>
+          <label style="margin:0;text-transform:none" data-ro="Arată Echipa Diversă">Show Diverse Team</label>
+        </div>
+        <div class="checkbox-row" style="margin-top:4px">
+          <input type="checkbox" id="s5a_homog" checked>
+          <label style="margin:0;text-transform:none" data-ro="Arată Echipa Omogenă">Show Homogeneous Team</label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-step" onclick="sim5a.step()" data-ro="Pas">Step</button>
+        <button class="btn btn-play" id="btn5a_play" onclick="sim5a.togglePlay()" data-ro="Pornește">Play</button>
+        <button class="btn btn-reset" onclick="sim5a.reset()" data-ro="Resetează">Reset</button>
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Viteză">Speed</span> <span class="val" id="v5a_speed">5</span></label>
+        <input type="range" id="s5a_speed" min="1" max="10" value="5">
+      </div>
+    </div>
+    <div class="viz-area">
+      <div class="stats-bar" id="stats5a">
+        <div class="stat"><span data-ro="Pas:">Step:</span> <span class="num" id="st5a_step">0</span></div>
+        <div class="stat"><span data-ro="Cel mai bun Divers:">Diverse Best:</span> <span class="num" id="st5a_divbest" style="color:var(--accent-green)">0.00</span></div>
+        <div class="stat"><span data-ro="Cel mai bun Omogen:">Homog Best:</span> <span class="num" id="st5a_hombest" style="color:var(--accent-red)">0.00</span></div>
+        <div class="stat"><span data-ro="Maxim Global:">Global Max:</span> <span class="num" id="st5a_gmax" style="color:var(--accent-gold)">0.00</span></div>
+      </div>
+      <div class="viz-grid">
+        <canvas id="c5a_landscape" width="520" height="340"></canvas>
+        <canvas id="c5a_fitness" width="520" height="340"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="info-panels">
+    <div class="info-box mechanism">
+      <h3 data-ro="Cum Funcționează">Mechanism</h3>
+      <p data-ro="Pe peisaje netede, orice căutător pe colină găsește optimul. Pe peisaje accidentate cu multe optime locale, punctele de pornire diverse și euristicile diverse depășesc dramatic echipele omogene. Oameni diferiți se blochează la optime locale diferite -- diversitatea perspectivei permite grupurilor să depășească indivizii.">On smooth landscapes, any hill climber finds the optimum. On rugged landscapes with many local optima, diverse starting points and diverse heuristics dramatically outperform homogeneous teams. Different people get stuck at different local optima -- diversity of perspective enables groups to outperform individuals.</p>
+    </div>
+    <div class="info-box examples">
+      <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+      <ul>
+        <li data-ro="Echipe de cercetare științifică cu pregătiri variate">Scientific research teams with varied backgrounds</li>
+        <li data-ro="Sesiuni de brainstorming pentru design de produs">Product design brainstorming sessions</li>
+        <li data-ro="Strategii de diversificare a portofoliului de investiții">Investment portfolio diversification strategies</li>
+        <li data-ro="Diagnostic medical de către specialiști diferiți">Medical diagnosis by different specialists</li>
+      </ul>
+    </div>
+    <div class="info-box insight">
+      <h3 data-ro="Ideea Cheie">Key Insight</h3>
+      <p data-ro="Pe măsură ce rugozitatea peisajului (K) crește, avantajul echipelor diverse crește dramatic. Cu cât problema este mai complexă, cu atât diversitatea contează mai mult -- deoarece există mai multe optime locale unde gânditorii omogeni rămân blocați.">As landscape ruggedness (K) increases, the advantage of diverse teams grows dramatically. The more complex the problem, the more diversity matters -- because there are more local optima where homogeneous thinkers get trapped.</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 5b: Diversity Trumps Ability ===================== -->
+<div class="sim-section" id="sec5b">
+  <div class="sim-title"><span data-ro="5b. Teorema Diversitatea Învinge Abilitatea">5b. Diversity Trumps Ability Theorem</span> <span class="badge" data-ro="Teorema lui Page">Page's Theorem</span></div>
+  <div class="sim-subtitle" data-ro="În anumite condiții, un grup divers aleator depășește un grup format din cei mai buni rezolvitori individuali">Under certain conditions, a random diverse group outperforms a group of the best individual solvers</div>
+  <div class="sim-container">
+    <div class="controls">
+      <div class="control-group">
+        <label><span data-ro="Rugozitatea Problemei">Problem Ruggedness</span> <span class="val" id="v5b_rug">5</span></label>
+        <input type="range" id="s5b_rug" min="1" max="10" value="5">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Grup Total de Rezolvitori">Total Solvers Pool</span> <span class="val" id="v5b_pool">40</span></label>
+        <input type="range" id="s5b_pool" min="10" max="80" value="40">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Dimensiune Echipă">Team Size</span> <span class="val" id="v5b_team">10</span></label>
+        <input type="range" id="s5b_team" min="3" max="25" value="10">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Nivel de Diversitate">Diversity Level</span> <span class="val" id="v5b_div">7</span></label>
+        <input type="range" id="s5b_div" min="1" max="10" value="7">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Număr de Încercări">Number of Trials</span> <span class="val" id="v5b_trials">50</span></label>
+        <input type="range" id="s5b_trials" min="10" max="200" value="50" step="10">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-play" onclick="sim5b.run()" data-ro="Rulează Încercări">Run Trials</button>
+        <button class="btn btn-reset" onclick="sim5b.reset()" data-ro="Resetează">Reset</button>
+      </div>
+    </div>
+    <div class="viz-area">
+      <div class="stats-bar" id="stats5b">
+        <div class="stat"><span data-ro="Încercări:">Trials:</span> <span class="num" id="st5b_trials">0</span></div>
+        <div class="stat"><span data-ro="Media Celor Mai Buni:">Best Indiv Avg:</span> <span class="num" id="st5b_best" style="color:var(--accent-red)">--</span></div>
+        <div class="stat"><span data-ro="Media Grupului Divers:">Diverse Group Avg:</span> <span class="num" id="st5b_diverse" style="color:var(--accent-green)">--</span></div>
+        <div class="stat"><span data-ro="Câștiguri Diverse:">Diverse Wins:</span> <span class="num" id="st5b_wins" style="color:var(--accent-gold)">--</span></div>
+      </div>
+      <div class="viz-grid">
+        <canvas id="c5b_bars" width="520" height="340"></canvas>
+        <canvas id="c5b_history" width="520" height="340"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="info-panels">
+    <div class="info-box mechanism">
+      <h3 data-ro="Cum Funcționează">Mechanism</h3>
+      <p data-ro="Fiecare rezolvitor are o &quot;perspectivă&quot; unică (codificarea spațiului problemei) și o &quot;euristică&quot; (strategie de căutare). Cei mai buni rezolvitori individuali pot împărtăși perspective similare și se blochează împreună. Un grup divers aleator explorează mai mult din spațiul soluțiilor, găsind colectiv vârfuri mai înalte chiar dacă individual sunt mai puțin competenți.">Each solver has a unique "perspective" (encoding of the problem space) and "heuristic" (search strategy). The best individual solvers may share similar perspectives and get stuck together. A random diverse group explores more of the solution space, finding higher peaks collectively even if individually less skilled.</p>
+    </div>
+    <div class="info-box examples">
+      <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+      <ul>
+        <li data-ro="Piețele de predicție depășesc panelurile de experți">Prediction markets outperform expert panels</li>
+        <li data-ro="Metodele de ansamblu în învățarea automată">Ensemble methods in machine learning</li>
+        <li data-ro="Deciziile juriului vs. un singur judecător">Jury decisions vs single judge</li>
+        <li data-ro="Dezvoltare open-source vs. echipe corporative">Open-source dev vs. corporate teams</li>
+        <li data-ro="Wikipedia vs. Britannica">Wikipedia vs. Britannica</li>
+      </ul>
+    </div>
+    <div class="info-box insight">
+      <h3 data-ro="Ideea Cheie">Key Insight</h3>
+      <p data-ro="Diversitatea perspectivei + euristici > abilitate brută. Aceasta funcționează când: (1) problema este suficient de dificilă, (2) rezolvitorii sunt suficient de inteligenți, și (3) grupul este cu adevărat divers. Nu înseamnă că abilitatea nu contează -- dar diversitatea oferă explorare rezistentă la randamente descrescătoare.">Diversity of perspective + heuristics > raw ability. This holds when: (1) the problem is hard enough, (2) solvers are smart enough, and (3) the group is genuinely diverse. It is not that ability doesn't matter -- but diversity provides diminishing-returns-proof exploration.</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 5c: Recombination Growth ===================== -->
+<div class="sim-section" id="sec5c">
+  <div class="sim-title"><span data-ro="5c. Recombinare și Creșterea Inovației">5c. Recombination & Innovation Growth</span> <span class="badge" data-ro="Markov / Combinatorial">Markov / Combinatorial</span></div>
+  <div class="sim-subtitle" data-ro="Cum recombinarea ideilor existente creează o creștere exponențială a inovației">How recombination of existing ideas creates exponential innovation growth</div>
+  <div class="sim-container">
+    <div class="controls">
+      <div class="control-group">
+        <label><span data-ro="Idei Inițiale">Initial Ideas</span> <span class="val" id="v5c_init">5</span></label>
+        <input type="range" id="s5c_init" min="2" max="15" value="5">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Rata de Combinare">Combination Rate</span> <span class="val" id="v5c_rate">3</span></label>
+        <input type="range" id="s5c_rate" min="1" max="10" value="3">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Dimensiunea Spațiului de Idei">Idea Space Size</span> <span class="val" id="v5c_space">200</span></label>
+        <input type="range" id="s5c_space" min="50" max="500" value="200" step="10">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Inovatori">Innovators</span> <span class="val" id="v5c_pop">4</span></label>
+        <input type="range" id="s5c_pop" min="1" max="10" value="4">
+      </div>
+      <div class="control-group">
+        <label><span data-ro="Viteză">Speed</span> <span class="val" id="v5c_speed">5</span></label>
+        <input type="range" id="s5c_speed" min="1" max="10" value="5">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-step" onclick="sim5c.step()" data-ro="Pas">Step</button>
+        <button class="btn btn-play" id="btn5c_play" onclick="sim5c.togglePlay()" data-ro="Pornește">Play</button>
+        <button class="btn btn-reset" onclick="sim5c.reset()" data-ro="Resetează">Reset</button>
+      </div>
+    </div>
+    <div class="viz-area">
+      <div class="stats-bar" id="stats5c">
+        <div class="stat"><span data-ro="Generația:">Generation:</span> <span class="num" id="st5c_gen">0</span></div>
+        <div class="stat"><span data-ro="Total Idei:">Total Ideas:</span> <span class="num" id="st5c_total" style="color:var(--accent-cyan)">0</span></div>
+        <div class="stat"><span data-ro="Combinații Posibile:">Possible Combos:</span> <span class="num" id="st5c_combos" style="color:var(--accent-gold)">0</span></div>
+        <div class="stat"><span data-ro="Rata Inovării:">Innovation Rate:</span> <span class="num" id="st5c_rate" style="color:var(--accent-green)">0</span></div>
+      </div>
+      <div class="viz-grid">
+        <canvas id="c5c_network" width="520" height="340"></canvas>
+        <canvas id="c5c_growth" width="520" height="340"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="info-panels">
+    <div class="info-box mechanism">
+      <h3 data-ro="Cum Funcționează">Mechanism</h3>
+      <p data-ro="Cu N idei, există N*(N-1)/2 combinații posibile pe perechi. Pe măsură ce N crește, combinațiile cresc pătratic, creând randamente accelerate ale cunoașterii. Mai multe idei duc la mai multe idei noi posibile, care duc la și mai multe idei -- o buclă de feedback pozitiv care conduce la creșterea exponențială a inovației.">With N ideas, there are N*(N-1)/2 possible pairwise combinations. As N grows, combinations grow quadratically, creating accelerating returns to knowledge. More ideas lead to more possible new ideas, which lead to even more ideas -- a positive feedback loop driving exponential innovation growth.</p>
+    </div>
+    <div class="info-box examples">
+      <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+      <ul>
+        <li data-ro="Smartphone = telefon + computer + cameră + GPS">Smartphone = phone + computer + camera + GPS</li>
+        <li data-ro="Cercetare științifică interdisciplinară">Interdisciplinary scientific research</li>
+        <li data-ro="Inovația rețetelor și bucătăria fuziune">Recipe innovation and fusion cuisine</li>
+        <li data-ro="Amestecul genurilor muzicale (jazz + rock = fuziune)">Music genre blending (jazz + rock = fusion)</li>
+        <li data-ro="Polenizarea încrucișată a ecosistemului de startup-uri">Startup ecosystem cross-pollination</li>
+      </ul>
+    </div>
+    <div class="info-box insight">
+      <h3 data-ro="Ideea Cheie">Key Insight</h3>
+      <p data-ro="Inovația este combinatorială, nu liniară. Rata de creștere a ideilor noi este proporțională cu pătratul numărului de idei existente. Aceasta explică de ce inovația se accelerează în timp și de ce mediile bogate în cunoștințe (orașe, universități) sunt puncte fierbinți ale inovației.">Innovation is combinatorial, not linear. The growth rate of new ideas is proportional to the number of existing ideas squared. This explains why innovation accelerates over time and why knowledge-rich environments (cities, universities) are innovation hotspots.</p>
+    </div>
+  </div>
+</div>
+
+<div style="height:40px"></div>
+
+<script>
+// ============================================================
+// THEME HELPER: get CSS variable value
+// ============================================================
+function getThemeColor(varName){
+  return getComputedStyle(document.body).getPropertyValue(varName).trim();
+}
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+function lerp(a,b,t){return a+(b-a)*t}
+function rng(){return Math.random()}
+function rngInt(lo,hi){return Math.floor(rng()*(hi-lo+1))+lo}
+function hsl(h,s,l){return `hsl(${h},${s}%,${l}%)`}
+
+function bindSlider(id,valId,cb){
+  const s=document.getElementById(id),v=document.getElementById(valId);
+  s.addEventListener('input',()=>{v.textContent=s.value;if(cb)cb(+s.value)});
+}
+
+// ============================================================
+// 5a: RUGGED LANDSCAPE / HILL CLIMBING
+// ============================================================
+const sim5a=(()=>{
+  const cLand=document.getElementById('c5a_landscape');
+  const cFit=document.getElementById('c5a_fitness');
+  const ctxL=cLand.getContext('2d');
+  const ctxF=cFit.getContext('2d');
+  const W=520,H=340;
+  const GS=100; // grid size for landscape
+
+  let landscape=[];
+  let globalMax=0;
+  let diverseAgents=[];
+  let homogAgents=[];
+  let diverseHistory=[];
+  let homogHistory=[];
+  let stepCount=0;
+  let playing=false;
+  let timer=null;
+
+  function generateLandscape(){
+    const nPeaks=+document.getElementById('s5a_peaks').value;
+    const K=+document.getElementById('s5a_k').value;
+    landscape=[];
+    globalMax=0;
+    // create peaks
+    const peaks=[];
+    for(let i=0;i<nPeaks;i++){
+      peaks.push({
+        x:rng()*GS, y:rng()*GS,
+        h:0.3+rng()*0.7,
+        sx:3+rng()*K*3, sy:3+rng()*K*3
+      });
+    }
+    for(let y=0;y<GS;y++){
+      landscape[y]=[];
+      for(let x=0;x<GS;x++){
+        let v=0;
+        for(const p of peaks){
+          const dx=(x-p.x)/p.sx, dy=(y-p.y)/p.sy;
+          v+=p.h*Math.exp(-(dx*dx+dy*dy));
+        }
+        // add ruggedness noise
+        if(K>2) v+=Math.sin(x*K*0.3)*Math.cos(y*K*0.3)*0.05*K;
+        landscape[y][x]=v;
+        if(v>globalMax) globalMax=v;
+      }
+    }
+  }
+
+  function getFitness(x,y){
+    const gx=clamp(Math.floor(x),0,GS-1);
+    const gy=clamp(Math.floor(y),0,GS-1);
+    return landscape[gy][gx];
+  }
+
+  function initAgents(){
+    const n=+document.getElementById('s5a_agents').value;
+    diverseAgents=[];
+    homogAgents=[];
+    // diverse: spread across landscape
+    for(let i=0;i<n;i++){
+      diverseAgents.push({x:rng()*GS,y:rng()*GS,best:0,bestX:0,bestY:0,temp:1});
+    }
+    // homogeneous: all start near center
+    const cx=GS/2+rng()*10-5, cy=GS/2+rng()*10-5;
+    for(let i=0;i<n;i++){
+      homogAgents.push({x:cx+rng()*6-3,y:cy+rng()*6-3,best:0,bestX:0,bestY:0,temp:1});
+    }
+    // record initial fitness
+    for(const a of diverseAgents){a.best=getFitness(a.x,a.y);a.bestX=a.x;a.bestY=a.y;}
+    for(const a of homogAgents){a.best=getFitness(a.x,a.y);a.bestX=a.x;a.bestY=a.y;}
+  }
+
+  function stepAgent(a,strategy){
+    const step=1.5;
+    let nx,ny,nf;
+    if(strategy==='hill'){
+      // try 8 neighbors
+      let bestF=getFitness(a.x,a.y);
+      nx=a.x;ny=a.y;
+      for(let dx=-1;dx<=1;dx++) for(let dy=-1;dy<=1;dy++){
+        if(!dx&&!dy) continue;
+        const tx=clamp(a.x+dx*step,0,GS-1), ty=clamp(a.y+dy*step,0,GS-1);
+        const f=getFitness(tx,ty);
+        if(f>bestF){bestF=f;nx=tx;ny=ty;}
+      }
+      a.x=nx;a.y=ny;
+    } else if(strategy==='random_restart'){
+      // hill climb, but with probability restart
+      let bestF=getFitness(a.x,a.y);
+      nx=a.x;ny=a.y;
+      for(let dx=-1;dx<=1;dx++) for(let dy=-1;dy<=1;dy++){
+        if(!dx&&!dy) continue;
+        const tx=clamp(a.x+dx*step,0,GS-1),ty=clamp(a.y+dy*step,0,GS-1);
+        const f=getFitness(tx,ty);
+        if(f>bestF){bestF=f;nx=tx;ny=ty;}
+      }
+      if(nx===a.x && ny===a.y && rng()<0.15){
+        // stuck at local optimum - random restart
+        a.x=rng()*GS; a.y=rng()*GS;
+      } else {
+        a.x=nx; a.y=ny;
+      }
+    } else { // annealing
+      const dx=(rng()-0.5)*step*3, dy=(rng()-0.5)*step*3;
+      nx=clamp(a.x+dx,0,GS-1); ny=clamp(a.y+dy,0,GS-1);
+      nf=getFitness(nx,ny);
+      const cf=getFitness(a.x,a.y);
+      if(nf>cf || rng()<Math.exp((nf-cf)/(a.temp*0.1+0.001))){
+        a.x=nx;a.y=ny;
+      }
+      a.temp*=0.995;
+    }
+    const f=getFitness(a.x,a.y);
+    if(f>a.best){a.best=f;a.bestX=a.x;a.bestY=a.y;}
+  }
+
+  function doStep(){
+    const strat=document.getElementById('s5a_strategy').value;
+    for(const a of diverseAgents) stepAgent(a,strat);
+    for(const a of homogAgents) stepAgent(a,strat);
+    stepCount++;
+    const db=Math.max(...diverseAgents.map(a=>a.best));
+    const hb=Math.max(...homogAgents.map(a=>a.best));
+    diverseHistory.push(db);
+    homogHistory.push(hb);
+    updateStats();
+    draw();
+  }
+
+  function updateStats(){
+    document.getElementById('st5a_step').textContent=stepCount;
+    const db=diverseHistory.length?diverseHistory[diverseHistory.length-1]:0;
+    const hb=homogHistory.length?homogHistory[homogHistory.length-1]:0;
+    document.getElementById('st5a_divbest').textContent=db.toFixed(2);
+    document.getElementById('st5a_hombest').textContent=hb.toFixed(2);
+    document.getElementById('st5a_gmax').textContent=globalMax.toFixed(2);
+  }
+
+  function drawLandscape(){
+    const cellW=W/GS, cellH=H/GS;
+    for(let y=0;y<GS;y++) for(let x=0;x<GS;x++){
+      const v=landscape[y][x]/globalMax;
+      const h=240-v*240;
+      ctxL.fillStyle=hsl(h,80,10+v*50);
+      ctxL.fillRect(x*cellW,y*cellH,cellW+1,cellH+1);
+    }
+  }
+
+  function drawAgents(){
+    const cellW=W/GS, cellH=H/GS;
+    const showDiv=document.getElementById('s5a_diverse').checked;
+    const showHom=document.getElementById('s5a_homog').checked;
+    if(showDiv){
+      for(const a of diverseAgents){
+        ctxL.beginPath();
+        ctxL.arc(a.x*cellW,a.y*cellH,4,0,Math.PI*2);
+        ctxL.fillStyle=getThemeColor('--accent-green');
+        ctxL.fill();
+        ctxL.strokeStyle='#fff';
+        ctxL.lineWidth=1;
+        ctxL.stroke();
+      }
+    }
+    if(showHom){
+      for(const a of homogAgents){
+        ctxL.beginPath();
+        ctxL.arc(a.x*cellW,a.y*cellH,4,0,Math.PI*2);
+        ctxL.fillStyle=getThemeColor('--accent-red');
+        ctxL.fill();
+        ctxL.strokeStyle='#fff';
+        ctxL.lineWidth=1;
+        ctxL.stroke();
+      }
+    }
+  }
+
+  function drawFitnessGraph(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var textSecondary=getThemeColor('--text-secondary');
+    var borderColor=getThemeColor('--border-color');
+    var accentRed=getThemeColor('--accent-red');
+    var accentGreen=getThemeColor('--accent-green');
+    var accentGold=getThemeColor('--accent-gold');
+
+    ctxF.fillStyle=canvasBg;
+    ctxF.fillRect(0,0,W,H);
+    // axes
+    const pad=50;
+    ctxF.strokeStyle=borderColor;
+    ctxF.lineWidth=1;
+    ctxF.beginPath();
+    ctxF.moveTo(pad,10);ctxF.lineTo(pad,H-30);ctxF.lineTo(W-10,H-30);
+    ctxF.stroke();
+    // labels
+    ctxF.fillStyle=textMuted;
+    ctxF.font='11px sans-serif';
+    ctxF.fillText('Fitness',5,20);
+    ctxF.fillText('Step',W-40,H-10);
+    ctxF.fillText('0',pad-15,H-26);
+    ctxF.fillText(globalMax.toFixed(1),pad-35,18);
+
+    if(diverseHistory.length<2) return;
+    const maxSteps=diverseHistory.length;
+    const xScale=(W-pad-20)/Math.max(maxSteps-1,1);
+    const yScale=(H-50)/globalMax;
+
+    // global max line
+    ctxF.strokeStyle=accentGold+'4d';
+    ctxF.setLineDash([4,4]);
+    ctxF.beginPath();
+    ctxF.moveTo(pad,H-30-globalMax*yScale);
+    ctxF.lineTo(W-10,H-30-globalMax*yScale);
+    ctxF.stroke();
+    ctxF.setLineDash([]);
+    ctxF.fillStyle=accentGold;
+    ctxF.fillText('Global Max',W-80,H-30-globalMax*yScale-5);
+
+    function plotLine(data,color){
+      ctxF.strokeStyle=color;
+      ctxF.lineWidth=2;
+      ctxF.beginPath();
+      for(let i=0;i<data.length;i++){
+        const x=pad+i*xScale, y=H-30-data[i]*yScale;
+        if(i===0) ctxF.moveTo(x,y); else ctxF.lineTo(x,y);
+      }
+      ctxF.stroke();
+    }
+    if(document.getElementById('s5a_diverse').checked) plotLine(diverseHistory,accentGreen);
+    if(document.getElementById('s5a_homog').checked) plotLine(homogHistory,accentRed);
+
+    // legend
+    ctxF.fillStyle=accentGreen; ctxF.fillRect(pad+10,15,12,3);
+    ctxF.fillStyle=textSecondary; ctxF.fillText('Diverse Team',pad+26,19);
+    ctxF.fillStyle=accentRed; ctxF.fillRect(pad+120,15,12,3);
+    ctxF.fillStyle=textSecondary; ctxF.fillText('Homogeneous Team',pad+136,19);
+  }
+
+  function draw(){
+    ctxL.clearRect(0,0,W,H);
+    drawLandscape();
+    drawAgents();
+    drawFitnessGraph();
+  }
+
+  function reset(){
+    stopPlay();
+    stepCount=0;
+    diverseHistory=[];
+    homogHistory=[];
+    generateLandscape();
+    initAgents();
+    updateStats();
+    draw();
+  }
+
+  function stepFn(){doStep();}
+
+  function togglePlay(){
+    if(playing) stopPlay();
+    else startPlay();
+  }
+  function startPlay(){
+    playing=true;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn5a_play').textContent=lang==='ro'?'Pauză':'Pause';
+    const spd=+document.getElementById('s5a_speed').value;
+    timer=setInterval(doStep, 300/spd);
+  }
+  function stopPlay(){
+    playing=false;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn5a_play').textContent=lang==='ro'?'Pornește':'Play';
+    if(timer) clearInterval(timer);
+    timer=null;
+  }
+
+  // bind sliders
+  bindSlider('s5a_k','v5a_k',()=>reset());
+  bindSlider('s5a_peaks','v5a_peaks',()=>reset());
+  bindSlider('s5a_agents','v5a_agents',()=>reset());
+  bindSlider('s5a_speed','v5a_speed',v=>{if(playing){stopPlay();startPlay();}});
+
+  reset();
+  return {step:stepFn,togglePlay,reset,draw};
+})();
+
+
+// ============================================================
+// 5b: DIVERSITY TRUMPS ABILITY
+// ============================================================
+const sim5b=(()=>{
+  const cBars=document.getElementById('c5b_bars');
+  const cHist=document.getElementById('c5b_history');
+  const ctxB=cBars.getContext('2d');
+  const ctxH=cHist.getContext('2d');
+  const W=520,H=340;
+  const LS=80; // landscape size
+
+  let trialResults=[];
+  let landscape=[];
+  let globalMax=0;
+
+  function generateLandscape(rug){
+    landscape=[];
+    globalMax=0;
+    const nPeaks=2+rug*2;
+    const peaks=[];
+    for(let i=0;i<nPeaks;i++){
+      peaks.push({x:rng()*LS,h:0.3+rng()*0.7,s:2+rng()*rug*1.5});
+    }
+    for(let x=0;x<LS;x++){
+      let v=0;
+      for(const p of peaks){
+        const dx=(x-p.x)/p.s;
+        v+=p.h*Math.exp(-dx*dx);
+      }
+      if(rug>3) v+=Math.sin(x*rug*0.5)*0.03*rug;
+      landscape[x]=v;
+      if(v>globalMax) globalMax=v;
+    }
+  }
+
+  function createSolver(diversityLevel){
+    const perspOffset=Math.floor(rng()*diversityLevel*LS/10)%LS;
+    const stepSizes=[1,2,3,Math.floor(rng()*5)+1];
+    const heuristic=stepSizes[Math.floor(rng()*stepSizes.length)];
+    return {perspOffset,heuristic};
+  }
+
+  function solve(solver,startX){
+    let x=(startX+solver.perspOffset)%LS;
+    let best=landscape[x];
+    for(let iter=0;iter<200;iter++){
+      let improved=false;
+      for(const d of [-solver.heuristic,solver.heuristic]){
+        const nx=(x+d+LS)%LS;
+        if(landscape[nx]>landscape[x]){
+          x=nx; improved=true; break;
+        }
+      }
+      if(!improved) break;
+      if(landscape[x]>best) best=landscape[x];
+    }
+    return best;
+  }
+
+  function runTrial(){
+    const rug=+document.getElementById('s5b_rug').value;
+    const poolSize=+document.getElementById('s5b_pool').value;
+    const teamSize=+document.getElementById('s5b_team').value;
+    const divLevel=+document.getElementById('s5b_div').value;
+
+    generateLandscape(rug);
+
+    const pool=[];
+    for(let i=0;i<poolSize;i++){
+      const solver=createSolver(divLevel);
+      let totalFit=0;
+      const nTests=5;
+      for(let t=0;t<nTests;t++){
+        totalFit+=solve(solver,Math.floor(rng()*LS));
+      }
+      pool.push({solver,avgFit:totalFit/nTests});
+    }
+
+    pool.sort((a,b)=>b.avgFit-a.avgFit);
+
+    const bestTeam=pool.slice(0,teamSize);
+    const indices=new Set();
+    while(indices.size<teamSize){indices.add(Math.floor(rng()*poolSize));}
+    const diverseTeam=[...indices].map(i=>pool[i]);
+
+    const startX=Math.floor(rng()*LS);
+    let bestTeamResult=0;
+    for(const m of bestTeam){
+      const r=solve(m.solver,startX);
+      if(r>bestTeamResult) bestTeamResult=r;
+    }
+    let diverseTeamResult=0;
+    for(const m of diverseTeam){
+      const r=solve(m.solver,startX);
+      if(r>diverseTeamResult) diverseTeamResult=r;
+    }
+
+    return {best:bestTeamResult/globalMax,diverse:diverseTeamResult/globalMax};
+  }
+
+  function run(){
+    const nTrials=+document.getElementById('s5b_trials').value;
+    trialResults=[];
+    for(let i=0;i<nTrials;i++){
+      trialResults.push(runTrial());
+    }
+    updateStats();
+    drawBars();
+    drawHistory();
+  }
+
+  function updateStats(){
+    const n=trialResults.length;
+    document.getElementById('st5b_trials').textContent=n;
+    if(!n){
+      document.getElementById('st5b_best').textContent='--';
+      document.getElementById('st5b_diverse').textContent='--';
+      document.getElementById('st5b_wins').textContent='--';
+      return;
+    }
+    const avgB=trialResults.reduce((s,r)=>s+r.best,0)/n;
+    const avgD=trialResults.reduce((s,r)=>s+r.diverse,0)/n;
+    const wins=trialResults.filter(r=>r.diverse>=r.best).length;
+    document.getElementById('st5b_best').textContent=avgB.toFixed(3);
+    document.getElementById('st5b_diverse').textContent=avgD.toFixed(3);
+    document.getElementById('st5b_wins').textContent=`${wins}/${n} (${(wins/n*100).toFixed(0)}%)`;
+  }
+
+  function drawBars(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textPrimary=getThemeColor('--text-primary');
+    var textMuted=getThemeColor('--text-muted');
+    var accentRed=getThemeColor('--accent-red');
+    var accentGreen=getThemeColor('--accent-green');
+
+    ctxB.fillStyle=canvasBg;
+    ctxB.fillRect(0,0,W,H);
+    if(!trialResults.length) return;
+    const n=trialResults.length;
+    const avgB=trialResults.reduce((s,r)=>s+r.best,0)/n;
+    const avgD=trialResults.reduce((s,r)=>s+r.diverse,0)/n;
+
+    const pad=60;
+    const barW=100;
+    const maxH=H-80;
+
+    const bh=avgB*maxH, dh=avgD*maxH;
+    const bx=W/2-barW-30, dx=W/2+30;
+    const by=H-40-bh, dy=H-40-dh;
+
+    const gB=ctxB.createLinearGradient(0,by,0,H-40);
+    gB.addColorStop(0,accentRed);gB.addColorStop(1,accentRed+'44');
+    ctxB.fillStyle=gB;
+    ctxB.fillRect(bx,by,barW,bh);
+
+    const gD=ctxB.createLinearGradient(0,dy,0,H-40);
+    gD.addColorStop(0,accentGreen);gD.addColorStop(1,accentGreen+'44');
+    ctxB.fillStyle=gD;
+    ctxB.fillRect(dx,dy,barW,dh);
+
+    var lang=document.documentElement.lang||'en';
+    ctxB.fillStyle=textPrimary;
+    ctxB.font='bold 13px sans-serif';
+    ctxB.textAlign='center';
+    ctxB.fillText(lang==='ro'?'Echipa cu Cea Mai':'Best Ability',bx+barW/2,H-22);
+    ctxB.fillText(lang==='ro'?'Bună Abilitate':'Team',bx+barW/2,H-8);
+    ctxB.fillText(lang==='ro'?'Echipă Diversă':'Random Diverse',dx+barW/2,H-22);
+    ctxB.fillText(lang==='ro'?'Aleatoare':'Team',dx+barW/2,H-8);
+
+    ctxB.fillStyle='#fff';
+    ctxB.font='bold 16px sans-serif';
+    ctxB.fillText(avgB.toFixed(3),bx+barW/2,by-8);
+    ctxB.fillText(avgD.toFixed(3),dx+barW/2,dy-8);
+
+    ctxB.fillStyle=textMuted;
+    ctxB.font='12px sans-serif';
+    ctxB.fillText(lang==='ro'?'Performanță Medie (normalizată)':'Average Performance (normalized)',W/2,20);
+    ctxB.textAlign='left';
+  }
+
+  function drawHistory(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var textSecondary=getThemeColor('--text-secondary');
+    var borderColor=getThemeColor('--border-color');
+    var accentRed=getThemeColor('--accent-red');
+    var accentGreen=getThemeColor('--accent-green');
+
+    ctxH.fillStyle=canvasBg;
+    ctxH.fillRect(0,0,W,H);
+    if(!trialResults.length) return;
+    const pad=50;
+
+    ctxH.strokeStyle=borderColor;
+    ctxH.lineWidth=1;
+    ctxH.beginPath();
+    ctxH.moveTo(pad,10);ctxH.lineTo(pad,H-30);ctxH.lineTo(W-10,H-30);
+    ctxH.stroke();
+
+    ctxH.fillStyle=textMuted;
+    ctxH.font='11px sans-serif';
+    ctxH.fillText('Performance',2,20);
+    ctxH.fillText('Trial #',W-50,H-10);
+
+    const n=trialResults.length;
+    const xS=(W-pad-20)/Math.max(n-1,1);
+
+    let sumB=0,sumD=0;
+    const avgBArr=[],avgDArr=[];
+    for(let i=0;i<n;i++){
+      sumB+=trialResults[i].best; sumD+=trialResults[i].diverse;
+      avgBArr.push(sumB/(i+1));
+      avgDArr.push(sumD/(i+1));
+    }
+
+    function plotLine(data,color){
+      ctxH.strokeStyle=color;
+      ctxH.lineWidth=2;
+      ctxH.beginPath();
+      for(let i=0;i<data.length;i++){
+        const x=pad+i*xS, y=H-30-data[i]*(H-50);
+        if(i===0) ctxH.moveTo(x,y); else ctxH.lineTo(x,y);
+      }
+      ctxH.stroke();
+    }
+
+    for(let i=0;i<n;i++){
+      const x=pad+i*xS;
+      ctxH.fillStyle=accentRed+'4d';
+      ctxH.beginPath();ctxH.arc(x,H-30-trialResults[i].best*(H-50),2,0,Math.PI*2);ctxH.fill();
+      ctxH.fillStyle=accentGreen+'4d';
+      ctxH.beginPath();ctxH.arc(x,H-30-trialResults[i].diverse*(H-50),2,0,Math.PI*2);ctxH.fill();
+    }
+
+    plotLine(avgBArr,accentRed);
+    plotLine(avgDArr,accentGreen);
+
+    var lang=document.documentElement.lang||'en';
+    ctxH.fillStyle=accentRed; ctxH.fillRect(pad+10,15,12,3);
+    ctxH.fillStyle=textSecondary; ctxH.font='11px sans-serif';
+    ctxH.fillText(lang==='ro'?'Cea mai bună abilitate (medie cumulată)':'Best Ability (running avg)',pad+26,19);
+    ctxH.fillStyle=accentGreen; ctxH.fillRect(pad+10,30,12,3);
+    ctxH.fillStyle=textSecondary; ctxH.fillText(lang==='ro'?'Grup divers (medie cumulată)':'Diverse Group (running avg)',pad+26,34);
+  }
+
+  function resetFn(){
+    trialResults=[];
+    updateStats();
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    ctxB.fillStyle=canvasBg;ctxB.fillRect(0,0,W,H);
+    ctxH.fillStyle=canvasBg;ctxH.fillRect(0,0,W,H);
+    var lang=document.documentElement.lang||'en';
+    ctxB.fillStyle=textMuted;ctxB.font='14px sans-serif';ctxB.textAlign='center';
+    ctxB.fillText(lang==='ro'?'Apasă "Rulează Încercări" pentru a începe':'Click "Run Trials" to start',W/2,H/2);ctxB.textAlign='left';
+    ctxH.fillStyle=textMuted;ctxH.font='14px sans-serif';ctxH.textAlign='center';
+    ctxH.fillText(lang==='ro'?'Media cumulată va apărea aici':'Running average will appear here',W/2,H/2);ctxH.textAlign='left';
+  }
+
+  bindSlider('s5b_rug','v5b_rug');
+  bindSlider('s5b_pool','v5b_pool');
+  bindSlider('s5b_team','v5b_team');
+  bindSlider('s5b_div','v5b_div');
+  bindSlider('s5b_trials','v5b_trials');
+
+  resetFn();
+  return {run,reset:resetFn,drawBars,drawHistory};
+})();
+
+
+// ============================================================
+// 5c: RECOMBINATION / INNOVATION GROWTH
+// ============================================================
+const sim5c=(()=>{
+  const cNet=document.getElementById('c5c_network');
+  const cGrow=document.getElementById('c5c_growth');
+  const ctxN=cNet.getContext('2d');
+  const ctxG=cGrow.getContext('2d');
+  const W=520,H=340;
+
+  let ideas=[];
+  let edges=[];
+  let growthData=[];
+  let rateData=[];
+  let generation=0;
+  let playing=false;
+  let timer=null;
+  let nextId=0;
+
+  function makeColor(){
+    return hsl(rng()*360,60+rng()*30,50+rng()*20);
+  }
+
+  function blendColor(c1,c2){
+    return hsl(rng()*360,70,55);
+  }
+
+  function initIdeas(){
+    const n=+document.getElementById('s5c_init').value;
+    ideas=[];edges=[];growthData=[];rateData=[];generation=0;nextId=0;
+    const cx=W/2,cy=H/2;
+    for(let i=0;i<n;i++){
+      const angle=(i/n)*Math.PI*2;
+      ideas.push({
+        id:nextId++,
+        x:cx+Math.cos(angle)*60,
+        y:cy+Math.sin(angle)*60,
+        vx:0,vy:0,
+        parent1:-1,parent2:-1,
+        gen:0,
+        color:makeColor()
+      });
+    }
+    growthData.push(ideas.length);
+    rateData.push(0);
+  }
+
+  function doStep(){
+    const rate=+document.getElementById('s5c_rate').value;
+    const spaceSize=+document.getElementById('s5c_space').value;
+    const nInnovators=+document.getElementById('s5c_pop').value;
+
+    if(ideas.length>=spaceSize){
+      generation++;
+      growthData.push(ideas.length);
+      rateData.push(0);
+      draw();
+      return;
+    }
+
+    let newCount=0;
+    const combosPerStep=Math.min(rate*nInnovators, spaceSize-ideas.length);
+
+    for(let c=0;c<combosPerStep;c++){
+      if(ideas.length>=spaceSize) break;
+      if(ideas.length<2) break;
+      const i1=Math.floor(rng()*ideas.length);
+      let i2=Math.floor(rng()*ideas.length);
+      let tries=0;
+      while(i2===i1 && tries<20){i2=Math.floor(rng()*ideas.length);tries++;}
+      if(i2===i1) continue;
+
+      const p1=ideas[i1], p2=ideas[i2];
+      const nx=(p1.x+p2.x)/2+(rng()-0.5)*40;
+      const ny=(p1.y+p2.y)/2+(rng()-0.5)*40;
+      const newIdea={
+        id:nextId++,
+        x:clamp(nx,20,W-20),
+        y:clamp(ny,20,H-20),
+        vx:0,vy:0,
+        parent1:p1.id,
+        parent2:p2.id,
+        gen:generation+1,
+        color:blendColor(p1.color,p2.color)
+      };
+      ideas.push(newIdea);
+      edges.push({from:p1.id,to:p2.id,child:newIdea.id});
+      newCount++;
+    }
+
+    generation++;
+    growthData.push(ideas.length);
+    rateData.push(newCount);
+
+    applyForces();
+    draw();
+  }
+
+  function applyForces(){
+    const k=30;
+    for(let i=0;i<ideas.length;i++){
+      ideas[i].vx=0;ideas[i].vy=0;
+      for(let j=i+1;j<ideas.length;j++){
+        let dx=ideas[i].x-ideas[j].x;
+        let dy=ideas[i].y-ideas[j].y;
+        let d=Math.sqrt(dx*dx+dy*dy)+0.1;
+        let f=k*k/(d*d)*0.5;
+        if(d<5){f=2;}
+        ideas[i].vx+=dx/d*f;
+        ideas[i].vy+=dy/d*f;
+        ideas[j].vx-=dx/d*f;
+        ideas[j].vy-=dy/d*f;
+      }
+    }
+    for(const e of edges){
+      const a=ideas.find(n=>n.id===e.from);
+      const b=ideas.find(n=>n.id===e.child);
+      const c=ideas.find(n=>n.id===e.to);
+      if(a&&b){
+        let dx=b.x-a.x, dy=b.y-a.y;
+        let d=Math.sqrt(dx*dx+dy*dy)+0.1;
+        let f=(d-k)*0.01;
+        a.vx+=dx/d*f; a.vy+=dy/d*f;
+        b.vx-=dx/d*f; b.vy-=dy/d*f;
+      }
+      if(c&&b){
+        let dx=b.x-c.x, dy=b.y-c.y;
+        let d=Math.sqrt(dx*dx+dy*dy)+0.1;
+        let f=(d-k)*0.01;
+        c.vx+=dx/d*f; c.vy+=dy/d*f;
+        b.vx-=dx/d*f; b.vy-=dy/d*f;
+      }
+    }
+    for(const n of ideas){
+      n.vx+=(W/2-n.x)*0.002;
+      n.vy+=(H/2-n.y)*0.002;
+      n.x=clamp(n.x+n.vx*0.5,10,W-10);
+      n.y=clamp(n.y+n.vy*0.5,10,H-10);
+    }
+  }
+
+  function draw(){
+    drawNetwork();
+    drawGrowth();
+    updateStats();
+  }
+
+  function drawNetwork(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var accentCyan=getThemeColor('--accent-cyan');
+
+    ctxN.fillStyle=canvasBg;
+    ctxN.fillRect(0,0,W,H);
+
+    const maxEdges=300;
+    const drawEdges=edges.length>maxEdges?edges.slice(-maxEdges):edges;
+    ctxN.strokeStyle=accentCyan+'26';
+    ctxN.lineWidth=0.5;
+    for(const e of drawEdges){
+      const a=ideas.find(n=>n.id===e.from);
+      const b=ideas.find(n=>n.id===e.child);
+      const c=ideas.find(n=>n.id===e.to);
+      if(a&&b){ctxN.beginPath();ctxN.moveTo(a.x,a.y);ctxN.lineTo(b.x,b.y);ctxN.stroke();}
+      if(c&&b){ctxN.beginPath();ctxN.moveTo(c.x,c.y);ctxN.lineTo(b.x,b.y);ctxN.stroke();}
+    }
+
+    const maxNodes=200;
+    const drawNodes=ideas.length>maxNodes?ideas.slice(-maxNodes):ideas;
+    for(const n of drawNodes){
+      const r=n.gen===0?5:3;
+      ctxN.beginPath();
+      ctxN.arc(n.x,n.y,r,0,Math.PI*2);
+      ctxN.fillStyle=n.color;
+      ctxN.fill();
+      if(n.gen===0){
+        ctxN.strokeStyle='#fff';ctxN.lineWidth=1.5;ctxN.stroke();
+      }
+    }
+
+    var lang=document.documentElement.lang||'en';
+    ctxN.fillStyle=textMuted;
+    ctxN.font='11px sans-serif';
+    ctxN.fillText(lang==='ro'?'Rețea de Idei (noduri = idei, muchii = combinații)':'Idea Network (nodes = ideas, edges = combinations)',10,H-8);
+  }
+
+  function drawGrowth(){
+    var canvasBg=getThemeColor('--canvas-bg');
+    var textMuted=getThemeColor('--text-muted');
+    var textSecondary=getThemeColor('--text-secondary');
+    var borderColor=getThemeColor('--border-color');
+    var accentCyan=getThemeColor('--accent-cyan');
+    var accentGreen=getThemeColor('--accent-green');
+
+    ctxG.fillStyle=canvasBg;
+    ctxG.fillRect(0,0,W,H);
+
+    const pad=55;
+    ctxG.strokeStyle=borderColor;
+    ctxG.lineWidth=1;
+    ctxG.beginPath();
+    ctxG.moveTo(pad,10);ctxG.lineTo(pad,H-30);ctxG.lineTo(W-10,H-30);
+    ctxG.stroke();
+
+    if(growthData.length<2) return;
+
+    const maxVal=Math.max(...growthData,10);
+    const xS=(W-pad-20)/Math.max(growthData.length-1,1);
+    const yS=(H-50)/maxVal;
+
+    ctxG.strokeStyle=accentCyan;
+    ctxG.lineWidth=2;
+    ctxG.beginPath();
+    for(let i=0;i<growthData.length;i++){
+      const x=pad+i*xS, y=H-30-growthData[i]*yS;
+      if(i===0) ctxG.moveTo(x,y); else ctxG.lineTo(x,y);
+    }
+    ctxG.stroke();
+
+    ctxG.globalAlpha=0.1;
+    ctxG.fillStyle=accentCyan;
+    ctxG.lineTo(pad+(growthData.length-1)*xS,H-30);
+    ctxG.lineTo(pad,H-30);
+    ctxG.fill();
+    ctxG.globalAlpha=1;
+
+    if(rateData.length>1){
+      const maxRate=Math.max(...rateData,1);
+      ctxG.strokeStyle=accentGreen;
+      ctxG.lineWidth=1.5;
+      ctxG.beginPath();
+      for(let i=0;i<rateData.length;i++){
+        const x=pad+i*xS, y=H-30-(rateData[i]/maxRate)*maxVal*yS*0.3;
+        if(i===0) ctxG.moveTo(x,y); else ctxG.lineTo(x,y);
+      }
+      ctxG.stroke();
+    }
+
+    var lang=document.documentElement.lang||'en';
+    ctxG.fillStyle=textMuted;
+    ctxG.font='11px sans-serif';
+    ctxG.fillText(lang==='ro'?'Total Idei & Rata Inovării':'Total Ideas & Innovation Rate',pad+5,18);
+    ctxG.fillText(lang==='ro'?'Generația':'Generation',W-70,H-10);
+    ctxG.fillText('0',pad-15,H-26);
+    ctxG.fillText(maxVal,pad-35,18);
+
+    ctxG.fillStyle=accentCyan; ctxG.fillRect(W-160,28,12,3);
+    ctxG.fillStyle=textSecondary; ctxG.fillText(lang==='ro'?'Total Idei':'Total Ideas',W-144,32);
+    ctxG.fillStyle=accentGreen; ctxG.fillRect(W-160,43,12,3);
+    ctxG.fillStyle=textSecondary; ctxG.fillText(lang==='ro'?'Idei Noi/Gen':'New Ideas/Gen',W-144,47);
+  }
+
+  function updateStats(){
+    document.getElementById('st5c_gen').textContent=generation;
+    document.getElementById('st5c_total').textContent=ideas.length;
+    const n=ideas.length;
+    document.getElementById('st5c_combos').textContent=Math.floor(n*(n-1)/2);
+    document.getElementById('st5c_rate').textContent=rateData.length?rateData[rateData.length-1]:0;
+  }
+
+  function togglePlay(){
+    if(playing){stopPlay();} else {startPlay();}
+  }
+  function startPlay(){
+    playing=true;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn5c_play').textContent=lang==='ro'?'Pauză':'Pause';
+    const spd=+document.getElementById('s5c_speed').value;
+    timer=setInterval(doStep,400/spd);
+  }
+  function stopPlay(){
+    playing=false;
+    var lang=document.documentElement.lang||'en';
+    document.getElementById('btn5c_play').textContent=lang==='ro'?'Pornește':'Play';
+    if(timer) clearInterval(timer);
+    timer=null;
+  }
+
+  function reset(){
+    stopPlay();
+    initIdeas();
+    draw();
+  }
+
+  bindSlider('s5c_init','v5c_init',()=>reset());
+  bindSlider('s5c_rate','v5c_rate');
+  bindSlider('s5c_space','v5c_space');
+  bindSlider('s5c_pop','v5c_pop');
+  bindSlider('s5c_speed','v5c_speed',()=>{if(playing){stopPlay();startPlay();}});
+
+  reset();
+  return {step:doStep,togglePlay,reset,draw};
+})();
+
+// ============================================================
+// REDRAW ALL (called on theme switch)
+// ============================================================
+function redrawAll(){
+  if(typeof sim5a!=='undefined' && sim5a.draw) sim5a.draw();
+  if(typeof sim5b!=='undefined'){
+    if(sim5b.drawBars) sim5b.drawBars();
+    if(sim5b.drawHistory) sim5b.drawHistory();
+  }
+  if(typeof sim5c!=='undefined' && sim5c.draw) sim5c.draw();
+}
+</script>
+
+<script>
+function setTheme(t){document.body.className='theme-'+t;localStorage.setItem('mt-theme',t);if(typeof redrawAll==='function')redrawAll();}
+function toggleLang(){var c=document.documentElement.lang||'en',n=c==='en'?'ro':'en';document.documentElement.lang=n;document.getElementById('langBtn').textContent=n==='en'?'RO':'EN';localStorage.setItem('mt-lang',n);applyLanguage(n);}
+function applyLanguage(lang){document.querySelectorAll('[data-ro]').forEach(function(el){if(lang==='ro'){if(!el.dataset.en)el.dataset.en=el.innerHTML;el.innerHTML=el.dataset.ro;}else{if(el.dataset.en)el.innerHTML=el.dataset.en;}});if(typeof redrawAll==='function')redrawAll();}
+(function(){var t=localStorage.getItem('mt-theme')||'dark',l=localStorage.getItem('mt-lang')||'en';document.body.className='theme-'+t;if(l==='ro'){document.documentElement.lang='ro';document.getElementById('langBtn').textContent='EN';setTimeout(function(){applyLanguage('ro');},100);}})();
+</script>
+</body>
+</html>

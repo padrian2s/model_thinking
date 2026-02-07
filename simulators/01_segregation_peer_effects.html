@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Segregation & Peer Effects - Model Thinking Simulators</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Dark theme (default) */
+body.theme-dark {
+    --bg-primary: #0a0e17;
+    --bg-secondary: #12182a;
+    --bg-card: linear-gradient(145deg, #12182a 0%, #0d1220 100%);
+    --bg-panel: #16213e;
+    --bg-input: #1a1a2e;
+    --text-primary: #f0f0f0;
+    --text-secondary: #8899aa;
+    --text-muted: #667788;
+    --border-color: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(0, 210, 255, 0.3);
+    --accent-cyan: #00d2ff;
+    --accent-red: #e94560;
+    --accent-green: #6bcb77;
+    --accent-gold: #ffd93d;
+    --accent-purple: #9b59b6;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --canvas-bg: #0a0e17;
+    --header-bg: linear-gradient(135deg, #0d1321 0%, #1a1a2e 50%, #16213e 100%);
+    --header-border: #1e3a5f;
+    --sim-container-bg: #111827;
+    --controls-bg: #0f172a;
+    --panel-border: #1e293b;
+    --control-label: #94a3b8;
+    --control-heading: #64748b;
+    --section-heading: #7dd3fc;
+    --val-color: #7dd3fc;
+    --range-bg: #1e293b;
+    --btn-bg: #1e293b;
+    --btn-border: #334155;
+    --btn-hover-bg: #334155;
+    --select-bg: #1e293b;
+    --select-border: #334155;
+    --stat-bg: #0f172a;
+    --stat-label: #64748b;
+    --stat-value: #f1f5f9;
+    --info-bg: #0f172a;
+    --info-text: #94a3b8;
+    --insight-bg: #0f2922;
+    --chart-bg: #0a0e17;
+    --axis-color: #1e293b;
+    --axis-label: #475569;
+    --grid-line: #111827;
+    --empty-cell: #1a1a2e;
+    --grid-empty: #111827;
+    --sitting-color: #1e293b;
+    --inactive-bar: #334155;
+    --divider-color: #1e3a5f;
+}
+
+/* White theme */
+body.theme-white {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-card: linear-gradient(145deg, #ffffff 0%, #f0f2f5 100%);
+    --bg-panel: #ffffff;
+    --bg-input: #f0f2f5;
+    --text-primary: #1a1a2e;
+    --text-secondary: #555566;
+    --text-muted: #888899;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-hover: rgba(0, 130, 200, 0.4);
+    --accent-cyan: #0088cc;
+    --accent-red: #d63031;
+    --accent-green: #27ae60;
+    --accent-gold: #f39c12;
+    --accent-purple: #8e44ad;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --canvas-bg: #ffffff;
+    --header-bg: linear-gradient(135deg, #e8ecf1 0%, #f5f7fa 50%, #e0e5ec 100%);
+    --header-border: #c0c8d4;
+    --sim-container-bg: #ffffff;
+    --controls-bg: #f0f2f5;
+    --panel-border: #d0d5dd;
+    --control-label: #555566;
+    --control-heading: #888899;
+    --section-heading: #0077b6;
+    --val-color: #0077b6;
+    --range-bg: #d0d5dd;
+    --btn-bg: #e0e5ec;
+    --btn-border: #c0c8d4;
+    --btn-hover-bg: #c0c8d4;
+    --select-bg: #e0e5ec;
+    --select-border: #c0c8d4;
+    --stat-bg: #f0f2f5;
+    --stat-label: #888899;
+    --stat-value: #1a1a2e;
+    --info-bg: #f0f2f5;
+    --info-text: #555566;
+    --insight-bg: #e8f5e9;
+    --chart-bg: #ffffff;
+    --axis-color: #d0d5dd;
+    --axis-label: #888899;
+    --grid-line: #e8ecf1;
+    --empty-cell: #e0e5ec;
+    --grid-empty: #f0f2f5;
+    --sitting-color: #d0d5dd;
+    --inactive-bar: #c0c8d4;
+    --divider-color: #c0c8d4;
+}
+
+/* Sepia theme */
+body.theme-sepia {
+    --bg-primary: #f4ecd8;
+    --bg-secondary: #faf6eb;
+    --bg-card: linear-gradient(145deg, #faf6eb 0%, #f0e8d0 100%);
+    --bg-panel: #faf6eb;
+    --bg-input: #efe7d3;
+    --text-primary: #433422;
+    --text-secondary: #6b5b4a;
+    --text-muted: #8b7b6a;
+    --border-color: rgba(100, 70, 30, 0.15);
+    --border-hover: rgba(160, 100, 30, 0.4);
+    --accent-cyan: #b8860b;
+    --accent-red: #a0522d;
+    --accent-green: #6b8e23;
+    --accent-gold: #cd853f;
+    --accent-purple: #8b4513;
+    --shadow: rgba(100, 70, 30, 0.15);
+    --canvas-bg: #faf6eb;
+    --header-bg: linear-gradient(135deg, #ede4cc 0%, #faf6eb 50%, #e8dfca 100%);
+    --header-border: #c4a56a;
+    --sim-container-bg: #faf6eb;
+    --controls-bg: #f0e8d0;
+    --panel-border: #d4c4a0;
+    --control-label: #6b5b4a;
+    --control-heading: #8b7b6a;
+    --section-heading: #8b6914;
+    --val-color: #8b6914;
+    --range-bg: #d4c4a0;
+    --btn-bg: #e8dfca;
+    --btn-border: #c4a56a;
+    --btn-hover-bg: #d4c4a0;
+    --select-bg: #e8dfca;
+    --select-border: #c4a56a;
+    --stat-bg: #f0e8d0;
+    --stat-label: #8b7b6a;
+    --stat-value: #433422;
+    --info-bg: #f0e8d0;
+    --info-text: #6b5b4a;
+    --insight-bg: #e8ecd0;
+    --chart-bg: #faf6eb;
+    --axis-color: #d4c4a0;
+    --axis-label: #8b7b6a;
+    --grid-line: #ede4cc;
+    --empty-cell: #e8dfca;
+    --grid-empty: #f0e8d0;
+    --sitting-color: #d4c4a0;
+    --inactive-bar: #c4a56a;
+    --divider-color: #c4a56a;
+}
+
+/* Ocean theme */
+body.theme-ocean {
+    --bg-primary: #0b1628;
+    --bg-secondary: #0f2035;
+    --bg-card: linear-gradient(145deg, #0f2035 0%, #0b1628 100%);
+    --bg-panel: #132a42;
+    --bg-input: #163352;
+    --text-primary: #d4e6f1;
+    --text-secondary: #7fb3d3;
+    --text-muted: #5a8faa;
+    --border-color: rgba(100, 180, 255, 0.1);
+    --border-hover: rgba(100, 200, 255, 0.35);
+    --accent-cyan: #5dade2;
+    --accent-red: #e74c3c;
+    --accent-green: #48c9b0;
+    --accent-gold: #f7dc6f;
+    --accent-purple: #a569bd;
+    --shadow: rgba(0, 20, 50, 0.5);
+    --canvas-bg: #0b1628;
+    --header-bg: linear-gradient(135deg, #091422 0%, #0f2035 50%, #132a42 100%);
+    --header-border: #1a4a6e;
+    --sim-container-bg: #0f2035;
+    --controls-bg: #0b1628;
+    --panel-border: #1a4a6e;
+    --control-label: #7fb3d3;
+    --control-heading: #5a8faa;
+    --section-heading: #5dade2;
+    --val-color: #5dade2;
+    --range-bg: #1a4a6e;
+    --btn-bg: #163352;
+    --btn-border: #1a4a6e;
+    --btn-hover-bg: #1a4a6e;
+    --select-bg: #163352;
+    --select-border: #1a4a6e;
+    --stat-bg: #0b1628;
+    --stat-label: #5a8faa;
+    --stat-value: #d4e6f1;
+    --info-bg: #0b1628;
+    --info-text: #7fb3d3;
+    --insight-bg: #0b2820;
+    --chart-bg: #0b1628;
+    --axis-color: #1a4a6e;
+    --axis-label: #5a8faa;
+    --grid-line: #0f2035;
+    --empty-cell: #163352;
+    --grid-empty: #0f2035;
+    --sitting-color: #1a4a6e;
+    --inactive-bar: #1a4a6e;
+    --divider-color: #1a4a6e;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.page-header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--header-border);
+}
+
+.page-header h1 {
+    font-size: 2.4em;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.page-header .subtitle {
+    font-size: 1.1em;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.sim-section {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.sim-section h2 {
+    font-size: 1.8em;
+    color: var(--section-heading);
+    margin-bottom: 6px;
+    border-left: 4px solid #3b82f6;
+    padding-left: 16px;
+}
+
+.sim-section .model-desc {
+    color: var(--control-label);
+    margin-bottom: 20px;
+    padding-left: 20px;
+    max-width: 900px;
+    font-size: 0.95em;
+}
+
+.sim-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    background: var(--sim-container-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.controls-panel {
+    background: var(--controls-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.controls-panel h3 {
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--control-heading);
+    margin-bottom: 4px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.control-group label {
+    font-size: 0.82em;
+    color: var(--control-label);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.control-group label span.val {
+    color: var(--val-color);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--range-bg);
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid #1e40af;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid #1e40af;
+}
+
+select {
+    background: var(--select-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--select-border);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 0.85em;
+    outline: none;
+    cursor: pointer;
+}
+
+select:focus { border-color: #3b82f6; }
+
+.btn-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+button {
+    background: var(--btn-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.82em;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+button:hover {
+    background: var(--btn-hover-bg);
+    border-color: #3b82f6;
+}
+
+button.primary {
+    background: #1e40af;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+button.primary:hover {
+    background: #2563eb;
+}
+
+button.active {
+    background: #059669;
+    border-color: #10b981;
+    color: #fff;
+}
+
+.viz-area {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+canvas {
+    border-radius: 6px;
+    image-rendering: pixelated;
+}
+
+.stats-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 0.85em;
+}
+
+.stat-item {
+    background: var(--stat-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-item .stat-label {
+    color: var(--stat-label);
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-item .stat-value {
+    color: var(--stat-value);
+    font-size: 1.3em;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.info-panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.info-box {
+    background: var(--info-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.info-box.mechanism {
+    border-left: 3px solid #f59e0b;
+}
+
+.info-box.examples {
+    border-left: 3px solid #8b5cf6;
+}
+
+.info-box.insight {
+    border-left: 3px solid #10b981;
+    background: var(--insight-bg);
+}
+
+.info-box h4 {
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.info-box.mechanism h4 { color: #f59e0b; }
+.info-box.examples h4 { color: #8b5cf6; }
+.info-box.insight h4 { color: #10b981; }
+
+.info-box p, .info-box li {
+    font-size: 0.88em;
+    color: var(--info-text);
+    line-height: 1.5;
+}
+
+.info-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-box ul li::before {
+    content: "\2022 ";
+    color: #8b5cf6;
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+.section-divider {
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--divider-color), transparent);
+    margin: 50px auto;
+    max-width: 1400px;
+}
+
+.chart-container {
+    position: relative;
+    background: var(--chart-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+}
+
+@media (max-width: 900px) {
+    .sim-container {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<div class="page-header">
+    <h1 data-ro="Segregare &#x219;i Efecte de Grup">Segregation &amp; Peer Effects</h1>
+    <p class="subtitle" data-ro="Explorarea modului &icirc;n care preferin&#x21B;ele individuale &#x219;i pragurile creeaz&#x103; tipare emergente la nivel macro prin Segregarea Schelling, Modelul de Prag al lui Granovetter &#x219;i Modelul Ova&#x21B;iei.">Exploring how individual preferences and thresholds create emergent macro-level patterns through Schelling's Segregation, Granovetter's Threshold Model, and the Standing Ovation Model.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1a: SCHELLING SEGREGATION MODEL -->
+<!-- ============================================================ -->
+<div class="sim-section" id="schelling-section">
+    <h2 data-ro="1a. Modelul de Segregare Schelling">1a. Schelling Segregation Model</h2>
+    <p class="model-desc" data-ro="Fiecare agent pe o gril&#x103; vrea ca cel pu&#x21B;in un anumit procent din vecinii s&#x103;i s&#x103; fie de acela&#x219;i tip. Dac&#x103; este nefericit, agentul se mut&#x103; &icirc;ntr-o celul&#x103; goal&#x103; aleatoare. Chiar &#x219;i preferin&#x21B;e blajine duc la segregare dramatic&#x103;.">Each agent on a grid wants at least a certain percentage of its neighbors to be of the same type. If unhappy, the agent moves to a random empty cell. Even mild preferences lead to dramatic segregation.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Controale">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Prag de Fericire">Happiness Threshold</span> <span class="val" id="sch-thresh-val">33%</span></label>
+                <input type="range" id="sch-threshold" min="0" max="100" value="33">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Raport Popula&#x21B;ie (Albastru)">Population Ratio (Blue)</span> <span class="val" id="sch-ratio-val">50%</span></label>
+                <input type="range" id="sch-ratio" min="10" max="90" value="50">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Celule Goale">Empty Cells</span> <span class="val" id="sch-empty-val">15%</span></label>
+                <input type="range" id="sch-empty" min="5" max="50" value="15">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Vitez&#x103;">Speed</span> <span class="val" id="sch-speed-val">5</span></label>
+                <input type="range" id="sch-speed" min="1" max="20" value="5">
+            </div>
+            <div class="btn-row">
+                <button class="primary" id="sch-play" data-ro="Porne&#x219;te">Play</button>
+                <button id="sch-step" data-ro="Pas">Step</button>
+                <button id="sch-reset" data-ro="Reseteaz&#x103;">Reset</button>
+            </div>
+            <div class="control-group" style="margin-top:8px;">
+                <label><span data-ro="Dimensiune Gril&#x103;">Grid Size</span> <span class="val" id="sch-size-val">50</span></label>
+                <input type="range" id="sch-size" min="20" max="80" value="50">
+            </div>
+        </div>
+        <div class="viz-area">
+            <div class="stats-bar" id="sch-stats">
+                <div class="stat-item"><span class="stat-label" data-ro="Pas">Step</span><span class="stat-value" id="sch-step-count">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Ferici&#x21B;i">Happy</span><span class="stat-value" id="sch-happy">0%</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Neferici&#x21B;i">Unhappy</span><span class="stat-value" id="sch-unhappy">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Indice Segregare">Segregation Index</span><span class="stat-value" id="sch-seg-idx">0.00</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Mut&#x103;ri">Moves</span><span class="stat-value" id="sch-moves">0</span></div>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+                <canvas id="sch-canvas" width="500" height="500"></canvas>
+                <canvas id="sch-chart" width="340" height="200" class="chart-container"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Mecanism">Mechanism</h4>
+            <p data-ro="Chiar &#x219;i preferin&#x21B;e individuale blajine (chiar &#x219;i 33% vecini de acela&#x219;i tip) duc la segregare extrem&#x103; la nivel macro. Aceasta este <strong>emergen&#x21B;a</strong>: micro-motivele creeaz&#x103; macro-comportament. Niciun individ nu vrea segregare, totu&#x219;i dinamica colectiv&#x103; o produce. Fiecare mutare a unui agent nefericit schimb&#x103; compozi&#x21B;ia vecinilor pentru al&#x21B;ii, cre&acirc;nd reloc&#x103;ri &icirc;n cascad&#x103;.">Even mild individual preferences (as low as 33% same-type neighbors) lead to extreme macro-level segregation. This is <strong>emergence</strong>: micro motives create macro behavior. No individual wants segregation, yet the collective dynamics produce it. Each move by an unhappy agent changes the neighborhood composition for others, creating cascading relocations.</p>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Real&#x103;">Real-World Examples</h4>
+            <ul>
+                <li data-ro="Segregarea reziden&#x21B;ial&#x103; &icirc;n ora&#x219;ele americane -- cartierele rasiale persist&#x103; chiar dac&#x103; prejudecata individual&#x103; scade">Residential segregation in American cities -- racial neighborhoods persist even as individual prejudice declines</li>
+                <li data-ro="Auto-sortarea &icirc;n cantinele &#x219;colare -- elevii se grupeaz&#x103; dup&#x103; interes/identitate f&#x103;r&#x103; reguli explicite">Self-sorting in school cafeterias -- students cluster by interest/identity without explicit rules</li>
+                <li data-ro="Camerele de ecou politice online -- preferin&#x21B;a blajin&#x103; pentru con&#x21B;inut similar produce bule de filtru extreme">Political echo chambers online -- mild preference for like-minded content produces extreme filter bubbles</li>
+                <li data-ro="Dinamica gentrif&#x103;rii -- pragurile economice conduc transform&#x103;ri la nivel de cartier">Gentrification dynamics -- economic thresholds drive neighborhood-level transformation</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Idee Cheie">Key Insight</h4>
+            <p data-ro="Toleran&#x21B;a nu garanteaz&#x103; integrarea. Schelling a ar&#x103;tat c&#x103; chiar &#x219;i indivizii toleran&#x21B;i contribuie la segregare c&acirc;nd pragurile personale pentru reprezentarea minim&#x103; a grupului sunt dep&#x103;&#x219;ite. Rezultatul la nivel de sistem (segregarea) este mult mai extrem dec&acirc;t ar sugera preferin&#x21B;a oric&#x103;rui individ.">Tolerance does not guarantee integration. Schelling showed that even tolerant individuals contribute to segregation when personal thresholds for minimum group representation are crossed. The system-level outcome (segregation) is far more extreme than any individual's preference would suggest.</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1b: GRANOVETTER THRESHOLD MODEL -->
+<!-- ============================================================ -->
+<div class="sim-section" id="granovetter-section">
+    <h2 data-ro="1b. Modelul de Prag al lui Granovetter">1b. Granovetter's Threshold Model</h2>
+    <p class="model-desc" data-ro="Fiecare persoan&#x103; are un prag: num&#x103;rul de al&#x21B;ii care trebuie s&#x103; ac&#x21B;ioneze &icirc;nainte s&#x103; se al&#x103;ture. O cascad&#x103; &icirc;ncepe c&acirc;nd primii actori &icirc;i activeaz&#x103; pe cei cu praguri sc&#x103;zute, care la r&acirc;ndul lor &icirc;i declan&#x219;eaz&#x103; pe cei cu praguri mai ridicate.">Each person has a threshold: the number of others who must act before they will join. A cascade begins when the first movers activate those with low thresholds, who in turn trigger those with higher thresholds.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Controale">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Dimensiune Popula&#x21B;ie">Population Size</span> <span class="val" id="gran-pop-val">300</span></label>
+                <input type="range" id="gran-pop" min="50" max="500" value="300">
+            </div>
+            <div class="control-group">
+                <label data-ro="Distribu&#x21B;ie">Distribution</label>
+                <select id="gran-dist">
+                    <option value="uniform" data-ro="Uniform&#x103; (0 la N)">Uniform (0 to N)</option>
+                    <option value="normal" data-ro="Normal&#x103; (curba clopot)">Normal (bell curve)</option>
+                    <option value="bimodal" data-ro="Bimodal&#x103; (dou&#x103; v&acirc;rfuri)">Bimodal (two peaks)</option>
+                    <option value="low" data-ro="Asimetric&#x103; Sc&#x103;zut&#x103; (cascad&#x103; u&#x219;oar&#x103;)">Skewed Low (easy cascade)</option>
+                    <option value="high" data-ro="Asimetric&#x103; Ridicat&#x103; (cascad&#x103; dificil&#x103;)">Skewed High (hard cascade)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Prag Mediu (Normal)">Mean Threshold (Normal)</span> <span class="val" id="gran-mean-val">50%</span></label>
+                <input type="range" id="gran-mean" min="10" max="90" value="50">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Dispersie (Normal)">Spread (Normal)</span> <span class="val" id="gran-spread-val">20%</span></label>
+                <input type="range" id="gran-spread" min="5" max="45" value="20">
+            </div>
+            <div class="btn-row">
+                <button class="primary" id="gran-play" data-ro="Porne&#x219;te">Play</button>
+                <button id="gran-step" data-ro="Pas">Step</button>
+                <button id="gran-reset" data-ro="Reseteaz&#x103;">Reset</button>
+            </div>
+            <div class="control-group" style="margin-top:8px;">
+                <label><span data-ro="Vitez&#x103;">Speed</span> <span class="val" id="gran-speed-val">3</span></label>
+                <input type="range" id="gran-speed" min="1" max="10" value="3">
+            </div>
+        </div>
+        <div class="viz-area">
+            <div class="stats-bar" id="gran-stats">
+                <div class="stat-item"><span class="stat-label" data-ro="Rund&#x103;">Round</span><span class="stat-value" id="gran-round">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Activi">Active</span><span class="stat-value" id="gran-active">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="% Activi">% Active</span><span class="stat-value" id="gran-pct">0%</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Status">Status</span><span class="stat-value" id="gran-status" data-ro="Preg&#x103;tit">Ready</span></div>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+                <canvas id="gran-hist" width="420" height="220" class="chart-container"></canvas>
+                <canvas id="gran-chart" width="420" height="220" class="chart-container"></canvas>
+            </div>
+            <canvas id="gran-crowd" width="850" height="80" class="chart-container"></canvas>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Mecanism">Mechanism</h4>
+            <p data-ro="Schimb&#x103;ri mici &icirc;n distribu&#x21B;ia pragurilor pot cauza sau preveni cascade complete. Dac&#x103; o distribu&#x21B;ie uniform&#x103; are praguri 0,1,2,...N-1, apare o cascad&#x103; complet&#x103;. Dar eliminarea doar a persoanei cu pragul=1 rupe complet lan&#x21B;ul. <strong>Diversitatea pragurilor</strong> conteaz&#x103; la fel de mult ca pragul mediu. Acesta este un model de punct de inflexiune -- input gradual produce output brusc.">Small changes in the threshold distribution can cause or prevent full cascades. If a uniform distribution has thresholds 0,1,2,...N-1, a complete cascade occurs. But removing just the person with threshold=1 breaks the chain entirely. The <strong>diversity of thresholds</strong> matters as much as the average threshold. This is a tipping point model -- gradual input produces sudden output.</p>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Real&#x103;">Real-World Examples</h4>
+            <ul>
+                <li data-ro="Proteste &#x219;i revolte -- c&acirc;&#x21B;iva instigatori pot declan&#x219;a participare masiv&#x103; dac&#x103; distribu&#x21B;ia pragurilor este potrivit&#x103;">Protests and riots -- a few instigators can trigger mass participation if threshold distribution is right</li>
+                <li data-ro="Adoptarea tehnologiei -- adoptatorii timpurii declan&#x219;eaz&#x103; utilizatorii mainstream (curba de difuzie Rogers)">Technology adoption -- early adopters trigger mainstream users (Rogers diffusion curve)</li>
+                <li data-ro="Tendin&#x21B;e &icirc;n mod&#x103; -- creatorii de tendin&#x21B;e scad pragul pentru al&#x21B;ii de a-i urma">Fashion trends -- trendsetters lower the threshold for others to follow</li>
+                <li data-ro="Panici bancare &#x219;i financiare -- fiecare retragere face urm&#x103;toarea mai probabil&#x103;">Bank runs and financial panics -- each withdrawal makes the next more likely</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Idee Cheie">Key Insight</h4>
+            <p data-ro="Dou&#x103; popula&#x21B;ii cu acela&#x219;i prag mediu pot produce rezultate complet diferite. Ce conteaz&#x103; este distribu&#x21B;ia complet&#x103; -- &icirc;n special dac&#x103; exist&#x103; suficien&#x21B;i indivizi cu prag sc&#x103;zut pentru a &icirc;ncepe lan&#x21B;ul. Granovetter a ar&#x103;tat c&#x103; predicerea ac&#x21B;iunii colective necesit&#x103; cunoa&#x219;terea &icirc;ntregii distribu&#x21B;ii, nu doar a preferin&#x21B;ei medii.">Two populations with the same average threshold can produce completely different outcomes. What matters is the full distribution -- especially whether there are enough low-threshold individuals to start the chain. Granovetter showed that predicting collective action requires knowing the entire distribution, not just the average preference.</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1c: STANDING OVATION MODEL -->
+<!-- ============================================================ -->
+<div class="sim-section" id="ovation-section">
+    <h2 data-ro="1c. Modelul Ova&#x21B;iei">1c. Standing Ovation Model</h2>
+    <p class="model-desc" data-ro="Un public decide dac&#x103; se ridic&#x103; &icirc;n picioare pe baza percep&#x21B;iei calit&#x103;&#x21B;ii plus presiunea social&#x103; de la vecinii deja ridica&#x21B;i. Calitatea mai mare declan&#x219;eaz&#x103; mai mul&#x21B;i ini&#x21B;iatori, ceea ce se propag&#x103; &icirc;n cascad&#x103; prin public.">An audience decides whether to stand based on their perception of quality plus social pressure from neighbors already standing. Higher quality triggers more initial standers, which cascades through the audience.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Controale">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Calitatea Spectacolului">Performance Quality</span> <span class="val" id="so-quality-val">50%</span></label>
+                <input type="range" id="so-quality" min="0" max="100" value="50">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Greutatea Presiunii Sociale">Social Pressure Weight</span> <span class="val" id="so-pressure-val">40%</span></label>
+                <input type="range" id="so-pressure" min="0" max="100" value="40">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Diversitatea Publicului">Audience Diversity</span> <span class="val" id="so-diversity-val">30%</span></label>
+                <input type="range" id="so-diversity" min="0" max="50" value="30">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="R&acirc;nduri Public">Audience Rows</span> <span class="val" id="so-rows-val">20</span></label>
+                <input type="range" id="so-rows" min="8" max="40" value="20">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Coloane Public">Audience Cols</span> <span class="val" id="so-cols-val">40</span></label>
+                <input type="range" id="so-cols" min="15" max="60" value="40">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Vitez&#x103;">Speed</span> <span class="val" id="so-speed-val">4</span></label>
+                <input type="range" id="so-speed" min="1" max="10" value="4">
+            </div>
+            <div class="btn-row">
+                <button class="primary" id="so-play" data-ro="Porne&#x219;te">Play</button>
+                <button id="so-step" data-ro="Pas">Step</button>
+                <button id="so-reset" data-ro="Reseteaz&#x103;">Reset</button>
+            </div>
+        </div>
+        <div class="viz-area">
+            <div class="stats-bar" id="so-stats">
+                <div class="stat-item"><span class="stat-label" data-ro="Rund&#x103;">Round</span><span class="stat-value" id="so-round">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="&Icirc;n Picioare">Standing</span><span class="stat-value" id="so-standing">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="% &Icirc;n Picioare">% Standing</span><span class="stat-value" id="so-pct">0%</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Status">Status</span><span class="stat-value" id="so-status" data-ro="Preg&#x103;tit">Ready</span></div>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+                <canvas id="so-canvas" width="640" height="320"></canvas>
+                <canvas id="so-chart" width="300" height="200" class="chart-container"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Mecanism">Mechanism</h4>
+            <p data-ro="Fiecare membru al publicului prime&#x219;te un semnal zgomotos al calit&#x103;&#x21B;ii. Dac&#x103; semnalul dep&#x103;&#x219;e&#x219;te pragul personal, se ridic&#x103; imediat. Apoi intervine presiunea social&#x103;: a vedea vecinii ridica&#x21B;i scade pragul pentru al&#x21B;ii. Calitatea mai mare cauzeaz&#x103; mai mul&#x21B;i ini&#x21B;iatori, ceea ce creeaz&#x103; o cascad&#x103;. Diversitatea publicului (varia&#x21B;ia pragurilor) &#x219;i conectivitatea social&#x103; conteaz&#x103; ambele pentru dac&#x103; apare ova&#x21B;ie par&#x21B;ial&#x103; sau total&#x103;.">Each audience member receives a noisy signal of quality. If the signal exceeds their personal standing threshold, they stand immediately. Then, social pressure kicks in: seeing neighbors stand lowers the threshold for others. Higher quality causes more initial standers, which creates a cascade. Audience diversity (variation in thresholds) and social connectivity both matter for whether partial or full ovation occurs.</p>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Real&#x103;">Real-World Examples</h4>
+            <ul>
+                <li data-ro="Ova&#x21B;ii reale -- calitatea conteaz&#x103;, dar la fel &#x219;i aranjarea locurilor &#x219;i normele sociale">Actual standing ovations -- quality matters, but so does seating arrangement and social norms</li>
+                <li data-ro="Con&#x21B;inut viral -- angajamentul ini&#x21B;ial declan&#x219;eaz&#x103; amplificarea algoritmic&#x103; (echivalentul presiunii sociale)">Viral content -- initial engagement triggers algorithmic amplification (social pressure equivalent)</li>
+                <li data-ro="Recenzii de produse -- recenziile pozitive timpurii se propag&#x103; &icirc;n mai multe recenzii pozitive">Product reviews -- early positive reviews cascade into more positive reviews</li>
+                <li data-ro="Popularitatea restaurantelor -- mul&#x21B;imile vizibile atrag mai mul&#x21B;i clien&#x21B;i (cascade informa&#x21B;ionale)">Restaurant popularity -- visible crowds attract more diners (information cascades)</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Idee Cheie">Key Insight</h4>
+            <p data-ro="Acela&#x219;i spectacol poate primi o ova&#x21B;ie &icirc;ntr-o sear&#x103; &#x219;i aplauze politicoase &icirc;n alta. Aleatorietatea &icirc;n semnalele ini&#x21B;iale, combinat&#x103; cu amplificarea social&#x103;, &icirc;nseamn&#x103; c&#x103; rezultatele depind de cale. Acest lucru explic&#x103; de ce &quot;a deveni viral&quot; este at&acirc;t de greu de prezis -- depinde de r&#x103;spunsul stochastic timpuriu la fel de mult ca de calitatea subiacent&#x103;.">The same performance can receive a standing ovation one night and polite applause the next. Randomness in initial signals, combined with social amplification, means outcomes are path-dependent. This explains why "going viral" is so hard to predict -- it depends on the early stochastic response as much as the underlying quality.</p>
+        </div>
+    </div>
+</div>
+
+<div style="height:60px"></div>
+
+<script>
+// ============================================================
+// UTILITY: get CSS variable from body
+// ============================================================
+function getCSSVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+}
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function randInt(n) { return Math.floor(Math.random() * n); }
+function gaussRand(mean, std) {
+    let u = 0, v = 0;
+    while(u === 0) u = Math.random();
+    while(v === 0) v = Math.random();
+    return mean + std * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+function drawMiniChart(canvasId, data, maxVal, color, label, xLabel) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const pad = {top: 25, right: 15, bottom: 25, left: 45};
+    const cw = W - pad.left - pad.right;
+    const ch = H - pad.top - pad.bottom;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = getCSSVar('--chart-bg');
+    ctx.fillRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = getCSSVar('--stat-label');
+    ctx.font = '11px Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, W/2, 14);
+
+    if (data.length < 2) return;
+
+    // Axes
+    ctx.strokeStyle = getCSSVar('--axis-color');
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top);
+    ctx.lineTo(pad.left, pad.top + ch);
+    ctx.lineTo(pad.left + cw, pad.top + ch);
+    ctx.stroke();
+
+    // Y-axis labels
+    ctx.fillStyle = getCSSVar('--axis-label');
+    ctx.font = '9px Courier New';
+    ctx.textAlign = 'right';
+    const yMax = maxVal || Math.max(...data, 1);
+    for (let i = 0; i <= 4; i++) {
+        const y = pad.top + ch - (i/4) * ch;
+        const v = (i/4 * yMax);
+        ctx.fillText(v.toFixed(v >= 100 ? 0 : 2), pad.left - 4, y + 3);
+        if (i > 0) {
+            ctx.strokeStyle = getCSSVar('--grid-line');
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(pad.left + cw, y);
+            ctx.stroke();
+        }
+    }
+
+    // X-axis label
+    ctx.fillStyle = getCSSVar('--axis-label');
+    ctx.font = '9px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(xLabel || 'Step', W/2, H - 3);
+
+    // Data line
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    const step = cw / Math.max(data.length - 1, 1);
+    for (let i = 0; i < data.length; i++) {
+        const x = pad.left + i * step;
+        const y = pad.top + ch - (data[i] / yMax) * ch;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Fill under
+    ctx.lineTo(pad.left + (data.length - 1) * step, pad.top + ch);
+    ctx.lineTo(pad.left, pad.top + ch);
+    ctx.closePath();
+    ctx.fillStyle = color.replace(')', ', 0.1)').replace('rgb', 'rgba');
+    ctx.fill();
+}
+
+
+// ============================================================
+// 1a. SCHELLING SEGREGATION MODEL
+// ============================================================
+(function() {
+    let grid = [];
+    let N = 50;
+    let running = false;
+    let timer = null;
+    let stepCount = 0;
+    let totalMoves = 0;
+    let segHistory = [];
+
+    const EMPTY = 0, BLUE = 1, RED = 2;
+    const canvas = document.getElementById('sch-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function getVal(id) { return parseInt(document.getElementById(id).value); }
+
+    function init() {
+        N = getVal('sch-size');
+        const emptyPct = getVal('sch-empty') / 100;
+        const blueRatio = getVal('sch-ratio') / 100;
+
+        grid = [];
+        for (let i = 0; i < N; i++) {
+            grid[i] = [];
+            for (let j = 0; j < N; j++) {
+                if (Math.random() < emptyPct) grid[i][j] = EMPTY;
+                else if (Math.random() < blueRatio) grid[i][j] = BLUE;
+                else grid[i][j] = RED;
+            }
+        }
+        stepCount = 0;
+        totalMoves = 0;
+        segHistory = [];
+        draw();
+        updateStats();
+    }
+
+    function getNeighbors(r, c) {
+        const n = [];
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                const nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
+                    n.push(grid[nr][nc]);
+                }
+            }
+        }
+        return n;
+    }
+
+    function isHappy(r, c) {
+        if (grid[r][c] === EMPTY) return true;
+        const thresh = getVal('sch-threshold') / 100;
+        const neighbors = getNeighbors(r, c);
+        const nonEmpty = neighbors.filter(x => x !== EMPTY);
+        if (nonEmpty.length === 0) return true;
+        const same = nonEmpty.filter(x => x === grid[r][c]).length;
+        return (same / nonEmpty.length) >= thresh;
+    }
+
+    function step() {
+        const threshold = getVal('sch-threshold') / 100;
+        const unhappy = [];
+        const empty = [];
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                if (grid[i][j] === EMPTY) empty.push([i, j]);
+                else if (!isHappy(i, j)) unhappy.push([i, j]);
+            }
+        }
+
+        for (let i = unhappy.length - 1; i > 0; i--) {
+            const j = randInt(i + 1);
+            [unhappy[i], unhappy[j]] = [unhappy[j], unhappy[i]];
+        }
+
+        let moves = 0;
+        const maxMoves = Math.min(unhappy.length, empty.length);
+        const usedEmpty = new Set();
+
+        for (let k = 0; k < maxMoves; k++) {
+            let attempts = 0;
+            let ei;
+            do {
+                ei = randInt(empty.length);
+                attempts++;
+            } while (usedEmpty.has(ei) && attempts < empty.length * 2);
+
+            if (usedEmpty.has(ei)) continue;
+
+            const [ur, uc] = unhappy[k];
+            const [er, ec] = empty[ei];
+            grid[er][ec] = grid[ur][uc];
+            grid[ur][uc] = EMPTY;
+            empty[ei] = [ur, uc];
+            usedEmpty.add(ei);
+            moves++;
+        }
+
+        stepCount++;
+        totalMoves += moves;
+        updateStats();
+        draw();
+
+        if (moves === 0) {
+            stop();
+        }
+    }
+
+    function calcSegregationIndex() {
+        let totalSame = 0;
+        let totalNeighbors = 0;
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                if (grid[i][j] === EMPTY) continue;
+                const neighbors = getNeighbors(i, j);
+                const nonEmpty = neighbors.filter(x => x !== EMPTY);
+                const same = nonEmpty.filter(x => x === grid[i][j]).length;
+                totalSame += same;
+                totalNeighbors += nonEmpty.length;
+            }
+        }
+        return totalNeighbors > 0 ? totalSame / totalNeighbors : 0;
+    }
+
+    function updateStats() {
+        let happy = 0, unhappy = 0, total = 0;
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                if (grid[i][j] !== EMPTY) {
+                    total++;
+                    if (isHappy(i, j)) happy++;
+                    else unhappy++;
+                }
+            }
+        }
+        const segIdx = calcSegregationIndex();
+        segHistory.push(segIdx);
+        if (segHistory.length > 200) segHistory = segHistory.slice(-200);
+
+        document.getElementById('sch-step-count').textContent = stepCount;
+        document.getElementById('sch-happy').textContent = total > 0 ? Math.round(happy/total*100) + '%' : '0%';
+        document.getElementById('sch-unhappy').textContent = unhappy;
+        document.getElementById('sch-seg-idx').textContent = segIdx.toFixed(3);
+        document.getElementById('sch-moves').textContent = totalMoves;
+
+        drawMiniChart('sch-chart', segHistory, 1.0, 'rgb(251, 146, 60)', 'Segregation Index Over Time', 'Step');
+    }
+
+    function draw() {
+        const cellSize = Math.floor(500 / N);
+        canvas.width = cellSize * N;
+        canvas.height = cellSize * N;
+
+        var gridEmpty = getCSSVar('--grid-empty');
+        var emptyCell = getCSSVar('--empty-cell');
+
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                const val = grid[i][j];
+                if (val === EMPTY) {
+                    ctx.fillStyle = gridEmpty;
+                } else if (val === BLUE) {
+                    ctx.fillStyle = isHappy(i, j) ? '#3b82f6' : '#1e3a5f';
+                } else {
+                    ctx.fillStyle = isHappy(i, j) ? '#ef4444' : '#7f1d1d';
+                }
+                ctx.fillRect(j * cellSize, i * cellSize, cellSize - (cellSize > 4 ? 1 : 0), cellSize - (cellSize > 4 ? 1 : 0));
+            }
+        }
+    }
+
+    function play() {
+        if (running) { stop(); return; }
+        running = true;
+        document.getElementById('sch-play').textContent = document.documentElement.lang === 'ro' ? 'Pauz\u0103' : 'Pause';
+        document.getElementById('sch-play').classList.add('active');
+        tick();
+    }
+
+    function tick() {
+        if (!running) return;
+        const speed = getVal('sch-speed');
+        for (let i = 0; i < speed; i++) step();
+        timer = requestAnimationFrame(tick);
+    }
+
+    function stop() {
+        running = false;
+        if (timer) cancelAnimationFrame(timer);
+        document.getElementById('sch-play').textContent = document.documentElement.lang === 'ro' ? 'Porne\u0219te' : 'Play';
+        document.getElementById('sch-play').classList.remove('active');
+    }
+
+    document.getElementById('sch-play').addEventListener('click', play);
+    document.getElementById('sch-step').addEventListener('click', () => { stop(); step(); });
+    document.getElementById('sch-reset').addEventListener('click', () => { stop(); init(); });
+
+    ['sch-threshold', 'sch-ratio', 'sch-empty', 'sch-speed', 'sch-size'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            const valId = id + '-val';
+            const el = document.getElementById(valId);
+            if (id === 'sch-speed' || id === 'sch-size') el.textContent = this.value;
+            else el.textContent = this.value + '%';
+        });
+    });
+
+    document.getElementById('sch-size').addEventListener('change', () => { stop(); init(); });
+
+    init();
+    window._schDraw = draw;
+    window._schUpdateStats = updateStats;
+})();
+
+
+// ============================================================
+// 1b. GRANOVETTER THRESHOLD MODEL
+// ============================================================
+(function() {
+    let agents = [];
+    let N = 300;
+    let activeCount = 0;
+    let round = 0;
+    let running = false;
+    let timer = null;
+    let history = [];
+    let settled = false;
+
+    function getVal(id) { return parseInt(document.getElementById(id).value); }
+
+    function generateThresholds() {
+        N = getVal('gran-pop');
+        const dist = document.getElementById('gran-dist').value;
+        const mean = getVal('gran-mean') / 100;
+        const spread = getVal('gran-spread') / 100;
+
+        agents = [];
+        for (let i = 0; i < N; i++) {
+            let t;
+            switch(dist) {
+                case 'uniform':
+                    t = i / N;
+                    break;
+                case 'normal':
+                    t = clamp(gaussRand(mean, spread), 0, 1);
+                    break;
+                case 'bimodal':
+                    t = Math.random() < 0.5
+                        ? clamp(gaussRand(0.25, 0.08), 0, 1)
+                        : clamp(gaussRand(0.75, 0.08), 0, 1);
+                    break;
+                case 'low':
+                    t = clamp(Math.pow(Math.random(), 2.5), 0, 1);
+                    break;
+                case 'high':
+                    t = clamp(1 - Math.pow(Math.random(), 2.5), 0, 1);
+                    break;
+            }
+            agents.push({ threshold: Math.floor(t * N), active: false });
+        }
+        agents.sort((a, b) => a.threshold - b.threshold);
+        activeCount = 0;
+        round = 0;
+        history = [0];
+        settled = false;
+        drawHist();
+        drawTimeSeries();
+        drawCrowd();
+        updateGranStats();
+    }
+
+    function stepGran() {
+        if (settled) return;
+        let newActive = 0;
+        for (let i = 0; i < agents.length; i++) {
+            if (!agents[i].active && agents[i].threshold <= activeCount) {
+                agents[i].active = true;
+                newActive++;
+            }
+        }
+        activeCount += newActive;
+        round++;
+        history.push(activeCount);
+
+        if (newActive === 0) {
+            settled = true;
+            document.getElementById('gran-status').textContent = document.documentElement.lang === 'ro' ? 'Stabilizat' : 'Settled';
+        }
+
+        drawHist();
+        drawTimeSeries();
+        drawCrowd();
+        updateGranStats();
+    }
+
+    function updateGranStats() {
+        document.getElementById('gran-round').textContent = round;
+        document.getElementById('gran-active').textContent = activeCount;
+        document.getElementById('gran-pct').textContent = Math.round(activeCount / N * 100) + '%';
+        if (!settled && round === 0) document.getElementById('gran-status').textContent = document.documentElement.lang === 'ro' ? 'Preg\u0103tit' : 'Ready';
+        else if (!settled) document.getElementById('gran-status').textContent = document.documentElement.lang === 'ro' ? 'Ruleaz\u0103' : 'Running';
+    }
+
+    function drawHist() {
+        const canvas = document.getElementById('gran-hist');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = getCSSVar('--chart-bg');
+        ctx.fillRect(0, 0, W, H);
+
+        const pad = {top: 28, right: 15, bottom: 28, left: 40};
+        const cw = W - pad.left - pad.right;
+        const ch = H - pad.top - pad.bottom;
+
+        // Title
+        ctx.fillStyle = getCSSVar('--stat-label');
+        ctx.font = '11px Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Threshold Distribution', W/2, 16);
+
+        // Bin thresholds
+        const numBins = 30;
+        const bins = new Array(numBins).fill(0);
+        const activeBins = new Array(numBins).fill(0);
+        for (const a of agents) {
+            const bin = Math.min(Math.floor(a.threshold / N * numBins), numBins - 1);
+            bins[bin]++;
+            if (a.active) activeBins[bin]++;
+        }
+        const maxBin = Math.max(...bins, 1);
+
+        const barW = cw / numBins;
+        for (let i = 0; i < numBins; i++) {
+            const x = pad.left + i * barW;
+            const h = (bins[i] / maxBin) * ch;
+            const ah = (activeBins[i] / maxBin) * ch;
+
+            // Inactive portion
+            ctx.fillStyle = getCSSVar('--inactive-bar');
+            ctx.fillRect(x + 1, pad.top + ch - h, barW - 2, h);
+
+            // Active portion
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(x + 1, pad.top + ch - ah, barW - 2, ah);
+        }
+
+        // Axes
+        ctx.strokeStyle = getCSSVar('--axis-color');
+        ctx.beginPath();
+        ctx.moveTo(pad.left, pad.top);
+        ctx.lineTo(pad.left, pad.top + ch);
+        ctx.lineTo(pad.left + cw, pad.top + ch);
+        ctx.stroke();
+
+        ctx.fillStyle = getCSSVar('--axis-label');
+        ctx.font = '9px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('Threshold (% of population needed)', W/2, H - 4);
+        ctx.fillText('0', pad.left, H - 14);
+        ctx.fillText(N, pad.left + cw, H - 14);
+    }
+
+    function drawTimeSeries() {
+        drawMiniChart('gran-chart', history, N, 'rgb(245, 158, 11)', 'Active Agents Over Rounds', 'Round');
+    }
+
+    function drawCrowd() {
+        const canvas = document.getElementById('gran-crowd');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = getCSSVar('--chart-bg');
+        ctx.fillRect(0, 0, W, H);
+
+        var inactiveColor = getCSSVar('--sitting-color');
+        const dotR = Math.max(2, Math.min(8, Math.floor(W / N * 1.2)));
+        const cols = Math.floor(W / (dotR * 2.5));
+        const rows = Math.ceil(N / cols);
+
+        for (let i = 0; i < agents.length; i++) {
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            const x = dotR + col * dotR * 2.5;
+            const y = dotR + row * dotR * 2.5;
+
+            ctx.beginPath();
+            ctx.arc(x, y, dotR - 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = agents[i].active ? '#f59e0b' : inactiveColor;
+            ctx.fill();
+            if (agents[i].active) {
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+        }
+    }
+
+    function playGran() {
+        if (running) { stopGran(); return; }
+        running = true;
+        document.getElementById('gran-play').textContent = document.documentElement.lang === 'ro' ? 'Pauz\u0103' : 'Pause';
+        document.getElementById('gran-play').classList.add('active');
+        tickGran();
+    }
+
+    function tickGran() {
+        if (!running || settled) { stopGran(); return; }
+        const speed = getVal('gran-speed');
+        const delay = Math.max(50, 500 / speed);
+        stepGran();
+        timer = setTimeout(tickGran, delay);
+    }
+
+    function stopGran() {
+        running = false;
+        if (timer) clearTimeout(timer);
+        document.getElementById('gran-play').textContent = document.documentElement.lang === 'ro' ? 'Porne\u0219te' : 'Play';
+        document.getElementById('gran-play').classList.remove('active');
+    }
+
+    document.getElementById('gran-play').addEventListener('click', playGran);
+    document.getElementById('gran-step').addEventListener('click', () => { stopGran(); stepGran(); });
+    document.getElementById('gran-reset').addEventListener('click', () => { stopGran(); generateThresholds(); });
+
+    ['gran-pop', 'gran-mean', 'gran-spread', 'gran-speed'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            const valId = id + '-val';
+            const el = document.getElementById(valId);
+            if (id === 'gran-speed') el.textContent = this.value;
+            else if (id === 'gran-pop') el.textContent = this.value;
+            else el.textContent = this.value + '%';
+        });
+    });
+
+    document.getElementById('gran-dist').addEventListener('change', () => { stopGran(); generateThresholds(); });
+    document.getElementById('gran-pop').addEventListener('change', () => { stopGran(); generateThresholds(); });
+
+    generateThresholds();
+    window._granDrawHist = drawHist;
+    window._granDrawTimeSeries = drawTimeSeries;
+    window._granDrawCrowd = drawCrowd;
+})();
+
+
+// ============================================================
+// 1c. STANDING OVATION MODEL
+// ============================================================
+(function() {
+    let audience = [];
+    let rows = 20, cols = 40;
+    let round = 0;
+    let running = false;
+    let timer = null;
+    let history = [];
+    let settled = false;
+
+    const canvas = document.getElementById('so-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function getVal(id) { return parseInt(document.getElementById(id).value); }
+
+    function init() {
+        rows = getVal('so-rows');
+        cols = getVal('so-cols');
+        const quality = getVal('so-quality') / 100;
+        const diversity = getVal('so-diversity') / 100;
+
+        audience = [];
+        for (let r = 0; r < rows; r++) {
+            audience[r] = [];
+            for (let c = 0; c < cols; c++) {
+                const personalThreshold = clamp(0.5 + gaussRand(0, diversity), 0.05, 0.99);
+                const signal = clamp(quality + gaussRand(0, diversity * 0.6), 0, 1);
+                const standing = signal >= personalThreshold;
+
+                audience[r][c] = {
+                    threshold: personalThreshold,
+                    standing: standing,
+                    signal: signal
+                };
+            }
+        }
+
+        round = 0;
+        settled = false;
+        const standing = countStanding();
+        history = [standing / (rows * cols) * 100];
+        draw();
+        updateSOStats();
+    }
+
+    function countStanding() {
+        let count = 0;
+        for (let r = 0; r < rows; r++)
+            for (let c = 0; c < cols; c++)
+                if (audience[r][c].standing) count++;
+        return count;
+    }
+
+    function getNeighborStandingFraction(r, c) {
+        let standing = 0, total = 0;
+        for (let dr = -2; dr <= 2; dr++) {
+            for (let dc = -2; dc <= 2; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                const nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                    total++;
+                    if (audience[nr][nc].standing) standing++;
+                }
+            }
+        }
+        return total > 0 ? standing / total : 0;
+    }
+
+    function stepSO() {
+        if (settled) return;
+        const pressure = getVal('so-pressure') / 100;
+        let changes = 0;
+
+        const newStanding = [];
+        for (let r = 0; r < rows; r++) {
+            newStanding[r] = [];
+            for (let c = 0; c < cols; c++) {
+                const person = audience[r][c];
+                const neighborFrac = getNeighborStandingFraction(r, c);
+                const effectiveSignal = person.signal + pressure * neighborFrac;
+                newStanding[r][c] = effectiveSignal >= person.threshold;
+                if (newStanding[r][c] !== person.standing) changes++;
+            }
+        }
+
+        for (let r = 0; r < rows; r++)
+            for (let c = 0; c < cols; c++)
+                audience[r][c].standing = newStanding[r][c];
+
+        round++;
+        const standing = countStanding();
+        history.push(standing / (rows * cols) * 100);
+
+        if (changes === 0) {
+            settled = true;
+            document.getElementById('so-status').textContent = document.documentElement.lang === 'ro' ? 'Stabilizat' : 'Settled';
+        }
+
+        draw();
+        updateSOStats();
+    }
+
+    function updateSOStats() {
+        const total = rows * cols;
+        const standing = countStanding();
+        document.getElementById('so-round').textContent = round;
+        document.getElementById('so-standing').textContent = standing;
+        document.getElementById('so-pct').textContent = Math.round(standing / total * 100) + '%';
+        if (!settled && round === 0) document.getElementById('so-status').textContent = document.documentElement.lang === 'ro' ? 'Preg\u0103tit' : 'Ready';
+        else if (!settled) document.getElementById('so-status').textContent = document.documentElement.lang === 'ro' ? 'Ruleaz\u0103' : 'Running';
+
+        drawMiniChart('so-chart', history, 100, 'rgb(168, 85, 247)', '% Standing Over Rounds', 'Round');
+    }
+
+    function draw() {
+        const cellW = Math.floor(640 / cols);
+        const cellH = Math.floor(320 / rows);
+        const cw = Math.min(cellW, cellH);
+        canvas.width = cw * cols;
+        canvas.height = cw * rows;
+
+        var sittingColor = getCSSVar('--sitting-color');
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const person = audience[r][c];
+                const x = c * cw;
+                const y = r * cw;
+
+                if (person.standing) {
+                    const hue = Math.floor(person.threshold * 60 + 250);
+                    ctx.fillStyle = `hsl(${hue}, 80%, 60%)`;
+                } else {
+                    ctx.fillStyle = sittingColor;
+                }
+
+                const gap = cw > 8 ? 1 : 0;
+                const radius = Math.min(3, cw / 4);
+                ctx.beginPath();
+                ctx.moveTo(x + gap + radius, y + gap);
+                ctx.lineTo(x + cw - gap - radius, y + gap);
+                ctx.quadraticCurveTo(x + cw - gap, y + gap, x + cw - gap, y + gap + radius);
+                ctx.lineTo(x + cw - gap, y + cw - gap - radius);
+                ctx.quadraticCurveTo(x + cw - gap, y + cw - gap, x + cw - gap - radius, y + cw - gap);
+                ctx.lineTo(x + gap + radius, y + cw - gap);
+                ctx.quadraticCurveTo(x + gap, y + cw - gap, x + gap, y + cw - gap - radius);
+                ctx.lineTo(x + gap, y + gap + radius);
+                ctx.quadraticCurveTo(x + gap, y + gap, x + gap + radius, y + gap);
+                ctx.closePath();
+                ctx.fill();
+
+                if (person.standing && cw > 6) {
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.arc(x + cw/2, y + cw * 0.3, cw * 0.15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+    }
+
+    function playSO() {
+        if (running) { stopSO(); return; }
+        running = true;
+        document.getElementById('so-play').textContent = document.documentElement.lang === 'ro' ? 'Pauz\u0103' : 'Pause';
+        document.getElementById('so-play').classList.add('active');
+        tickSO();
+    }
+
+    function tickSO() {
+        if (!running || settled) { stopSO(); return; }
+        const speed = getVal('so-speed');
+        const delay = Math.max(50, 600 / speed);
+        stepSO();
+        timer = setTimeout(tickSO, delay);
+    }
+
+    function stopSO() {
+        running = false;
+        if (timer) clearTimeout(timer);
+        document.getElementById('so-play').textContent = document.documentElement.lang === 'ro' ? 'Porne\u0219te' : 'Play';
+        document.getElementById('so-play').classList.remove('active');
+    }
+
+    document.getElementById('so-play').addEventListener('click', playSO);
+    document.getElementById('so-step').addEventListener('click', () => { stopSO(); stepSO(); });
+    document.getElementById('so-reset').addEventListener('click', () => { stopSO(); init(); });
+
+    ['so-quality', 'so-pressure', 'so-diversity', 'so-rows', 'so-cols', 'so-speed'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            const valId = id + '-val';
+            const el = document.getElementById(valId);
+            if (id === 'so-speed') el.textContent = this.value;
+            else if (id === 'so-rows' || id === 'so-cols') el.textContent = this.value;
+            else el.textContent = this.value + '%';
+        });
+    });
+
+    ['so-rows', 'so-cols'].forEach(id => {
+        document.getElementById(id).addEventListener('change', () => { stopSO(); init(); });
+    });
+
+    init();
+    window._soDraw = draw;
+    window._soUpdateStats = updateSOStats;
+})();
+
+// ============================================================
+// THEME / LANGUAGE SUPPORT
+// ============================================================
+function redrawAll() {
+    if (window._schDraw) { window._schDraw(); window._schUpdateStats(); }
+    if (window._granDrawHist) { window._granDrawHist(); window._granDrawTimeSeries(); window._granDrawCrowd(); }
+    if (window._soDraw) { window._soDraw(); window._soUpdateStats(); }
+}
+
+function setTheme(theme) {
+    document.body.className = 'theme-' + theme;
+    localStorage.setItem('mt-theme', theme);
+    if (typeof redrawAll === 'function') redrawAll();
+}
+
+function toggleLang() {
+    const current = document.documentElement.lang || 'en';
+    const newLang = current === 'en' ? 'ro' : 'en';
+    document.documentElement.lang = newLang;
+    document.getElementById('langBtn').textContent = newLang === 'en' ? 'RO' : 'EN';
+    localStorage.setItem('mt-lang', newLang);
+    applyLanguage(newLang);
+}
+
+function applyLanguage(lang) {
+    document.querySelectorAll('[data-ro]').forEach(function(el) {
+        if (lang === 'ro') {
+            if (!el.dataset.en) el.dataset.en = el.innerHTML;
+            el.innerHTML = el.dataset.ro;
+        } else {
+            if (el.dataset.en) el.innerHTML = el.dataset.en;
+        }
+    });
+}
+
+// On load, restore saved preferences
+(function() {
+    var savedTheme = localStorage.getItem('mt-theme') || 'dark';
+    var savedLang = localStorage.getItem('mt-lang') || 'en';
+    document.body.className = 'theme-' + savedTheme;
+    if (savedTheme !== 'dark') redrawAll();
+    if (savedLang === 'ro') {
+        document.documentElement.lang = 'ro';
+        document.getElementById('langBtn').textContent = 'EN';
+        applyLanguage('ro');
+    }
+})();
+</script>
+</body>
+</html>

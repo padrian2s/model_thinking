@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulator 3: Models of Human Behavior</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body.theme-dark {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #12182a;
+  --bg-card: linear-gradient(145deg, #12182a 0%, #0d1220 100%);
+  --bg-panel: #16213e;
+  --bg-input: #1a1a2e;
+  --bg-tertiary: #242836;
+  --text-primary: #f0f0f0;
+  --text-secondary: #8899aa;
+  --text-muted: #667788;
+  --border-color: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(0, 210, 255, 0.3);
+  --accent-cyan: #00d2ff;
+  --accent-blue: #4a9eff;
+  --accent-red: #e94560;
+  --accent-green: #6bcb77;
+  --accent-gold: #ffd93d;
+  --accent-yellow: #fbbf24;
+  --accent-purple: #9b59b6;
+  --accent-orange: #fb923c;
+  --accent-pink: #f472b6;
+  --shadow: rgba(0, 0, 0, 0.4);
+  --canvas-bg: #0a0e17;
+  --plot-bg: #12182a;
+  --grid-line: #333;
+  --grid-line-sub: #2a2a3a;
+  --header-gradient: linear-gradient(135deg, #1a1040 0%, #0a0e17 50%, #0a1628 100%);
+}
+
+body.theme-white {
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #ffffff;
+  --bg-card: linear-gradient(145deg, #ffffff 0%, #f0f2f5 100%);
+  --bg-panel: #ffffff;
+  --bg-input: #f0f2f5;
+  --bg-tertiary: #e8eaed;
+  --text-primary: #1a1a2e;
+  --text-secondary: #555566;
+  --text-muted: #888899;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-hover: rgba(0, 130, 200, 0.4);
+  --accent-cyan: #0088cc;
+  --accent-blue: #0077cc;
+  --accent-red: #d63031;
+  --accent-green: #27ae60;
+  --accent-gold: #f39c12;
+  --accent-yellow: #e6a817;
+  --accent-purple: #8e44ad;
+  --accent-orange: #e67e22;
+  --accent-pink: #d63384;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --canvas-bg: #ffffff;
+  --plot-bg: #f8f9fa;
+  --grid-line: #ccc;
+  --grid-line-sub: #e0e0e0;
+  --header-gradient: linear-gradient(135deg, #e8e0f0 0%, #f5f7fa 50%, #e0f0ff 100%);
+}
+
+body.theme-sepia {
+  --bg-primary: #f4ecd8;
+  --bg-secondary: #faf6eb;
+  --bg-card: linear-gradient(145deg, #faf6eb 0%, #f0e8d0 100%);
+  --bg-panel: #faf6eb;
+  --bg-input: #efe7d3;
+  --bg-tertiary: #e8dfc8;
+  --text-primary: #433422;
+  --text-secondary: #6b5b4a;
+  --text-muted: #8b7b6a;
+  --border-color: rgba(100, 70, 30, 0.15);
+  --border-hover: rgba(160, 100, 30, 0.4);
+  --accent-cyan: #b8860b;
+  --accent-blue: #8b6914;
+  --accent-red: #a0522d;
+  --accent-green: #6b8e23;
+  --accent-gold: #cd853f;
+  --accent-yellow: #b8860b;
+  --accent-purple: #8b4513;
+  --accent-orange: #cd6600;
+  --accent-pink: #b03060;
+  --shadow: rgba(100, 70, 30, 0.15);
+  --canvas-bg: #faf6eb;
+  --plot-bg: #f5edda;
+  --grid-line: #c4b896;
+  --grid-line-sub: #d8ccb0;
+  --header-gradient: linear-gradient(135deg, #e8dfc8 0%, #f4ecd8 50%, #f0e8d0 100%);
+}
+
+body.theme-ocean {
+  --bg-primary: #0b1628;
+  --bg-secondary: #0f2035;
+  --bg-card: linear-gradient(145deg, #0f2035 0%, #0b1628 100%);
+  --bg-panel: #132a42;
+  --bg-input: #163352;
+  --bg-tertiary: #1a3a5c;
+  --text-primary: #d4e6f1;
+  --text-secondary: #7fb3d3;
+  --text-muted: #5a8faa;
+  --border-color: rgba(100, 180, 255, 0.1);
+  --border-hover: rgba(100, 200, 255, 0.35);
+  --accent-cyan: #5dade2;
+  --accent-blue: #5dade2;
+  --accent-red: #e74c3c;
+  --accent-green: #48c9b0;
+  --accent-gold: #f7dc6f;
+  --accent-yellow: #f7dc6f;
+  --accent-purple: #a569bd;
+  --accent-orange: #f0b27a;
+  --accent-pink: #ec7063;
+  --shadow: rgba(0, 20, 50, 0.5);
+  --canvas-bg: #0b1628;
+  --plot-bg: #0f2035;
+  --grid-line: #1a3a5c;
+  --grid-line-sub: #153050;
+  --header-gradient: linear-gradient(135deg, #0b1628 0%, #0f2035 50%, #132a42 100%);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.page-header {
+  background: var(--header-gradient);
+  padding: 40px 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+.page-header h1 {
+  font-size: 2.2rem;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.page-header p { color: var(--text-secondary); font-size: 1.1rem; }
+.simulator-section {
+  max-width: 1400px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-color);
+}
+.section-badge {
+  background: var(--accent-blue);
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.section-badge.green { background: var(--accent-green); color: #000; }
+.section-badge.purple { background: var(--accent-purple); }
+.section-header h2 { font-size: 1.6rem; }
+.sim-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.controls-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 24px var(--shadow);
+}
+.controls-panel h3 {
+  font-size: 1rem;
+  color: var(--accent-blue);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.control-group {
+  margin-bottom: 16px;
+}
+.control-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.control-group input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-blue);
+}
+.control-group select, .control-group input[type="number"] {
+  width: 100%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.val-display {
+  float: right;
+  color: var(--accent-blue);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 4px 4px 4px 0;
+}
+.btn-primary { background: var(--accent-blue); color: #fff; }
+.btn-primary:hover { opacity: 0.85; }
+.btn-success { background: var(--accent-green); color: #000; }
+.btn-success:hover { opacity: 0.85; }
+.btn-danger { background: var(--accent-red); color: #fff; }
+.btn-danger:hover { opacity: 0.85; }
+.btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+.viz-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 24px var(--shadow);
+}
+canvas {
+  width: 100%;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+}
+.info-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.info-box {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+}
+.info-box h4 {
+  font-size: 0.9rem;
+  color: var(--accent-yellow);
+  margin-bottom: 8px;
+}
+.info-box p, .info-box ul {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.info-box ul { padding-left: 18px; }
+.info-box ul li { margin-bottom: 3px; }
+.stat-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.stat-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 16px;
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+}
+.stat-card .stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.stat-card .stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+.stat-card .stat-value.green { color: var(--accent-green); }
+.stat-card .stat-value.red { color: var(--accent-red); }
+.stat-card .stat-value.yellow { color: var(--accent-yellow); }
+.stat-card .stat-value.purple { color: var(--accent-purple); }
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+.tab-btn {
+  padding: 8px 18px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px 8px 0 0;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.tab-btn.active {
+  background: var(--accent-blue);
+  color: #fff;
+  border-color: var(--accent-blue);
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+  margin: 40px 0;
+}
+.gamble-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.gamble-card:hover { border-color: var(--accent-blue); transform: translateY(-1px); }
+.gamble-card.selected { border-color: var(--accent-green); background: rgba(52,211,153,0.08); }
+.gamble-option { display: flex; justify-content: space-between; align-items: center; }
+.vs-text { color: var(--text-muted); font-size: 0.8rem; text-align: center; margin: 4px 0; }
+.order-book-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.order-book-row.bid { background: rgba(52,211,153,0.1); }
+.order-book-row.ask { background: rgba(248,113,113,0.1); }
+@media (max-width: 900px) {
+  .sim-layout { grid-template-columns: 1fr; }
+  .info-boxes { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);backdrop-filter:blur(10px);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<div class="page-header">
+  <h1 data-ro="Electroni Gânditori">Models of Human Behavior</h1>
+  <p data-ro="Actorul Rațional, Economie Comportamentală și Modele Bazate pe Reguli">Rational Actor, Behavioral Economics, and Rule-Based Models</p>
+</div>
+
+<!-- ===== SECTION 3a: Beauty Contest / Game Theory ===== -->
+<div class="simulator-section" id="sec-3a">
+  <div class="section-header">
+    <span class="section-badge">3a</span>
+    <h2 data-ro="Actorul Rațional / Teoria Jocurilor: Concursul de Frumusețe">Rational Actor / Game Theory: The Beauty Contest</h2>
+  </div>
+  <div class="sim-layout">
+    <div class="controls-panel">
+      <h3 data-ro="Controale">Controls</h3>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchGameTab('beauty')" data-ro="Concursul de Frumusețe">Beauty Contest</button>
+        <button class="tab-btn" onclick="switchGameTab('ultimatum')" data-ro="Ultimatum">Ultimatum</button>
+        <button class="tab-btn" onclick="switchGameTab('dictator')" data-ro="Dictator">Dictator</button>
+      </div>
+
+      <div id="beauty-controls" class="tab-content active">
+        <div class="control-group">
+          <label data-ro="Număr de Jucători">Number of Players <span class="val-display" id="bc-n-val">20</span></label>
+          <input type="range" id="bc-n" min="3" max="100" value="20" oninput="document.getElementById('bc-n-val').textContent=this.value">
+        </div>
+        <div class="control-group">
+          <label data-ro="Valoarea p (fracțiune din medie)">p-value (fraction of average) <span class="val-display" id="bc-p-val">0.67</span></label>
+          <input type="range" id="bc-p" min="0.1" max="1.0" step="0.01" value="0.67" oninput="document.getElementById('bc-p-val').textContent=parseFloat(this.value).toFixed(2)">
+        </div>
+        <div class="control-group">
+          <label data-ro="Nivel 0 (Aleatoriu) %">Level 0 (Random) % <span class="val-display" id="bc-l0-val">40</span></label>
+          <input type="range" id="bc-l0" min="0" max="100" value="40" oninput="updateLevelSliders(0)">
+        </div>
+        <div class="control-group">
+          <label data-ro="Nivel 1 %">Level 1 % <span class="val-display" id="bc-l1-val">30</span></label>
+          <input type="range" id="bc-l1" min="0" max="100" value="30" oninput="updateLevelSliders(1)">
+        </div>
+        <div class="control-group">
+          <label data-ro="Nivel 2 %">Level 2 % <span class="val-display" id="bc-l2-val">20</span></label>
+          <input type="range" id="bc-l2" min="0" max="100" value="20" oninput="updateLevelSliders(2)">
+        </div>
+        <div class="control-group">
+          <label data-ro="Nivel 3+ %">Level 3+ % <span class="val-display" id="bc-l3-val">10</span></label>
+          <input type="range" id="bc-l3" min="0" max="100" value="10" oninput="updateLevelSliders(3)">
+        </div>
+        <div class="control-group">
+          <label data-ro="Număr de Runde">Number of Rounds <span class="val-display" id="bc-rounds-val">10</span></label>
+          <input type="range" id="bc-rounds" min="1" max="30" value="10" oninput="document.getElementById('bc-rounds-val').textContent=this.value">
+        </div>
+        <button class="btn btn-primary" onclick="runBeautyContest()" data-ro="Pornește Simularea">Run Simulation</button>
+        <button class="btn btn-secondary" onclick="resetBeautyContest()" data-ro="Resetează">Reset</button>
+      </div>
+
+      <div id="ultimatum-controls" class="tab-content">
+        <div class="control-group">
+          <label data-ro="Total Fond ($)">Total Pot ($) <span class="val-display" id="ult-pot-val">100</span></label>
+          <input type="range" id="ult-pot" min="10" max="500" step="10" value="100" oninput="document.getElementById('ult-pot-val').textContent=this.value">
+        </div>
+        <div class="control-group">
+          <label data-ro="Oferta Ta ($)">Your Offer ($) <span class="val-display" id="ult-offer-val">50</span></label>
+          <input type="range" id="ult-offer" min="0" max="100" value="50" oninput="document.getElementById('ult-offer-val').textContent=this.value">
+        </div>
+        <div class="control-group">
+          <label data-ro="Tipul Respondentului">Responder Type</label>
+          <select id="ult-responder">
+            <option value="rational" data-ro="Rațional (acceptă orice >0)">Rational (accepts any >0)</option>
+            <option value="fairness" data-ro="Orientat spre echitate (respinge < 20%)">Fairness-minded (rejects < 20%)</option>
+            <option value="emotional" data-ro="Emoțional (respinge < 30%)">Emotional (rejects < 30%)</option>
+            <option value="mixed" data-ro="Populație mixtă">Mixed population</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label data-ro="Runde de Simulare">Simulation Rounds <span class="val-display" id="ult-rounds-val">50</span></label>
+          <input type="range" id="ult-rounds" min="10" max="200" value="50" oninput="document.getElementById('ult-rounds-val').textContent=this.value">
+        </div>
+        <button class="btn btn-primary" onclick="runUltimatumGame()" data-ro="Pornește Simularea">Run Simulation</button>
+        <button class="btn btn-secondary" onclick="resetUltimatumGame()" data-ro="Resetează">Reset</button>
+      </div>
+
+      <div id="dictator-controls" class="tab-content">
+        <div class="control-group">
+          <label data-ro="Total Fond ($)">Total Pot ($) <span class="val-display" id="dict-pot-val">100</span></label>
+          <input type="range" id="dict-pot" min="10" max="500" step="10" value="100" oninput="document.getElementById('dict-pot-val').textContent=this.value">
+        </div>
+        <div class="control-group">
+          <label data-ro="Număr de Dictatori">Number of Dictators <span class="val-display" id="dict-n-val">100</span></label>
+          <input type="range" id="dict-n" min="10" max="500" value="100" oninput="document.getElementById('dict-n-val').textContent=this.value">
+        </div>
+        <div class="control-group">
+          <label data-ro="Nivel de Altruism">Altruism Level <span class="val-display" id="dict-alt-val">0.3</span></label>
+          <input type="range" id="dict-alt" min="0" max="1" step="0.05" value="0.3" oninput="document.getElementById('dict-alt-val').textContent=parseFloat(this.value).toFixed(2)">
+        </div>
+        <button class="btn btn-primary" onclick="runDictatorGame()" data-ro="Pornește Simularea">Run Simulation</button>
+        <button class="btn btn-secondary" onclick="resetDictatorGame()" data-ro="Resetează">Reset</button>
+      </div>
+    </div>
+
+    <div class="viz-panel">
+      <div class="stat-row" id="bc-stats">
+        <div class="stat-card"><div class="stat-label" data-ro="Media Ghicirilor">Average Guess</div><div class="stat-value" id="bc-avg">--</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Ținta (p x Media)">Target (p x Avg)</div><div class="stat-value green" id="bc-target">--</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Ghicirea Câștigătorului">Winner's Guess</div><div class="stat-value yellow" id="bc-winner">--</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Runda">Round</div><div class="stat-value purple" id="bc-round">--</div></div>
+      </div>
+      <canvas id="canvas-3a" height="420"></canvas>
+    </div>
+  </div>
+  <div class="info-boxes">
+    <div class="info-box">
+      <h4 data-ro="Cum Funcționează">How It Works</h4>
+      <p data-ro="În <strong>Concursul de Frumusețe</strong> (jocul p-ghicire), N jucători aleg fiecare un număr de la 0 la 100. Câștigătorul este cel mai aproape de p ori media tuturor ghicirilor. Gânditorii de Nivel 0 ghicesc aleatoriu (~50). Gânditorii de Nivel 1 presupun că ceilalți sunt Nivel 0, așa că ghicesc p*50. Gânditorii de Nivel 2 ghicesc p*p*50, și așa mai departe. Echilibrul Nash este 0, dar oamenii reali ghicesc de obicei 20-35 în prima rundă.">In the <strong>Beauty Contest</strong> (p-guess game), N players each pick a number from 0-100. The winner is closest to p times the average of all guesses. Level-0 thinkers guess randomly (~50). Level-1 thinkers assume others are Level-0, so they guess p*50. Level-2 thinkers guess p*p*50, and so on. The Nash equilibrium is 0, but real people typically guess 20-35 in the first round.</p>
+      <p style="margin-top:8px" data-ro="În <strong>Jocul Ultimatum</strong>, un propunător oferă o împărțire. Respondentul acceptă sau respinge. Teoria rațională spune să accepți orice sumă pozitivă, dar oamenii resping ofertele &quot;nedrepte&quot; ~50% din timp.">In the <strong>Ultimatum Game</strong>, a proposer offers a split. The responder accepts or rejects. Rational theory says accept any positive amount, but humans reject "unfair" offers ~50% of the time.</p>
+    </div>
+    <div class="info-box">
+      <h4 data-ro="Exemple din Lumea Reală">Real-World Examples</h4>
+      <ul>
+        <li data-ro="<strong>Prețurile pe bursă:</strong> Investitorii ghicesc ce cred alții că valorează acțiunile"><strong>Stock market pricing:</strong> Investors guess what others think stocks are worth</li>
+        <li data-ro="<strong>Licitații:</strong> Ofertanții raționează despre evaluările competitorilor"><strong>Auction bidding:</strong> Bidders reason about competitors' valuations</li>
+        <li data-ro="<strong>Prețuri competitive:</strong> Firmele stabilesc prețuri bazate pe răspunsurile așteptate ale competitorilor"><strong>Competitive pricing:</strong> Firms set prices based on expected competitor responses</li>
+        <li data-ro="<strong>Negocieri salariale:</strong> Fiecare parte raționează despre prețul de rezervare al celeilalte"><strong>Salary negotiations:</strong> Each party reasons about the other's reservation price</li>
+        <li data-ro="<strong>Concursul de frumusețe keynesian:</strong> Metafora originală pentru speculația pe bursă"><strong>Keynesian beauty contest:</strong> Original metaphor for stock market speculation</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION 3b: Behavioral Economics ===== -->
+<div class="simulator-section" id="sec-3b">
+  <div class="section-header">
+    <span class="section-badge green">3b</span>
+    <h2 data-ro="Simulator de Economie Comportamentală">Behavioral Economics Simulator</h2>
+  </div>
+  <div class="sim-layout">
+    <div class="controls-panel">
+      <h3 data-ro="Explorator de Prejudecăți">Bias Explorer</h3>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchBiasTab('loss')" data-ro="Aversiunea la Pierderi">Loss Aversion</button>
+        <button class="tab-btn" onclick="switchBiasTab('discount')" data-ro="Actualizare">Discounting</button>
+      </div>
+
+      <div id="loss-controls" class="tab-content active">
+        <div class="control-group">
+          <label data-ro="Aversiunea la Pierderi (lambda)">Loss Aversion (lambda) <span class="val-display" id="la-lambda-val">2.25</span></label>
+          <input type="range" id="la-lambda" min="1" max="4" step="0.05" value="2.25" oninput="document.getElementById('la-lambda-val').textContent=parseFloat(this.value).toFixed(2);drawProspectTheory()">
+        </div>
+        <div class="control-group">
+          <label data-ro="Curbură (alpha)">Curvature (alpha) <span class="val-display" id="la-alpha-val">0.88</span></label>
+          <input type="range" id="la-alpha" min="0.3" max="1.0" step="0.01" value="0.88" oninput="document.getElementById('la-alpha-val').textContent=parseFloat(this.value).toFixed(2);drawProspectTheory()">
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin:8px 0" data-ro="Faceți clic pe pariuri mai jos pentru a dezvălui funcția dvs. de valoare implicită:">Click gambles below to reveal your implied value function:</p>
+        <div id="gamble-list"></div>
+        <button class="btn btn-secondary" onclick="generateGambles()" data-ro="Pariuri Noi">New Gambles</button>
+        <button class="btn btn-danger" onclick="resetGambles()" data-ro="Șterge Alegerile">Clear Choices</button>
+      </div>
+
+      <div id="discount-controls" class="tab-content">
+        <div class="control-group">
+          <label data-ro="Sumă Acum ($)">Amount Now ($) <span class="val-display" id="disc-now-val">100</span></label>
+          <input type="range" id="disc-now" min="10" max="500" step="10" value="100" oninput="document.getElementById('disc-now-val').textContent=this.value;drawDiscounting()">
+        </div>
+        <div class="control-group">
+          <label data-ro="Sumă Mai Târziu ($)">Amount Later ($) <span class="val-display" id="disc-later-val">150</span></label>
+          <input type="range" id="disc-later" min="10" max="500" step="10" value="150" oninput="document.getElementById('disc-later-val').textContent=this.value;drawDiscounting()">
+        </div>
+        <div class="control-group">
+          <label data-ro="Întârziere (luni)">Delay (months) <span class="val-display" id="disc-delay-val">12</span></label>
+          <input type="range" id="disc-delay" min="1" max="60" value="12" oninput="document.getElementById('disc-delay-val').textContent=this.value;drawDiscounting()">
+        </div>
+        <div class="control-group">
+          <label data-ro="Rata Exponențială (r)">Exponential Rate (r) <span class="val-display" id="disc-r-val">0.05</span></label>
+          <input type="range" id="disc-r" min="0.01" max="0.3" step="0.01" value="0.05" oninput="document.getElementById('disc-r-val').textContent=parseFloat(this.value).toFixed(2);drawDiscounting()">
+        </div>
+        <div class="control-group">
+          <label data-ro="Actualizare Hiperbolică k">Hyperbolic k <span class="val-display" id="disc-k-val">0.1</span></label>
+          <input type="range" id="disc-k" min="0.01" max="1.0" step="0.01" value="0.1" oninput="document.getElementById('disc-k-val').textContent=parseFloat(this.value).toFixed(2);drawDiscounting()">
+        </div>
+        <button class="btn btn-primary" onclick="drawDiscounting()" data-ro="Actualizează">Update</button>
+      </div>
+    </div>
+
+    <div class="viz-panel">
+      <div class="stat-row" id="bias-stats">
+        <div class="stat-card"><div class="stat-label" data-ro="Pariuri Răspunse">Gambles Answered</div><div class="stat-value" id="bias-answered">0</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Căutare de Risc (Pierderi)">Risk Seeking (Losses)</div><div class="stat-value red" id="bias-risk-loss">--</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Aversiune la Risc (Câștiguri)">Risk Averse (Gains)</div><div class="stat-value green" id="bias-risk-gain">--</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Lambda Implicat">Lambda Implied</div><div class="stat-value yellow" id="bias-lambda">--</div></div>
+      </div>
+      <canvas id="canvas-3b" height="420"></canvas>
+    </div>
+  </div>
+  <div class="info-boxes">
+    <div class="info-box">
+      <h4 data-ro="Cum Funcționează">How It Works</h4>
+      <p data-ro="<strong>Teoria Prospectului</strong> (Kahneman & Tversky): Oamenii evaluează rezultatele relativ la un punct de referință. Pierderile dor ~2,25x mai mult decât câștigurile echivalente. Funcția de valoare este concavă pentru câștiguri (aversiune la risc) și convexă pentru pierderi (căutare de risc)."><strong>Prospect Theory</strong> (Kahneman & Tversky): People evaluate outcomes relative to a reference point. Losses hurt ~2.25x more than equivalent gains feel good. The value function is concave for gains (risk aversion) and convex for losses (risk seeking).</p>
+      <p style="margin-top:8px" data-ro="<strong>Actualizare Hiperbolică:</strong> Oamenii preferă 100$ azi față de 110$ mâine, dar sunt indiferenți între 100$ peste 30 de zile și 110$ peste 31 de zile. Această inconsistență temporală diferă de actualizarea exponențială rațională."><strong>Hyperbolic Discounting:</strong> People prefer $100 today over $110 tomorrow, but are indifferent between $100 in 30 days and $110 in 31 days. This time inconsistency differs from rational exponential discounting.</p>
+    </div>
+    <div class="info-box">
+      <h4 data-ro="Exemple din Lumea Reală">Real-World Examples</h4>
+      <ul>
+        <li data-ro="<strong>Cumpărarea de asigurări:</strong> Oamenii plătesc prea mult pentru asigurări din cauza aversiunii la pierderi"><strong>Insurance purchasing:</strong> People overpay for insurance due to loss aversion</li>
+        <li data-ro="<strong>Comportament investițional:</strong> Vânzarea câștigătorilor prea devreme, păstrarea perdanților prea mult"><strong>Investment behavior:</strong> Selling winners too early, holding losers too long</li>
+        <li data-ro="<strong>Economisire pentru pensie:</strong> Actualizarea hiperbolică cauzează economisire insuficientă"><strong>Retirement saving:</strong> Hyperbolic discounting causes under-saving</li>
+        <li data-ro="<strong>Marketing/prețuri:</strong> Încadrarea &quot;Nu rata&quot; exploatează aversiunea la pierderi"><strong>Marketing/pricing:</strong> "Don't miss out" framing exploits loss aversion</li>
+        <li data-ro="<strong>Prejudecata status quo:</strong> Opțiunile implicite domină (donare de organe opt-in vs opt-out)"><strong>Status quo bias:</strong> Default options dominate (organ donation opt-in vs opt-out)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== SECTION 3c: Zero Intelligence Traders ===== -->
+<div class="simulator-section" id="sec-3c">
+  <div class="section-header">
+    <span class="section-badge purple">3c</span>
+    <h2 data-ro="Traderi cu Inteligență Zero / Piață Bazată pe Reguli">Zero Intelligence Traders / Rule-Based Market</h2>
+  </div>
+  <div class="sim-layout">
+    <div class="controls-panel">
+      <h3 data-ro="Controale Piață">Market Controls</h3>
+      <div class="control-group">
+        <label data-ro="Număr de Traderi">Number of Traders <span class="val-display" id="zi-n-val">50</span></label>
+        <input type="range" id="zi-n" min="10" max="200" value="50" oninput="document.getElementById('zi-n-val').textContent=this.value">
+      </div>
+      <div class="control-group">
+        <label data-ro="Constrângeri Bugetare">Budget Constraints</label>
+        <select id="zi-budget">
+          <option value="on" data-ro="Activate (realist)">On (realistic)</option>
+          <option value="off" data-ro="Dezactivate (fără constrângeri)">Off (unconstrained)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label data-ro="Interval Valoare Min">Value Range Min <span class="val-display" id="zi-vmin-val">20</span></label>
+        <input type="range" id="zi-vmin" min="1" max="80" value="20" oninput="document.getElementById('zi-vmin-val').textContent=this.value">
+      </div>
+      <div class="control-group">
+        <label data-ro="Interval Valoare Max">Value Range Max <span class="val-display" id="zi-vmax-val">80</span></label>
+        <input type="range" id="zi-vmax" min="30" max="150" value="80" oninput="document.getElementById('zi-vmax-val').textContent=this.value">
+      </div>
+      <div class="control-group">
+        <label data-ro="Viteza Simulării">Simulation Speed <span class="val-display" id="zi-speed-val">50</span></label>
+        <input type="range" id="zi-speed" min="1" max="100" value="50" oninput="document.getElementById('zi-speed-val').textContent=this.value">
+      </div>
+      <div class="control-group">
+        <label data-ro="Afișează Registrul de Ordine">Show Order Book</label>
+        <select id="zi-orderbook">
+          <option value="yes" data-ro="Da">Yes</option>
+          <option value="no" data-ro="Nu">No</option>
+        </select>
+      </div>
+      <button class="btn btn-success" onclick="startZIMarket()" data-ro="Pornește Piața">Start Market</button>
+      <button class="btn btn-danger" onclick="stopZIMarket()" data-ro="Oprește">Stop</button>
+      <button class="btn btn-secondary" onclick="resetZIMarket()" data-ro="Resetează">Reset</button>
+    </div>
+
+    <div class="viz-panel">
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label" data-ro="Ultimul Preț">Last Price</div><div class="stat-value" id="zi-price">--</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Tranzacții">Trades</div><div class="stat-value green" id="zi-trades">0</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Spread Bid-Ask">Bid-Ask Spread</div><div class="stat-value yellow" id="zi-spread">--</div></div>
+        <div class="stat-card"><div class="stat-label" data-ro="Eficiență">Efficiency</div><div class="stat-value purple" id="zi-efficiency">--</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 200px;gap:12px">
+        <canvas id="canvas-3c" height="380"></canvas>
+        <div id="order-book-display" style="background:var(--bg-secondary);border-radius:8px;padding:10px;overflow-y:auto;max-height:380px">
+          <div style="text-align:center;font-size:0.8rem;color:var(--text-muted);margin-bottom:6px" data-ro="REGISTRUL DE ORDINE">ORDER BOOK</div>
+          <div id="order-book-asks" style="margin-bottom:8px"></div>
+          <div style="text-align:center;font-size:0.85rem;color:var(--accent-yellow);padding:4px;border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color)" id="order-book-mid">--</div>
+          <div id="order-book-bids" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="info-boxes">
+    <div class="info-box">
+      <h4 data-ro="Cum Funcționează">How It Works</h4>
+      <p data-ro="Traderii cu Inteligență Zero (ZI) trimit oferte de cumpărare și vânzare aleatorii. Cu <strong>constrângeri bugetare</strong> (ZI-C), cumpărătorii nu pot licita peste valoarea lor, iar vânzătorii nu pot cere sub costul lor. În mod remarcabil, chiar și acești traderi &quot;fără minte&quot; produc rezultate de piață realiste: prețurile converg aproape de echilibru, iar mecanismul dublu de licitație extrage aproape tot surplusul disponibil.">Zero Intelligence (ZI) traders submit random bids and asks. With <strong>budget constraints</strong> (ZI-C), buyers cannot bid above their value and sellers cannot ask below their cost. Remarkably, even these "mindless" traders produce realistic market outcomes: prices converge near equilibrium, and the double auction mechanism extracts nearly all available surplus.</p>
+      <p style="margin-top:8px" data-ro="Aceasta demonstrează că <strong>instituțiile pieței</strong> (regulile și structura) pot conta mai mult decât inteligența individuală în producerea rezultatelor eficiente.">This demonstrates that <strong>market institutions</strong> (rules and structure) can matter more than individual intelligence in producing efficient outcomes.</p>
+    </div>
+    <div class="info-box">
+      <h4 data-ro="Exemple din Lumea Reală">Real-World Examples</h4>
+      <ul>
+        <li data-ro="<strong>Piețe cu licitație dublă:</strong> NYSE, burse de mărfuri"><strong>Double auction markets:</strong> NYSE, commodity exchanges</li>
+        <li data-ro="<strong>Burse de valori:</strong> Microstructura pieței conduce la eficiență"><strong>Stock exchanges:</strong> Market microstructure drives efficiency</li>
+        <li data-ro="<strong>Tranzacționare automată/algoritmică:</strong> Reguli simple, rezultate complexe"><strong>Automated/algorithmic trading:</strong> Simple rules, complex outcomes</li>
+        <li data-ro="<strong>Piețe de predicție:</strong> Agregarea informațiilor dispersate"><strong>Prediction markets:</strong> Aggregating dispersed information</li>
+        <li data-ro="<strong>Gode & Sunder (1993):</strong> Lucrarea originală ZI-C care arată eficiența instituțională"><strong>Gode & Sunder (1993):</strong> Original ZI-C paper showing institutional efficiency</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Theme-aware color helper =====
+function getThemeColors() {
+  const style = getComputedStyle(document.body);
+  return {
+    bgPrimary: style.getPropertyValue('--canvas-bg').trim(),
+    bgSecondary: style.getPropertyValue('--bg-secondary').trim(),
+    plotBg: style.getPropertyValue('--plot-bg').trim(),
+    textPrimary: style.getPropertyValue('--text-primary').trim(),
+    textSecondary: style.getPropertyValue('--text-secondary').trim(),
+    textMuted: style.getPropertyValue('--text-muted').trim(),
+    accentBlue: style.getPropertyValue('--accent-blue').trim(),
+    accentRed: style.getPropertyValue('--accent-red').trim(),
+    accentGreen: style.getPropertyValue('--accent-green').trim(),
+    accentYellow: style.getPropertyValue('--accent-yellow').trim(),
+    accentPurple: style.getPropertyValue('--accent-purple').trim(),
+    accentOrange: style.getPropertyValue('--accent-orange').trim(),
+    gridLine: style.getPropertyValue('--grid-line').trim(),
+    gridLineSub: style.getPropertyValue('--grid-line-sub').trim(),
+    borderColor: style.getPropertyValue('--border-color').trim(),
+  };
+}
+
+// ========== SECTION 3a: Beauty Contest ==========
+let bcHistory = [];
+let bcCurrentRound = 0;
+let bcAnimFrame = null;
+
+function switchGameTab(tab) {
+  document.querySelectorAll('#sec-3a .tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#sec-3a .tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tab === 'beauty' ? 'beauty-controls' : tab === 'ultimatum' ? 'ultimatum-controls' : 'dictator-controls').classList.add('active');
+  if (tab === 'ultimatum') resetUltimatumGame();
+  if (tab === 'dictator') resetDictatorGame();
+  if (tab === 'beauty') resetBeautyContest();
+}
+
+function updateLevelSliders(changed) {
+  let vals = [
+    parseInt(document.getElementById('bc-l0').value),
+    parseInt(document.getElementById('bc-l1').value),
+    parseInt(document.getElementById('bc-l2').value),
+    parseInt(document.getElementById('bc-l3').value)
+  ];
+  let total = vals.reduce((a,b) => a+b, 0);
+  if (total > 100) {
+    let excess = total - 100;
+    for (let i = 3; i >= 0; i--) {
+      if (i !== changed) {
+        let reduce = Math.min(vals[i], excess);
+        vals[i] -= reduce;
+        excess -= reduce;
+        if (excess <= 0) break;
+      }
+    }
+  }
+  document.getElementById('bc-l0').value = vals[0]; document.getElementById('bc-l0-val').textContent = vals[0];
+  document.getElementById('bc-l1').value = vals[1]; document.getElementById('bc-l1-val').textContent = vals[1];
+  document.getElementById('bc-l2').value = vals[2]; document.getElementById('bc-l2-val').textContent = vals[2];
+  document.getElementById('bc-l3').value = vals[3]; document.getElementById('bc-l3-val').textContent = vals[3];
+}
+
+function runBeautyContest() {
+  const N = parseInt(document.getElementById('bc-n').value);
+  const p = parseFloat(document.getElementById('bc-p').value);
+  const rounds = parseInt(document.getElementById('bc-rounds').value);
+  const pcts = [
+    parseInt(document.getElementById('bc-l0').value),
+    parseInt(document.getElementById('bc-l1').value),
+    parseInt(document.getElementById('bc-l2').value),
+    parseInt(document.getElementById('bc-l3').value)
+  ];
+  const total = pcts.reduce((a,b)=>a+b,0) || 1;
+  const counts = pcts.map(pc => Math.round(N * pc / total));
+  while (counts.reduce((a,b)=>a+b,0) < N) counts[0]++;
+  while (counts.reduce((a,b)=>a+b,0) > N) counts[0]--;
+
+  bcHistory = [];
+  let prevAvg = 50;
+
+  for (let r = 0; r < rounds; r++) {
+    let guesses = [];
+    let levels = [];
+    for (let i = 0; i < counts[0]; i++) {
+      let g = Math.random() * 100;
+      guesses.push(g); levels.push(0);
+    }
+    for (let i = 0; i < counts[1]; i++) {
+      let g = p * prevAvg + (Math.random()-0.5)*5;
+      guesses.push(Math.max(0, Math.min(100, g))); levels.push(1);
+    }
+    for (let i = 0; i < counts[2]; i++) {
+      let g = p*p * prevAvg + (Math.random()-0.5)*3;
+      guesses.push(Math.max(0, Math.min(100, g))); levels.push(2);
+    }
+    for (let i = 0; i < counts[3]; i++) {
+      let g = Math.pow(p, 3+r*0.3) * prevAvg + (Math.random()-0.5)*2;
+      guesses.push(Math.max(0, Math.min(100, g))); levels.push(3);
+    }
+
+    let avg = guesses.reduce((a,b)=>a+b,0) / guesses.length;
+    let target = p * avg;
+    let winner = guesses.reduce((best, g) => Math.abs(g - target) < Math.abs(best - target) ? g : best);
+
+    bcHistory.push({ guesses, levels, avg, target, winner, round: r+1 });
+    prevAvg = avg;
+  }
+
+  bcCurrentRound = 0;
+  animateBeautyContest();
+}
+
+function animateBeautyContest() {
+  if (bcCurrentRound >= bcHistory.length) return;
+  const data = bcHistory[bcCurrentRound];
+  document.getElementById('bc-avg').textContent = data.avg.toFixed(1);
+  document.getElementById('bc-target').textContent = data.target.toFixed(1);
+  document.getElementById('bc-winner').textContent = data.winner.toFixed(1);
+  document.getElementById('bc-round').textContent = data.round + '/' + bcHistory.length;
+  drawBeautyContest(data, bcHistory.slice(0, bcCurrentRound+1));
+  bcCurrentRound++;
+  bcAnimFrame = setTimeout(animateBeautyContest, 600);
+}
+
+function drawBeautyContest(current, history) {
+  const tc = getThemeColors();
+  const canvas = document.getElementById('canvas-3a');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = 420 * 2;
+  ctx.scale(1,1);
+  ctx.clearRect(0,0,W,H);
+
+  const margin = { top: 40, right: 40, bottom: 100, left: 60 };
+  const plotH = H * 0.45;
+  const plotW = W - margin.left - margin.right;
+
+  const nlY = margin.top + 30;
+  const nlH = plotH - 80;
+
+  ctx.strokeStyle = tc.gridLine;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(margin.left, nlY + nlH/2);
+  ctx.lineTo(margin.left + plotW, nlY + nlH/2);
+  ctx.stroke();
+
+  ctx.fillStyle = tc.textMuted;
+  ctx.font = '20px sans-serif';
+  ctx.textAlign = 'center';
+  for (let v = 0; v <= 100; v += 10) {
+    let x = margin.left + (v/100)*plotW;
+    ctx.beginPath();
+    ctx.moveTo(x, nlY+nlH/2-8);
+    ctx.lineTo(x, nlY+nlH/2+8);
+    ctx.stroke();
+    ctx.fillText(v, x, nlY+nlH/2+28);
+  }
+
+  const colors = [tc.accentBlue, tc.accentGreen, tc.accentYellow, tc.accentPurple];
+  const levelNames = ['L0', 'L1', 'L2', 'L3+'];
+  current.guesses.forEach((g, i) => {
+    let x = margin.left + (g/100)*plotW;
+    let yOff = (Math.random()-0.5)*nlH*0.6;
+    ctx.beginPath();
+    ctx.arc(x, nlY+nlH/2+yOff, 6, 0, Math.PI*2);
+    ctx.fillStyle = colors[current.levels[i]] + 'cc';
+    ctx.fill();
+  });
+
+  let avgX = margin.left + (current.avg/100)*plotW;
+  ctx.strokeStyle = tc.accentRed;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([8,4]);
+  ctx.beginPath();
+  ctx.moveTo(avgX, nlY);
+  ctx.lineTo(avgX, nlY+nlH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = tc.accentRed;
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillText('Avg: '+current.avg.toFixed(1), avgX, nlY-8);
+
+  let tgtX = margin.left + (current.target/100)*plotW;
+  ctx.strokeStyle = tc.accentGreen;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  ctx.moveTo(tgtX, nlY);
+  ctx.lineTo(tgtX, nlY+nlH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = tc.accentGreen;
+  ctx.fillText('Target: '+current.target.toFixed(1), tgtX, nlY+nlH+48);
+
+  let winX = margin.left + (current.winner/100)*plotW;
+  ctx.beginPath();
+  ctx.moveTo(winX, nlY+nlH/2-20);
+  ctx.lineTo(winX-10, nlY+nlH/2-35);
+  ctx.lineTo(winX+10, nlY+nlH/2-35);
+  ctx.closePath();
+  ctx.fillStyle = tc.accentYellow;
+  ctx.fill();
+
+  ctx.font = '18px sans-serif';
+  for (let l = 0; l < 4; l++) {
+    let lx = margin.left + l * 120;
+    ctx.fillStyle = colors[l];
+    ctx.beginPath(); ctx.arc(lx+8, nlY-40, 6, 0, Math.PI*2); ctx.fill();
+    ctx.fillText(levelNames[l], lx+22, nlY-34);
+  }
+
+  const convY = plotH + 40;
+  const convH = H - convY - margin.bottom;
+
+  ctx.fillStyle = tc.plotBg;
+  ctx.fillRect(margin.left, convY, plotW, convH);
+  ctx.strokeStyle = tc.gridLine;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(margin.left, convY, plotW, convH);
+
+  ctx.fillStyle = tc.textMuted;
+  ctx.font = '18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Round', margin.left + plotW/2, H - 20);
+  ctx.save();
+  ctx.translate(20, convY + convH/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('Value', 0, 0);
+  ctx.restore();
+
+  if (history.length > 1) {
+    const maxRounds = bcHistory.length;
+    ctx.strokeStyle = tc.accentRed;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    history.forEach((h, i) => {
+      let x = margin.left + (i/(maxRounds-1))*plotW;
+      let y = convY + convH - (h.avg/100)*convH;
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    ctx.strokeStyle = tc.accentGreen;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    history.forEach((h, i) => {
+      let x = margin.left + (i/(maxRounds-1))*plotW;
+      let y = convY + convH - (h.target/100)*convH;
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    ctx.strokeStyle = tc.accentYellow;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath();
+    history.forEach((h, i) => {
+      let x = margin.left + (i/(maxRounds-1))*plotW;
+      let y = convY + convH - (h.winner/100)*convH;
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = tc.textMuted;
+    ctx.font = '16px sans-serif';
+    for (let i = 0; i < maxRounds; i++) {
+      let x = margin.left + (i/(maxRounds-1))*plotW;
+      ctx.fillText(i+1, x, convY+convH+20);
+    }
+    for (let v = 0; v <= 100; v += 20) {
+      let y = convY + convH - (v/100)*convH;
+      ctx.fillText(v, margin.left-25, y+5);
+      ctx.strokeStyle = tc.gridLine;
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(margin.left+plotW, y); ctx.stroke();
+    }
+  }
+
+  ctx.font = '16px sans-serif';
+  ctx.fillStyle = tc.accentRed; ctx.fillText('-- Average', margin.left+plotW-200, convY+20);
+  ctx.fillStyle = tc.accentGreen; ctx.fillText('-- Target (p*Avg)', margin.left+plotW-200, convY+40);
+  ctx.fillStyle = tc.accentYellow; ctx.fillText('-- Winner', margin.left+plotW-200, convY+60);
+}
+
+function resetBeautyContest() {
+  const tc = getThemeColors();
+  clearTimeout(bcAnimFrame);
+  bcHistory = [];
+  bcCurrentRound = 0;
+  document.getElementById('bc-avg').textContent = '--';
+  document.getElementById('bc-target').textContent = '--';
+  document.getElementById('bc-winner').textContent = '--';
+  document.getElementById('bc-round').textContent = '--';
+  const canvas = document.getElementById('canvas-3a');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * 2;
+  canvas.height = 420 * 2;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = tc.textMuted;
+  ctx.font = '28px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Configure parameters and click "Run Simulation"', canvas.width/2, canvas.height/2);
+}
+
+// Ultimatum Game
+function runUltimatumGame() {
+  const tc = getThemeColors();
+  const pot = parseInt(document.getElementById('ult-pot').value);
+  const offer = parseInt(document.getElementById('ult-offer').value);
+  const type = document.getElementById('ult-responder').value;
+  const rounds = parseInt(document.getElementById('ult-rounds').value);
+
+  const canvas = document.getElementById('canvas-3a');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = 420 * 2;
+  ctx.clearRect(0,0,W,H);
+
+  let results = [];
+  for (let r = 0; r < rounds; r++) {
+    let offerAmt = offer + (Math.random()-0.5)*20;
+    offerAmt = Math.max(0, Math.min(pot, offerAmt));
+    let pct = offerAmt / pot;
+    let accepted;
+    if (type === 'rational') accepted = offerAmt > 0;
+    else if (type === 'fairness') accepted = pct >= 0.2 + (Math.random()-0.5)*0.05;
+    else if (type === 'emotional') accepted = pct >= 0.3 + (Math.random()-0.5)*0.08;
+    else accepted = Math.random() < 0.5 ? pct >= 0.2 : (Math.random() < 0.7 ? pct >= 0.1 : offerAmt > 0);
+    results.push({ offer: offerAmt, accepted, pct });
+  }
+
+  const margin = { top: 60, right: 40, bottom: 80, left: 80 };
+  const plotW = W - margin.left - margin.right;
+  const plotH = H - margin.top - margin.bottom;
+
+  ctx.fillStyle = tc.plotBg;
+  ctx.fillRect(margin.left, margin.top, plotW, plotH);
+
+  ctx.fillStyle = tc.textPrimary;
+  ctx.font = 'bold 28px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Ultimatum Game Results', W/2, 35);
+
+  let bins = {};
+  for (let r of results) {
+    let bin = Math.round(r.pct * 20) * 5;
+    if (!bins[bin]) bins[bin] = { accepted: 0, rejected: 0 };
+    r.accepted ? bins[bin].accepted++ : bins[bin].rejected++;
+  }
+
+  let maxBin = Math.max(...Object.values(bins).map(b => b.accepted + b.rejected), 1);
+  ctx.font = '18px sans-serif';
+  ctx.textAlign = 'center';
+
+  Object.entries(bins).forEach(([pct, data]) => {
+    let x = margin.left + (parseInt(pct)/100)*plotW;
+    let accH = (data.accepted/maxBin)*plotH*0.8;
+    let rejH = (data.rejected/maxBin)*plotH*0.8;
+    ctx.fillStyle = tc.accentGreen;
+    ctx.fillRect(x-15, margin.top+plotH-accH, 14, accH);
+    ctx.fillStyle = tc.accentRed;
+    ctx.fillRect(x+1, margin.top+plotH-rejH, 14, rejH);
+  });
+
+  ctx.fillStyle = tc.textMuted;
+  ctx.font = '18px sans-serif';
+  for (let v = 0; v <= 100; v += 10) {
+    let x = margin.left + (v/100)*plotW;
+    ctx.fillText(v+'%', x, margin.top+plotH+25);
+  }
+  ctx.fillText('Offer as % of Pot', W/2, H-20);
+
+  ctx.fillStyle = tc.accentGreen;
+  ctx.fillRect(W-300, margin.top+10, 16, 16);
+  ctx.fillStyle = tc.textPrimary; ctx.textAlign = 'left';
+  ctx.fillText('Accepted', W-278, margin.top+24);
+  ctx.fillStyle = tc.accentRed;
+  ctx.fillRect(W-300, margin.top+34, 16, 16);
+  ctx.fillStyle = tc.textPrimary;
+  ctx.fillText('Rejected', W-278, margin.top+48);
+
+  let accRate = results.filter(r=>r.accepted).length / results.length * 100;
+  document.getElementById('bc-avg').textContent = accRate.toFixed(0) + '%';
+  document.getElementById('bc-target').textContent = 'Accept';
+  document.getElementById('bc-winner').textContent = (offer/pot*100).toFixed(0) + '%';
+  document.getElementById('bc-round').textContent = rounds;
+}
+
+function resetUltimatumGame() { resetBeautyContest(); }
+
+// Dictator Game
+function runDictatorGame() {
+  const tc = getThemeColors();
+  const pot = parseInt(document.getElementById('dict-pot').value);
+  const N = parseInt(document.getElementById('dict-n').value);
+  const altruism = parseFloat(document.getElementById('dict-alt').value);
+
+  const canvas = document.getElementById('canvas-3a');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = 420 * 2;
+  ctx.clearRect(0,0,W,H);
+
+  let gifts = [];
+  for (let i = 0; i < N; i++) {
+    let base = altruism * pot;
+    let noise = (Math.random()-0.5) * pot * 0.4;
+    let gift = Math.max(0, Math.min(pot, base + noise));
+    gifts.push(gift);
+  }
+
+  const margin = { top: 60, right: 40, bottom: 80, left: 80 };
+  const plotW = W - margin.left - margin.right;
+  const plotH = H - margin.top - margin.bottom;
+
+  ctx.fillStyle = tc.plotBg;
+  ctx.fillRect(margin.left, margin.top, plotW, plotH);
+
+  ctx.fillStyle = tc.textPrimary;
+  ctx.font = 'bold 28px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Dictator Game: Distribution of Giving', W/2, 35);
+
+  let bins = new Array(11).fill(0);
+  gifts.forEach(g => {
+    let bin = Math.min(10, Math.floor(g / pot * 10));
+    bins[bin]++;
+  });
+  let maxBin = Math.max(...bins, 1);
+  let barW = plotW / 11 - 4;
+
+  bins.forEach((count, i) => {
+    let x = margin.left + i * (plotW/11) + 2;
+    let h = (count/maxBin) * plotH * 0.85;
+    let grad = ctx.createLinearGradient(x, margin.top+plotH-h, x, margin.top+plotH);
+    grad.addColorStop(0, tc.accentPurple);
+    grad.addColorStop(1, tc.accentPurple + '88');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, margin.top+plotH-h, barW, h);
+    ctx.fillStyle = tc.textMuted;
+    ctx.font = '16px sans-serif';
+    ctx.fillText((i*10)+'-'+(i*10+10)+'%', x+barW/2, margin.top+plotH+22);
+    if (count > 0) {
+      ctx.fillStyle = tc.textPrimary;
+      ctx.fillText(count, x+barW/2, margin.top+plotH-h-8);
+    }
+  });
+
+  ctx.fillStyle = tc.textMuted;
+  ctx.font = '18px sans-serif';
+  ctx.fillText('% of Pot Given to Recipient', W/2, H-20);
+
+  ctx.strokeStyle = tc.accentRed;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([8,4]);
+  ctx.beginPath();
+  ctx.moveTo(margin.left + plotW/22, margin.top);
+  ctx.lineTo(margin.left + plotW/22, margin.top+plotH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = tc.accentRed;
+  ctx.font = '16px sans-serif';
+  ctx.fillText('Rational prediction: give $0', margin.left+plotW/22+100, margin.top+20);
+
+  let avg = gifts.reduce((a,b)=>a+b,0)/gifts.length;
+  document.getElementById('bc-avg').textContent = '$'+avg.toFixed(0);
+  document.getElementById('bc-target').textContent = 'Given';
+  document.getElementById('bc-winner').textContent = (avg/pot*100).toFixed(0)+'%';
+  document.getElementById('bc-round').textContent = N;
+}
+function resetDictatorGame() { resetBeautyContest(); }
+
+// ========== SECTION 3b: Behavioral Economics ==========
+let gambleChoices = [];
+let gambles = [];
+
+function switchBiasTab(tab) {
+  document.querySelectorAll('#sec-3b .tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#sec-3b .tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tab === 'loss' ? 'loss-controls' : 'discount-controls').classList.add('active');
+  if (tab === 'loss') drawProspectTheory();
+  else drawDiscounting();
+}
+
+function prospectValue(x, lambda, alpha) {
+  if (x >= 0) return Math.pow(x, alpha);
+  return -lambda * Math.pow(-x, alpha);
+}
+
+function drawProspectTheory() {
+  const tc = getThemeColors();
+  const canvas = document.getElementById('canvas-3b');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = 420 * 2;
+  ctx.clearRect(0,0,W,H);
+
+  const lambda = parseFloat(document.getElementById('la-lambda').value);
+  const alpha = parseFloat(document.getElementById('la-alpha').value);
+
+  const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+  const plotW = W - margin.left - margin.right;
+  const plotH = H - margin.top - margin.bottom;
+  const midX = margin.left + plotW/2;
+  const midY = margin.top + plotH/2;
+
+  ctx.fillStyle = tc.plotBg;
+  ctx.fillRect(margin.left, margin.top, plotW, plotH);
+
+  ctx.strokeStyle = tc.gridLineSub;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    let x = margin.left + (i/10)*plotW;
+    let y = margin.top + (i/10)*plotH;
+    ctx.beginPath(); ctx.moveTo(x, margin.top); ctx.lineTo(x, margin.top+plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(margin.left+plotW, y); ctx.stroke();
+  }
+
+  ctx.strokeStyle = tc.gridLine;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(margin.left, midY); ctx.lineTo(margin.left+plotW, midY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(midX, margin.top); ctx.lineTo(midX, margin.top+plotH); ctx.stroke();
+
+  ctx.fillStyle = tc.textMuted;
+  ctx.font = '18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Losses', margin.left+plotW*0.25, midY-10);
+  ctx.fillText('Gains', margin.left+plotW*0.75, midY-10);
+  ctx.fillText('Value v(x)', midX+40, margin.top+20);
+
+  const maxX = 100;
+  const maxV = Math.max(prospectValue(maxX, lambda, alpha), lambda * Math.pow(maxX, alpha));
+  const scale = plotH * 0.4 / maxV;
+
+  ctx.strokeStyle = tc.gridLine;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([6,4]);
+  let linScale = plotH * 0.4 / maxX;
+  ctx.beginPath();
+  ctx.moveTo(midX - maxX*(plotW/2)/maxX, midY + maxX*linScale);
+  ctx.lineTo(midX + maxX*(plotW/2)/maxX, midY - maxX*linScale);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = tc.accentBlue;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  let started = false;
+  for (let px = -maxX; px <= maxX; px += 0.5) {
+    let v = prospectValue(px, lambda, alpha);
+    let x = midX + (px/maxX) * (plotW/2);
+    let y = midY - v * scale;
+    y = Math.max(margin.top+5, Math.min(margin.top+plotH-5, y));
+    if (!started) { ctx.moveTo(x,y); started=true; } else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = tc.accentRed;
+  ctx.font = 'bold 20px sans-serif';
+  let lossV = prospectValue(-50, lambda, alpha);
+  let gainV = prospectValue(50, lambda, alpha);
+  ctx.fillText('Loss of 50 feels like ' + lossV.toFixed(0), midX - plotW*0.25, midY - lossV*scale - 15);
+  ctx.fillStyle = tc.accentGreen;
+  ctx.fillText('Gain of 50 feels like +' + gainV.toFixed(0), midX + plotW*0.25, midY - gainV*scale - 15);
+
+  ctx.fillStyle = tc.accentYellow;
+  ctx.font = '20px sans-serif';
+  ctx.fillText('Loss/Gain ratio: ' + (Math.abs(lossV)/gainV).toFixed(2) + 'x', W/2, H-20);
+
+  if (gambleChoices.length > 0) {
+    ctx.fillStyle = tc.accentOrange;
+    gambleChoices.forEach(gc => {
+      let x = midX + (gc.x/maxX) * (plotW/2);
+      let y = midY - gc.v * scale;
+      y = Math.max(margin.top+5, Math.min(margin.top+plotH-5, y));
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI*2);
+      ctx.fill();
+    });
+  }
+
+  updateBiasStats();
+}
+
+function generateGambles() {
+  gambles = [];
+  const list = document.getElementById('gamble-list');
+  list.innerHTML = '';
+  const scenarios = [
+    { gain: 50, loss: -25, prob: 0.5, desc: '50% chance: win $50 or lose $25', descRo: '50% șansă: câștigi 50$ sau pierzi 25$' },
+    { gain: 100, loss: -80, prob: 0.5, desc: '50% chance: win $100 or lose $80', descRo: '50% șansă: câștigi 100$ sau pierzi 80$' },
+    { gain: 30, loss: -30, prob: 0.5, desc: '50% chance: win $30 or lose $30', descRo: '50% șansă: câștigi 30$ sau pierzi 30$' },
+    { gain: 200, loss: -100, prob: 0.4, desc: '40% chance: win $200 or 60% lose $100', descRo: '40% șansă: câștigi 200$ sau 60% pierzi 100$' },
+    { gain: 10, loss: -5, prob: 0.8, desc: '80% chance: win $10 or 20% lose $5', descRo: '80% șansă: câștigi 10$ sau 20% pierzi 5$' },
+    { gain: 500, loss: -400, prob: 0.5, desc: '50% chance: win $500 or lose $400', descRo: '50% șansă: câștigi 500$ sau pierzi 400$' },
+  ];
+  const lang = document.documentElement.lang || 'en';
+  scenarios.forEach((s, i) => {
+    gambles.push(s);
+    let card = document.createElement('div');
+    card.className = 'gamble-card';
+    const displayDesc = lang === 'ro' ? s.descRo : s.desc;
+    const acceptText = lang === 'ro' ? 'Acceptă' : 'Accept';
+    const rejectText = lang === 'ro' ? 'Respinge' : 'Reject';
+    card.innerHTML = `
+      <div style="font-size:0.85rem;color:var(--text-primary);margin-bottom:6px">${displayDesc}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-success" style="flex:1;font-size:0.78rem" onclick="chooseGamble(${i},true)">${acceptText}</button>
+        <button class="btn btn-danger" style="flex:1;font-size:0.78rem" onclick="chooseGamble(${i},false)">${rejectText}</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function chooseGamble(idx, accepted) {
+  const g = gambles[idx];
+  let ev = g.prob * g.gain + (1-g.prob) * g.loss;
+  if (accepted) {
+    gambleChoices.push({ x: g.gain, v: prospectValue(g.gain, 2.25, 0.88), choice: 'accept' });
+    gambleChoices.push({ x: g.loss, v: prospectValue(g.loss, 2.25, 0.88), choice: 'accept' });
+  } else {
+    if (ev > 0) {
+      gambleChoices.push({ x: g.loss, v: prospectValue(g.loss, 2.5, 0.88), choice: 'reject-pos-ev' });
+    }
+  }
+  document.querySelectorAll('.gamble-card')[idx].style.opacity = '0.4';
+  document.querySelectorAll('.gamble-card')[idx].style.pointerEvents = 'none';
+  drawProspectTheory();
+}
+
+function resetGambles() {
+  gambleChoices = [];
+  generateGambles();
+  drawProspectTheory();
+}
+
+function updateBiasStats() {
+  let answered = gambleChoices.length > 0 ? Math.ceil(gambleChoices.length / 2) : 0;
+  document.getElementById('bias-answered').textContent = answered;
+  let riskLoss = gambleChoices.filter(g => g.x < 0 && g.choice === 'accept').length;
+  let riskGain = gambleChoices.filter(g => g.x > 0 && g.choice === 'accept').length;
+  document.getElementById('bias-risk-loss').textContent = riskLoss > 0 ? riskLoss : '--';
+  document.getElementById('bias-risk-gain').textContent = riskGain > 0 ? riskGain : '--';
+  let impliedLambda = gambleChoices.filter(g => g.choice === 'reject-pos-ev').length > 0 ? '>2.5' : '~2.25';
+  document.getElementById('bias-lambda').textContent = answered > 0 ? impliedLambda : '--';
+}
+
+function drawDiscounting() {
+  const tc = getThemeColors();
+  const canvas = document.getElementById('canvas-3b');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = 420 * 2;
+  ctx.clearRect(0,0,W,H);
+
+  const nowAmt = parseFloat(document.getElementById('disc-now').value);
+  const laterAmt = parseFloat(document.getElementById('disc-later').value);
+  const delay = parseInt(document.getElementById('disc-delay').value);
+  const r = parseFloat(document.getElementById('disc-r').value);
+  const k = parseFloat(document.getElementById('disc-k').value);
+
+  const margin = { top: 60, right: 60, bottom: 80, left: 80 };
+  const plotW = W - margin.left - margin.right;
+  const plotH = H - margin.top - margin.bottom;
+
+  ctx.fillStyle = tc.plotBg;
+  ctx.fillRect(margin.left, margin.top, plotW, plotH);
+
+  ctx.fillStyle = tc.textPrimary;
+  ctx.font = 'bold 26px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Discount Curves: Exponential vs Hyperbolic', W/2, 35);
+
+  const maxT = 60;
+
+  ctx.strokeStyle = tc.gridLineSub;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    let x = margin.left + (i/10)*plotW;
+    let y = margin.top + (i/10)*plotH;
+    ctx.beginPath(); ctx.moveTo(x, margin.top); ctx.lineTo(x, margin.top+plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(margin.left+plotW, y); ctx.stroke();
+  }
+
+  ctx.fillStyle = tc.textMuted;
+  ctx.font = '18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Time (months)', W/2, H-20);
+  ctx.save();
+  ctx.translate(25, margin.top+plotH/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('Present Value ($)', 0, 0);
+  ctx.restore();
+
+  for (let t = 0; t <= maxT; t += 6) {
+    let x = margin.left + (t/maxT)*plotW;
+    ctx.fillStyle = tc.textMuted;
+    ctx.fillText(t, x, margin.top+plotH+25);
+  }
+  let maxVal = Math.max(nowAmt, laterAmt) * 1.2;
+  for (let v = 0; v <= maxVal; v += Math.ceil(maxVal/5)) {
+    let y = margin.top + plotH - (v/maxVal)*plotH;
+    ctx.fillStyle = tc.textMuted;
+    ctx.textAlign = 'right';
+    ctx.fillText('$'+v, margin.left-10, y+5);
+  }
+
+  ctx.strokeStyle = tc.accentBlue;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let t = 0; t <= maxT; t += 0.5) {
+    let pv = laterAmt * Math.exp(-r * t);
+    let x = margin.left + (t/maxT)*plotW;
+    let y = margin.top + plotH - (pv/maxVal)*plotH;
+    if (t===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = tc.accentRed;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let t = 0; t <= maxT; t += 0.5) {
+    let pv = laterAmt / (1 + k * t);
+    let x = margin.left + (t/maxT)*plotW;
+    let y = margin.top + plotH - (pv/maxVal)*plotH;
+    if (t===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = tc.accentGreen;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8,4]);
+  let nowY = margin.top + plotH - (nowAmt/maxVal)*plotH;
+  ctx.beginPath(); ctx.moveTo(margin.left, nowY); ctx.lineTo(margin.left+plotW, nowY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = tc.accentGreen;
+  ctx.textAlign = 'left';
+  ctx.fillText('$'+nowAmt+' now', margin.left+10, nowY-8);
+
+  let delayX = margin.left + (delay/maxT)*plotW;
+  ctx.strokeStyle = tc.accentYellow;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(delayX, margin.top); ctx.lineTo(delayX, margin.top+plotH); ctx.stroke();
+  ctx.setLineDash([]);
+
+  let expPV = laterAmt * Math.exp(-r * delay);
+  let hypPV = laterAmt / (1 + k * delay);
+  let expY = margin.top + plotH - (expPV/maxVal)*plotH;
+  let hypY = margin.top + plotH - (hypPV/maxVal)*plotH;
+
+  ctx.fillStyle = tc.accentBlue;
+  ctx.beginPath(); ctx.arc(delayX, expY, 8, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = tc.accentRed;
+  ctx.beginPath(); ctx.arc(delayX, hypY, 8, 0, Math.PI*2); ctx.fill();
+
+  ctx.font = '18px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = tc.accentBlue;
+  ctx.fillText('Exponential PV: $'+expPV.toFixed(0) + (expPV > nowAmt ? ' > WAIT' : ' < TAKE NOW'), delayX+15, expY);
+  ctx.fillStyle = tc.accentRed;
+  ctx.fillText('Hyperbolic PV: $'+hypPV.toFixed(0) + (hypPV > nowAmt ? ' > WAIT' : ' < TAKE NOW'), delayX+15, hypY+25);
+
+  ctx.fillStyle = tc.textPrimary;
+  ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'center';
+  let tblY = margin.top + 30;
+  ctx.fillText('Decision Comparison', W-180, tblY);
+  ctx.font = '16px sans-serif';
+  ctx.fillStyle = tc.accentBlue;
+  ctx.fillText('Rational: ' + (expPV > nowAmt ? 'Wait' : 'Take now'), W-180, tblY+28);
+  ctx.fillStyle = tc.accentRed;
+  ctx.fillText('Behavioral: ' + (hypPV > nowAmt ? 'Wait' : 'Take now'), W-180, tblY+52);
+
+  ctx.font = '18px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = tc.accentBlue; ctx.fillText('-- Exponential (rational)', margin.left+20, margin.top+20);
+  ctx.fillStyle = tc.accentRed; ctx.fillText('-- Hyperbolic (behavioral)', margin.left+20, margin.top+44);
+  ctx.fillStyle = tc.accentGreen; ctx.fillText('-- Amount available now', margin.left+20, margin.top+68);
+
+  document.getElementById('bias-answered').textContent = '$'+nowAmt;
+  document.getElementById('bias-risk-loss').textContent = '$'+expPV.toFixed(0);
+  document.getElementById('bias-risk-gain').textContent = '$'+hypPV.toFixed(0);
+  document.getElementById('bias-lambda').textContent = (expPV > nowAmt) !== (hypPV > nowAmt) ? 'Differ!' : 'Agree';
+}
+
+// ========== SECTION 3c: Zero Intelligence Traders ==========
+let ziRunning = false;
+let ziInterval = null;
+let ziPriceHistory = [];
+let ziTradeCount = 0;
+let ziBids = [];
+let ziAsks = [];
+let ziTotalSurplus = 0;
+let ziActualSurplus = 0;
+
+function startZIMarket() {
+  if (ziRunning) return;
+  ziRunning = true;
+  resetZIMarketData();
+
+  const N = parseInt(document.getElementById('zi-n').value);
+  const budget = document.getElementById('zi-budget').value === 'on';
+  const vMin = parseInt(document.getElementById('zi-vmin').value);
+  const vMax = parseInt(document.getElementById('zi-vmax').value);
+  const speed = parseInt(document.getElementById('zi-speed').value);
+
+  let buyers = [], sellers = [];
+  for (let i = 0; i < N/2; i++) {
+    buyers.push({ value: vMin + Math.random() * (vMax - vMin), cash: 1000 });
+    sellers.push({ cost: vMin + Math.random() * (vMax - vMin), inventory: 10 });
+  }
+
+  let sortedBuyers = buyers.map(b=>b.value).sort((a,b)=>b-a);
+  let sortedSellers = sellers.map(s=>s.cost).sort((a,b)=>a-b);
+  ziTotalSurplus = 0;
+  for (let i = 0; i < Math.min(sortedBuyers.length, sortedSellers.length); i++) {
+    if (sortedBuyers[i] >= sortedSellers[i]) {
+      ziTotalSurplus += sortedBuyers[i] - sortedSellers[i];
+    }
+  }
+
+  const interval = Math.max(10, 200 - speed * 2);
+
+  ziInterval = setInterval(() => {
+    if (Math.random() < 0.5) {
+      let buyer = buyers[Math.floor(Math.random()*buyers.length)];
+      let bid;
+      if (budget) {
+        bid = Math.random() * buyer.value;
+      } else {
+        bid = Math.random() * 100;
+      }
+      bid = Math.round(bid * 100) / 100;
+
+      let matchIdx = -1;
+      let bestAsk = Infinity;
+      ziAsks.forEach((a, i) => { if (a.price <= bid && a.price < bestAsk) { bestAsk = a.price; matchIdx = i; }});
+
+      if (matchIdx >= 0) {
+        let tradePrice = ziAsks[matchIdx].price;
+        ziAsks.splice(matchIdx, 1);
+        ziPriceHistory.push(tradePrice);
+        ziTradeCount++;
+        let surplus = buyer.value - tradePrice;
+        if (surplus > 0) ziActualSurplus += surplus;
+      } else {
+        ziBids.push({ price: bid, value: buyer.value });
+        ziBids.sort((a,b) => b.price - a.price);
+        if (ziBids.length > 20) ziBids.pop();
+      }
+    } else {
+      let seller = sellers[Math.floor(Math.random()*sellers.length)];
+      let ask;
+      if (budget) {
+        ask = seller.cost + Math.random() * (vMax - seller.cost);
+      } else {
+        ask = Math.random() * 100;
+      }
+      ask = Math.round(ask * 100) / 100;
+
+      let matchIdx = -1;
+      let bestBid = -Infinity;
+      ziBids.forEach((b, i) => { if (b.price >= ask && b.price > bestBid) { bestBid = b.price; matchIdx = i; }});
+
+      if (matchIdx >= 0) {
+        let tradePrice = ziBids[matchIdx].price;
+        ziBids.splice(matchIdx, 1);
+        ziPriceHistory.push(tradePrice);
+        ziTradeCount++;
+        let surplus = tradePrice - seller.cost;
+        if (surplus > 0) ziActualSurplus += surplus;
+      } else {
+        ziAsks.push({ price: ask, cost: seller.cost });
+        ziAsks.sort((a,b) => a.price - b.price);
+        if (ziAsks.length > 20) ziAsks.pop();
+      }
+    }
+
+    drawZIMarket();
+    updateZIStats();
+  }, interval);
+}
+
+function stopZIMarket() {
+  ziRunning = false;
+  clearInterval(ziInterval);
+}
+
+function resetZIMarket() {
+  stopZIMarket();
+  resetZIMarketData();
+  drawZIMarket();
+  document.getElementById('zi-price').textContent = '--';
+  document.getElementById('zi-trades').textContent = '0';
+  document.getElementById('zi-spread').textContent = '--';
+  document.getElementById('zi-efficiency').textContent = '--';
+}
+
+function resetZIMarketData() {
+  ziPriceHistory = [];
+  ziTradeCount = 0;
+  ziBids = [];
+  ziAsks = [];
+  ziActualSurplus = 0;
+  ziTotalSurplus = 0;
+}
+
+function updateZIStats() {
+  if (ziPriceHistory.length > 0) {
+    document.getElementById('zi-price').textContent = '$' + ziPriceHistory[ziPriceHistory.length-1].toFixed(2);
+  }
+  document.getElementById('zi-trades').textContent = ziTradeCount;
+  if (ziBids.length > 0 && ziAsks.length > 0) {
+    let spread = (ziAsks[0].price - ziBids[0].price).toFixed(2);
+    document.getElementById('zi-spread').textContent = '$' + spread;
+  }
+  if (ziTotalSurplus > 0) {
+    let eff = Math.min(100, (ziActualSurplus / ziTotalSurplus * 100));
+    document.getElementById('zi-efficiency').textContent = eff.toFixed(0) + '%';
+  }
+}
+
+function drawZIMarket() {
+  const tc = getThemeColors();
+  const canvas = document.getElementById('canvas-3c');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = 380 * 2;
+  ctx.clearRect(0,0,W,H);
+
+  const margin = { top: 40, right: 40, bottom: 60, left: 70 };
+  const plotW = W - margin.left - margin.right;
+  const plotH = H - margin.top - margin.bottom;
+
+  ctx.fillStyle = tc.plotBg;
+  ctx.fillRect(margin.left, margin.top, plotW, plotH);
+
+  if (ziPriceHistory.length < 2) {
+    ctx.fillStyle = tc.textMuted;
+    ctx.font = '24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Click "Start Market" to begin trading', W/2, H/2);
+    return;
+  }
+
+  let prices = ziPriceHistory.slice(-200);
+  let minP = Math.min(...prices) * 0.9;
+  let maxP = Math.max(...prices) * 1.1;
+  if (maxP === minP) { maxP += 5; minP -= 5; }
+
+  ctx.strokeStyle = tc.accentBlue;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  prices.forEach((p, i) => {
+    let x = margin.left + (i/(prices.length-1))*plotW;
+    let y = margin.top + plotH - ((p-minP)/(maxP-minP))*plotH;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  if (prices.length > 10) {
+    ctx.strokeStyle = tc.accentYellow;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath();
+    for (let i = 9; i < prices.length; i++) {
+      let avg = prices.slice(i-9, i+1).reduce((a,b)=>a+b,0)/10;
+      let x = margin.left + (i/(prices.length-1))*plotW;
+      let y = margin.top + plotH - ((avg-minP)/(maxP-minP))*plotH;
+      if (i===9) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.fillStyle = tc.textMuted;
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 5; i++) {
+    let v = minP + (i/5)*(maxP-minP);
+    let y = margin.top + plotH - (i/5)*plotH;
+    ctx.fillText('$'+v.toFixed(1), margin.left-8, y+4);
+    ctx.strokeStyle = tc.gridLineSub;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(margin.left+plotW, y); ctx.stroke();
+  }
+
+  ctx.textAlign = 'center';
+  ctx.fillText('Price', W/2, margin.top+plotH+40);
+  ctx.fillText('Recent Trades', W/2, 25);
+
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = tc.accentBlue; ctx.fillText('-- Price', margin.left+10, margin.top+20);
+  ctx.fillStyle = tc.accentYellow; ctx.fillText('-- 10-trade MA', margin.left+10, margin.top+40);
+
+  const obDisplay = document.getElementById('zi-orderbook').value === 'yes';
+  const askDiv = document.getElementById('order-book-asks');
+  const bidDiv = document.getElementById('order-book-bids');
+  const midDiv = document.getElementById('order-book-mid');
+
+  if (obDisplay) {
+    document.getElementById('order-book-display').style.display = 'block';
+    let askHtml = '';
+    let topAsks = ziAsks.slice(0, 8).reverse();
+    topAsks.forEach(a => {
+      askHtml += `<div class="order-book-row ask"><span style="color:var(--accent-red)">$${a.price.toFixed(2)}</span><span style="color:var(--text-muted)">${(Math.random()*10+1).toFixed(0)}</span></div>`;
+    });
+    askDiv.innerHTML = askHtml;
+
+    let bidHtml = '';
+    ziBids.slice(0, 8).forEach(b => {
+      bidHtml += `<div class="order-book-row bid"><span style="color:var(--accent-green)">$${b.price.toFixed(2)}</span><span style="color:var(--text-muted)">${(Math.random()*10+1).toFixed(0)}</span></div>`;
+    });
+    bidDiv.innerHTML = bidHtml;
+
+    if (ziPriceHistory.length > 0) {
+      midDiv.textContent = '$' + ziPriceHistory[ziPriceHistory.length-1].toFixed(2);
+    }
+  } else {
+    document.getElementById('order-book-display').style.display = 'none';
+  }
+}
+
+// Redraw all canvases (called on theme switch)
+function redrawAll() {
+  if (bcHistory.length > 0 && bcCurrentRound > 0) {
+    drawBeautyContest(bcHistory[bcCurrentRound-1], bcHistory.slice(0, bcCurrentRound));
+  } else {
+    resetBeautyContest();
+  }
+  // Redraw 3b based on active tab
+  const lossActive = document.getElementById('loss-controls').classList.contains('active');
+  if (lossActive) {
+    drawProspectTheory();
+  } else {
+    drawDiscounting();
+  }
+  drawZIMarket();
+}
+
+// Init
+window.addEventListener('load', () => {
+  resetBeautyContest();
+  generateGambles();
+  drawProspectTheory();
+  drawZIMarket();
+});
+
+window.addEventListener('resize', () => {
+  if (bcHistory.length > 0 && bcCurrentRound > 0) {
+    drawBeautyContest(bcHistory[bcCurrentRound-1], bcHistory.slice(0, bcCurrentRound));
+  }
+});
+</script>
+
+<script>
+function setTheme(theme) {
+  document.body.className = 'theme-' + theme;
+  localStorage.setItem('mt-theme', theme);
+  if (typeof redrawAll === 'function') redrawAll();
+}
+
+function toggleLang() {
+  const current = document.documentElement.lang || 'en';
+  const newLang = current === 'en' ? 'ro' : 'en';
+  document.documentElement.lang = newLang;
+  document.getElementById('langBtn').textContent = newLang === 'en' ? 'RO' : 'EN';
+  localStorage.setItem('mt-lang', newLang);
+  applyLanguage(newLang);
+}
+
+function applyLanguage(lang) {
+  document.querySelectorAll('[data-ro]').forEach(el => {
+    if (lang === 'ro') {
+      if (!el.dataset.en) el.dataset.en = el.innerHTML;
+      el.innerHTML = el.dataset.ro;
+    } else {
+      if (el.dataset.en) el.innerHTML = el.dataset.en;
+    }
+  });
+  // Regenerate gambles with correct language
+  if (typeof generateGambles === 'function') generateGambles();
+}
+
+(function() {
+  const savedTheme = localStorage.getItem('mt-theme') || 'dark';
+  const savedLang = localStorage.getItem('mt-lang') || 'en';
+  document.body.className = 'theme-' + savedTheme;
+  if (savedLang === 'ro') {
+    document.documentElement.lang = 'ro';
+    document.getElementById('langBtn').textContent = 'EN';
+    setTimeout(() => applyLanguage('ro'), 100);
+  }
+})();
+</script>
+</body>
+</html>

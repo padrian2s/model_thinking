@@ -1,0 +1,2024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prisoner's Dilemma, Collective Action & Mechanism Design - Model Thinking Simulators</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================================ */
+/* THEME DEFINITIONS */
+/* ============================================================ */
+body.theme-dark {
+  --bg-primary: #0a0e17; --bg-secondary: #12182a; --bg-panel: #16213e; --bg-input: #1a1a2e;
+  --text-primary: #f0f0f0; --text-secondary: #8899aa; --text-muted: #667788;
+  --border-color: rgba(255,255,255,0.06); --border-hover: rgba(0,210,255,0.3);
+  --accent-cyan: #00d2ff; --accent-red: #e94560; --accent-green: #6bcb77; --accent-gold: #ffd93d; --accent-purple: #9b59b6;
+  --shadow: rgba(0,0,0,0.4); --canvas-bg: #0a0e17;
+  --header-gradient: linear-gradient(135deg, #0d1321 0%, #1a1a2e 50%, #16213e 100%);
+  --sim-bg: #111827; --controls-bg: #0f172a; --stat-bg: #0f172a; --insight-bg: #0f2922;
+  --divider-color: #1e3a5f; --slider-track: #1e293b; --slider-thumb: #00d2ff; --slider-border: #0099b8;
+  --btn-bg: #1e293b; --btn-border: #334155; --btn-hover-bg: #334155;
+  --btn-primary-bg: #0077b6; --btn-primary-hover: #0099b8; --btn-active-bg: #059669; --btn-active-border: #10b981;
+  --btn-danger-bg: #991b1b; --btn-danger-border: #ef4444;
+  --table-hover: #1e293b; --payoff-cell-bg: #1e293b;
+  --chart-bg: #0a0e17; --grid-line: #1e293b; --grid-line2: #334155;
+  --win-color: rgba(107,203,119,0.19); --tie-color: rgba(255,217,61,0.13); --lose-color: rgba(255,107,107,0.13);
+  --danger-zone: rgba(255,107,107,0.063); --overharvest: rgba(255,107,107,0.082);
+}
+body.theme-white {
+  --bg-primary: #f5f7fa; --bg-secondary: #ffffff; --bg-panel: #ffffff; --bg-input: #f0f2f5;
+  --text-primary: #1a1a2e; --text-secondary: #555566; --text-muted: #888899;
+  --border-color: rgba(0,0,0,0.1); --border-hover: rgba(0,130,200,0.4);
+  --accent-cyan: #0088cc; --accent-red: #d63031; --accent-green: #27ae60; --accent-gold: #f39c12; --accent-purple: #8e44ad;
+  --shadow: rgba(0,0,0,0.1); --canvas-bg: #ffffff;
+  --header-gradient: linear-gradient(135deg, #e8ecf1 0%, #f5f7fa 50%, #eef1f5 100%);
+  --sim-bg: #f9fafb; --controls-bg: #ffffff; --stat-bg: #ffffff; --insight-bg: #eaf7ee;
+  --divider-color: #c8d6e5; --slider-track: #dde2e8; --slider-thumb: #0088cc; --slider-border: #006699;
+  --btn-bg: #e8ecf1; --btn-border: #c8d6e5; --btn-hover-bg: #dde2e8;
+  --btn-primary-bg: #0077b6; --btn-primary-hover: #005f8a; --btn-active-bg: #27ae60; --btn-active-border: #219a52;
+  --btn-danger-bg: #c0392b; --btn-danger-border: #e74c3c;
+  --table-hover: #f0f2f5; --payoff-cell-bg: #f0f2f5;
+  --chart-bg: #ffffff; --grid-line: #e0e4e8; --grid-line2: #c8d0d8;
+  --win-color: rgba(39,174,96,0.15); --tie-color: rgba(243,156,18,0.12); --lose-color: rgba(214,48,49,0.12);
+  --danger-zone: rgba(214,48,49,0.06); --overharvest: rgba(214,48,49,0.08);
+}
+body.theme-sepia {
+  --bg-primary: #f4ecd8; --bg-secondary: #faf6eb; --bg-panel: #faf6eb; --bg-input: #efe7d3;
+  --text-primary: #433422; --text-secondary: #6b5b4a; --text-muted: #8b7b6a;
+  --border-color: rgba(100,70,30,0.15); --border-hover: rgba(160,100,30,0.4);
+  --accent-cyan: #b8860b; --accent-red: #a0522d; --accent-green: #6b8e23; --accent-gold: #cd853f; --accent-purple: #8b4513;
+  --shadow: rgba(100,70,30,0.15); --canvas-bg: #faf6eb;
+  --header-gradient: linear-gradient(135deg, #efe4c8 0%, #f4ecd8 50%, #f0e6cc 100%);
+  --sim-bg: #f7f0de; --controls-bg: #faf6eb; --stat-bg: #faf6eb; --insight-bg: #f0edd5;
+  --divider-color: #d4c9a8; --slider-track: #e0d5b8; --slider-thumb: #b8860b; --slider-border: #8b6914;
+  --btn-bg: #efe7d3; --btn-border: #d4c9a8; --btn-hover-bg: #e5dcc0;
+  --btn-primary-bg: #b8860b; --btn-primary-hover: #9a7209; --btn-active-bg: #6b8e23; --btn-active-border: #5a7a1e;
+  --btn-danger-bg: #a0522d; --btn-danger-border: #b8623a;
+  --table-hover: #efe7d3; --payoff-cell-bg: #efe7d3;
+  --chart-bg: #faf6eb; --grid-line: #e5dcc0; --grid-line2: #d4c9a8;
+  --win-color: rgba(107,142,35,0.15); --tie-color: rgba(205,133,63,0.15); --lose-color: rgba(160,82,45,0.15);
+  --danger-zone: rgba(160,82,45,0.08); --overharvest: rgba(160,82,45,0.1);
+}
+body.theme-ocean {
+  --bg-primary: #0b1628; --bg-secondary: #0f2035; --bg-panel: #132a42; --bg-input: #163352;
+  --text-primary: #d4e6f1; --text-secondary: #7fb3d3; --text-muted: #5a8faa;
+  --border-color: rgba(100,180,255,0.1); --border-hover: rgba(100,200,255,0.35);
+  --accent-cyan: #5dade2; --accent-red: #e74c3c; --accent-green: #48c9b0; --accent-gold: #f7dc6f; --accent-purple: #a569bd;
+  --shadow: rgba(0,20,50,0.5); --canvas-bg: #0b1628;
+  --header-gradient: linear-gradient(135deg, #081422 0%, #0b1628 50%, #0f2035 100%);
+  --sim-bg: #0d1c30; --controls-bg: #0f2035; --stat-bg: #0f2035; --insight-bg: #0d2a2a;
+  --divider-color: #1a3a5c; --slider-track: #163352; --slider-thumb: #5dade2; --slider-border: #2e86c1;
+  --btn-bg: #163352; --btn-border: #1a4570; --btn-hover-bg: #1a4570;
+  --btn-primary-bg: #2e86c1; --btn-primary-hover: #3498db; --btn-active-bg: #48c9b0; --btn-active-border: #1abc9c;
+  --btn-danger-bg: #922b21; --btn-danger-border: #e74c3c;
+  --table-hover: #163352; --payoff-cell-bg: #163352;
+  --chart-bg: #0b1628; --grid-line: #132a42; --grid-line2: #1a3a5c;
+  --win-color: rgba(72,201,176,0.18); --tie-color: rgba(247,220,111,0.12); --lose-color: rgba(231,76,60,0.15);
+  --danger-zone: rgba(231,76,60,0.06); --overharvest: rgba(231,76,60,0.08);
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.page-header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: var(--header-gradient);
+    border-bottom: 2px solid var(--divider-color);
+}
+
+.page-header h1 {
+    font-size: 2.4em;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+    font-weight: 800;
+}
+
+.page-header .subtitle {
+    font-size: 1.1em;
+    color: var(--text-muted);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.sim-section {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.sim-section h2 {
+    font-size: 1.8em;
+    color: var(--accent-cyan);
+    margin-bottom: 6px;
+    border-left: 4px solid var(--accent-cyan);
+    padding-left: 16px;
+    font-weight: 700;
+}
+
+.sim-section .model-desc {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    padding-left: 20px;
+    max-width: 900px;
+    font-size: 0.95em;
+}
+
+.sim-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    background: var(--sim-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.controls-panel {
+    background: var(--controls-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 700px;
+    overflow-y: auto;
+}
+
+.controls-panel h3 {
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.control-group label {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.control-group label span.val {
+    color: var(--accent-cyan);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--slider-track);
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--slider-thumb);
+    cursor: pointer;
+    border: 2px solid var(--slider-border);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--slider-thumb);
+    cursor: pointer;
+    border: 2px solid var(--slider-border);
+}
+
+select {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--btn-border);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 0.85em;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+select:focus { border-color: var(--accent-cyan); }
+
+input[type="checkbox"] {
+    accent-color: var(--accent-cyan);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.btn-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+button {
+    background: var(--btn-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.82em;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+button:hover {
+    background: var(--btn-hover-bg);
+    border-color: var(--accent-cyan);
+}
+
+button.primary {
+    background: var(--btn-primary-bg);
+    border-color: var(--accent-cyan);
+    color: #fff;
+}
+
+button.primary:hover {
+    background: var(--btn-primary-hover);
+}
+
+button.active {
+    background: var(--btn-active-bg);
+    border-color: var(--btn-active-border);
+    color: #fff;
+}
+
+button.danger {
+    background: var(--btn-danger-bg);
+    border-color: var(--btn-danger-border);
+    color: #fff;
+}
+
+.viz-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+canvas {
+    border-radius: 6px;
+    width: 100%;
+}
+
+.stats-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.85em;
+}
+
+.stat-item {
+    background: var(--stat-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+}
+
+.stat-item .stat-label {
+    color: var(--text-muted);
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-item .stat-value {
+    color: var(--text-primary);
+    font-size: 1.2em;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.info-panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.info-box {
+    background: var(--controls-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.info-box.mechanism { border-left: 3px solid var(--accent-gold); }
+.info-box.examples { border-left: 3px solid var(--accent-purple); }
+.info-box.insight { border-left: 3px solid var(--accent-green); background: var(--insight-bg); }
+
+.info-box h4 {
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.info-box.mechanism h4 { color: var(--accent-gold); }
+.info-box.examples h4 { color: var(--accent-purple); }
+.info-box.insight h4 { color: var(--accent-green); }
+
+.info-box p, .info-box li {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.info-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-box ul li {
+    margin-bottom: 3px;
+}
+
+.info-box ul li::before {
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+.info-box.examples ul li::before {
+    content: "\2022 ";
+    color: var(--accent-purple);
+}
+
+.info-box.mechanism ul li::before {
+    content: "\2022 ";
+    color: var(--accent-gold);
+}
+
+.section-divider {
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--divider-color), transparent);
+    margin: 50px auto;
+    max-width: 1400px;
+}
+
+.chart-container {
+    position: relative;
+    background: var(--chart-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.strategy-checkboxes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+}
+
+.strategy-checkboxes label {
+    font-size: 0.78em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.leaderboard {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8em;
+}
+
+.leaderboard th, .leaderboard td {
+    padding: 4px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.leaderboard th {
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+
+.leaderboard td {
+    color: var(--text-primary);
+}
+
+.leaderboard tr:hover td {
+    background: var(--table-hover);
+}
+
+.score-bar {
+    height: 8px;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.dual-viz {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.tab-bar button {
+    padding: 4px 10px;
+    font-size: 0.78em;
+}
+
+.tab-bar button.active {
+    background: var(--btn-primary-bg);
+    border-color: var(--accent-cyan);
+    color: #fff;
+}
+
+@media (max-width: 1000px) {
+    .sim-container { grid-template-columns: 1fr; }
+    .dual-viz { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);backdrop-filter:blur(10px);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;padding:0;min-width:0;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;padding:0;min-width:0;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;padding:0;min-width:0;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;padding:0;min-width:0;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<div class="page-header">
+    <h1 data-ro="Dilema Prizonierului, Acțiune Colectivă și Resurse Comune">Prisoner's Dilemma, Collective Action & Common Pool Resources</h1>
+    <p class="subtitle" data-ro="Explorarea tensiunii dintre raționalitatea individuală și bunăstarea colectivă prin jocuri iterate, bunuri publice și principiile de design ale lui Ostrom pentru guvernarea bunurilor comune.">Exploring the tension between individual rationality and collective welfare through iterated games, public goods, and Ostrom's design principles for governing the commons.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 9a: PRISONER'S DILEMMA TOURNAMENT -->
+<!-- ============================================================ -->
+<div class="sim-section" id="pd-section">
+    <h2 data-ro="9a. Turnamentul Dilemei Prizonierului (Stil Axelrod)">9a. Prisoner's Dilemma Tournament (Axelrod Style)</h2>
+    <p class="model-desc" data-ro="Agenții joacă Dilema Prizonierului iterată folosind diverse strategii. In celebrul turneu al lui Axelrod, Ochi pentru Ochi a câștigat constant -- demonstrând că a fi drăguț, represiv, iertător și clar duce la succes evolutiv.">Agents play iterated Prisoner's Dilemma using various strategies. In Axelrod's famous tournament, Tit-for-Tat consistently won -- demonstrating that being nice, retaliatory, forgiving, and clear leads to evolutionary success.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Comenzi">Controls</h3>
+            <div class="control-group">
+                <label data-ro="Mod">Mode</label>
+                <select id="pd-mode">
+                    <option value="tournament" data-ro="Turneu">Tournament</option>
+                    <option value="evolutionary" data-ro="Evolutiv">Evolutionary</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Runde per Meci">Rounds per Match</span> <span class="val" id="pd-rounds-val">200</span></label>
+                <input type="range" id="pd-rounds" min="10" max="500" value="200" step="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Zgomot (Probabilitate Eroare)">Noise (Error Probability)</span> <span class="val" id="pd-noise-val">0%</span></label>
+                <input type="range" id="pd-noise" min="0" max="20" value="0">
+            </div>
+            <div class="control-group" id="pd-popsize-group">
+                <label><span data-ro="Dimensiunea Populației">Population Size</span> <span class="val" id="pd-pop-val">100</span></label>
+                <input type="range" id="pd-pop" min="20" max="300" value="100" step="10">
+            </div>
+            <div class="control-group" id="pd-gens-group">
+                <label><span data-ro="Generații">Generations</span> <span class="val" id="pd-gens-val">50</span></label>
+                <input type="range" id="pd-gens" min="10" max="200" value="50" step="5">
+            </div>
+
+            <h3 data-ro="Strategii">Strategies</h3>
+            <div class="strategy-checkboxes" id="pd-strategies">
+                <label><input type="checkbox" checked data-strat="tft"> <span data-ro="Ochi pentru Ochi">Tit-for-Tat</span></label>
+                <label><input type="checkbox" checked data-strat="allc"> <span data-ro="Cooperează Mereu">Always Cooperate</span></label>
+                <label><input type="checkbox" checked data-strat="alld"> <span data-ro="Trădează Mereu">Always Defect</span></label>
+                <label><input type="checkbox" checked data-strat="tf2t"> <span data-ro="Ochi pentru Doi Ochi">Tit-for-2-Tats</span></label>
+                <label><input type="checkbox" checked data-strat="random"> <span data-ro="Aleatoriu">Random</span></label>
+                <label><input type="checkbox" checked data-strat="grudger"> <span data-ro="Ranchiunos">Grudger</span></label>
+                <label><input type="checkbox" checked data-strat="pavlov"> Pavlov (WSLS)</label>
+                <label><input type="checkbox" checked data-strat="susp_tft"> <span data-ro="Ochi pentru Ochi Suspicios">Suspicious TfT</span></label>
+            </div>
+
+            <h3 data-ro="Matricea Câștigurilor">Payoff Matrix</h3>
+            <div style="font-size:0.75em; color:var(--text-muted); line-height:1.4;">
+                <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:2px 8px; margin-top:4px;">
+                    <span></span><span style="color:var(--accent-green);" data-ro="Cooperează">Cooperate</span><span style="color:var(--accent-red);" data-ro="Trădează">Defect</span>
+                    <span style="color:var(--accent-green);">C</span><span>R=3, R=3</span><span>S=0, T=5</span>
+                    <span style="color:var(--accent-red);">D</span><span>T=5, S=0</span><span>P=1, P=1</span>
+                </div>
+            </div>
+
+            <div class="btn-row" style="margin-top:8px;">
+                <button class="primary" id="pd-run" data-ro="Rulează Turneul">Run Tournament</button>
+                <button id="pd-reset" data-ro="Resetează">Reset</button>
+            </div>
+        </div>
+
+        <div class="viz-area">
+            <div class="stats-bar" id="pd-stats">
+                <div class="stat-item"><span class="stat-label" data-ro="Stare">Status</span><span class="stat-value" id="pd-status" data-ro="Pregătit">Ready</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Strategii">Strategies</span><span class="stat-value" id="pd-nstrats">8</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Strategia Lider">Top Strategy</span><span class="stat-value" id="pd-top">--</span></div>
+            </div>
+            <div class="dual-viz">
+                <div class="chart-container">
+                    <canvas id="pd-canvas1" width="520" height="400"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pd-canvas2" width="520" height="400"></canvas>
+                </div>
+            </div>
+            <div id="pd-leaderboard-wrap" style="max-height:200px; overflow-y:auto;">
+                <table class="leaderboard" id="pd-leaderboard">
+                    <thead><tr><th>#</th><th data-ro="Strategie">Strategy</th><th data-ro="Scor">Score</th><th></th></tr></thead>
+                    <tbody id="pd-lb-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Cum Funcționează">How It Works</h4>
+            <p data-ro="Raționalitatea individuală spune &quot;trădează&quot; -- dar cooperarea reciprocă bate trădarea reciprocă (3,3 vs 1,1). In jocurile <strong>iterate</strong>, &quot;umbra viitorului&quot; permite cooperarea prin reciprocitate.">Individual rationality says "defect" -- but mutual cooperation beats mutual defection (3,3 vs 1,1). In <strong>iterated</strong> games, the "shadow of the future" enables cooperation through reciprocity.</p>
+            <ul>
+                <li data-ro="<strong>Ochi pentru Ochi</strong>: Cooperează prima dată, apoi copiază ultima mișcare a oponentului. Drăguț, represiv, iertător, clar."><strong>Tit-for-Tat</strong>: Cooperate first, then copy opponent's last move. Nice, retaliatory, forgiving, clear.</li>
+                <li data-ro="<strong>Ranchiunos</strong>: Cooperează până la trădare, apoi trădează mereu. Represiv dar neiertător."><strong>Grudger</strong>: Cooperate until betrayed, then always defect. Retaliatory but unforgiving.</li>
+                <li data-ro="<strong>Pavlov (WSLS)</strong>: Repetă ultima mișcare dacă a fost recompensat (R sau T), schimbă dacă a fost pedepsit (S sau P)."><strong>Pavlov (WSLS)</strong>: Repeat last move if rewarded (R or T), switch if punished (S or P).</li>
+                <li data-ro="<strong>Descoperirile lui Axelrod</strong>: Strategiile de succes sunt (1) drăguțe, (2) represive, (3) iertătoare, (4) clare."><strong>Axelrod's findings</strong>: Successful strategies are (1) nice, (2) retaliatory, (3) forgiving, (4) clear.</li>
+            </ul>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Reală">Real World Examples</h4>
+            <ul>
+                <li data-ro="&#9878;&#65039; Cursele înarmărilor între națiuni (Războiul Rece SUA-Sovietic)">&#9878;&#65039; Arms races between nations (US-Soviet Cold War)</li>
+                <li data-ro="&#128176; Războaiele de prețuri între companii concurente">&#128176; Price wars between competing companies</li>
+                <li data-ro="&#127758; Negocierile privind schimbările climatice între țări">&#127758; Climate change negotiations between countries</li>
+                <li data-ro="&#128187; Contribuția la software open-source">&#128187; Open-source software contribution</li>
+                <li data-ro="&#127968; Treburile de coleg de cameră și responsabilitățile comune">&#127968; Roommate chores and shared responsibilities</li>
+                <li data-ro="&#128101; Acordurile comerciale și războaiele tarifare">&#128101; Trade agreements and tariff wars</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Ideea Cheie">Key Insight</h4>
+            <p style="font-size:1.05em; color:var(--accent-green); font-weight:600;" data-ro="&quot;Fii drăguț, fii represiv, fii iertător, fii clar. Ochi pentru Ochi câștigă nu bătând pe cineva, ci provocând cooperare -- nu obține niciodată un scor mai mare decât oponentul într-un singur meci, dar câștigă turneul în ansamblu.&quot;">"Be nice, be retaliatory, be forgiving, be clear. Tit-for-Tat wins not by beating anyone, but by eliciting cooperation -- it never scores higher than its opponent in any single match, yet wins the tournament overall."</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 9b: COLLECTIVE ACTION / PUBLIC GOODS GAME -->
+<!-- ============================================================ -->
+<div class="sim-section" id="pg-section">
+    <h2 data-ro="9b. Acțiune Colectivă / Jocul Bunurilor Publice">9b. Collective Action / Public Goods Game</h2>
+    <p class="model-desc" data-ro="N jucători decid fiecare cât să contribuie la un bun public. Contribuțiile sunt multiplicate cu factorul m și împărțite egal. Strategia dominantă este să parazitezi, dar parazitismul universal produce cel mai rău rezultat colectiv -- tensiunea fundamentală a acțiunii colective.">N players each decide how much to contribute to a public good. Contributions are multiplied by factor m and shared equally. The dominant strategy is to free-ride, but universal free-riding produces the worst collective outcome -- the fundamental tension of collective action.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Comenzi">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Număr de Jucători">Number of Players</span> <span class="val" id="pg-n-val">10</span></label>
+                <input type="range" id="pg-n" min="3" max="30" value="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Factor de Multiplicare (m)">Multiplier (m)</span> <span class="val" id="pg-m-val">2.0</span></label>
+                <input type="range" id="pg-m" min="10" max="50" value="20" step="1">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Dotare per Jucător">Endowment per Player</span> <span class="val" id="pg-endow-val">10</span></label>
+                <input type="range" id="pg-endow" min="5" max="50" value="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Runde">Rounds</span> <span class="val" id="pg-rounds-val">20</span></label>
+                <input type="range" id="pg-rounds" min="5" max="50" value="20">
+            </div>
+            <label class="checkbox-label">
+                <input type="checkbox" id="pg-punishment"> <span data-ro="Activează Pedeapsa (cost=1, penalizare=3)">Enable Punishment (cost=1, penalty=3)</span>
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="pg-communication"> <span data-ro="Comunicare (crește cooperarea)">Communication (increases cooperation)</span>
+            </label>
+            <div class="control-group">
+                <label data-ro="Tipuri de Agenți">Agent Types</label>
+                <select id="pg-types">
+                    <option value="mixed" data-ro="Mixt (cooperatori, trădători, condiționali)">Mixed (cooperators, defectors, conditional)</option>
+                    <option value="rational" data-ro="Toți Raționali (egoiști)">All Rational (self-interested)</option>
+                    <option value="altruist" data-ro="Toți Altruiști">All Altruist</option>
+                    <option value="conditional" data-ro="Toți Cooperatori Condiționali">All Conditional Cooperators</option>
+                </select>
+            </div>
+            <div class="btn-row" style="margin-top:6px;">
+                <button class="primary" id="pg-run" data-ro="Rulează Jocul">Run Game</button>
+                <button id="pg-step" data-ro="Pas">Step Round</button>
+                <button id="pg-reset" data-ro="Resetează">Reset</button>
+            </div>
+        </div>
+
+        <div class="viz-area">
+            <div class="stats-bar" id="pg-stats">
+                <div class="stat-item"><span class="stat-label" data-ro="Runda">Round</span><span class="stat-value" id="pg-round">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Fondul Public">Public Pool</span><span class="stat-value" id="pg-pool">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Câștig Mediu">Avg Payoff</span><span class="stat-value" id="pg-avgpay">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="% Paraziți">Free-Rider %</span><span class="stat-value" id="pg-freerider">0%</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="% Cooperare">Cooperation %</span><span class="stat-value" id="pg-cooprate">0%</span></div>
+            </div>
+            <div class="dual-viz">
+                <div class="chart-container">
+                    <canvas id="pg-canvas1" width="520" height="350"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pg-canvas2" width="520" height="350"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Cum Funcționează">How It Works</h4>
+            <p data-ro="Fiecare jucător are o dotare și decide cât să contribuie la fondul public. Fondul este multiplicat cu m (unde 1 &lt; m &lt; N) și împărțit egal între toți jucătorii, indiferent de contribuție.">Each player has an endowment and decides how much to contribute to the public pot. The pot is multiplied by m (where 1 &lt; m &lt; N) and split equally among all players regardless of contribution.</p>
+            <ul>
+                <li data-ro="<strong>Problema parazitului</strong>: Fiecare dolar contribuit returnează doar m/N contribuitorului (mai puțin de 1$), deci agenții raționali nu contribuie nimic."><strong>Free-rider problem</strong>: Each dollar contributed returns only m/N to the contributor (less than $1), so rational agents contribute nothing.</li>
+                <li data-ro="<strong>Optimul social</strong>: Toți contribuind maximizează bunăstarea totală deoarece m > 1."><strong>Social optimum</strong>: Everyone contributing maximizes total welfare since m > 1.</li>
+                <li data-ro="<strong>Pedeapsa</strong>: Pedeapsa costisitoare a paraziților (plătești 1 pentru a reduce parazitul cu 3) susține cooperarea."><strong>Punishment</strong>: Costly punishment of free-riders (pay 1 to reduce free-rider by 3) sustains cooperation.</li>
+                <li data-ro="<strong>Comunicarea</strong>: Chiar și vorbele goale cresc cooperarea semnificativ în experimente."><strong>Communication</strong>: Even cheap talk increases cooperation significantly in experiments.</li>
+            </ul>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Reală">Real World Examples</h4>
+            <ul>
+                <li data-ro="&#128182; Conformitatea fiscală -- toți beneficiază de drumuri, dar fiecare individ vrea să evite plata">&#128182; Tax compliance -- everyone benefits from roads, but each individual wants to avoid paying</li>
+                <li data-ro="&#128187; Software open-source și Wikipedia -- contribuție voluntară la bunuri publice">&#128187; Open-source software and Wikipedia -- voluntary contribution to public goods</li>
+                <li data-ro="&#128657; Programe de supraveghere a vecinătății -- securitate colectivă prin efort individual">&#128657; Neighborhood watch programs -- collective security through individual effort</li>
+                <li data-ro="&#128218; Proiecte de echipă la școală/muncă -- efortul individual creează rezultat comun">&#128218; Team projects in school/work -- individual effort creates shared output</li>
+                <li data-ro="&#128137; Vaccinarea -- imunitatea de turmă ca bun public">&#128137; Vaccine uptake -- herd immunity as a public good</li>
+                <li data-ro="&#127758; Reducerea emisiilor de carbon -- beneficiu global, cost individual">&#127758; Carbon emissions reduction -- global benefit, individual cost</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Ideea Cheie">Key Insight</h4>
+            <p style="font-size:1.05em; color:var(--accent-green); font-weight:600;" data-ro="&quot;Problemele de acțiune colectivă sunt Dileme ale Prizonierului cu mulți jucători: fiecare persoană are un stimulent să trădeze, dar colectiv, toți se descurcă mai bine cooperând. Cheia este proiectarea instituțiilor care aliniază stimulentele individuale cu bunăstarea grupului.&quot;">"Collective action problems are many-player Prisoner's Dilemmas: each person has an incentive to defect, but collectively, everyone does better by cooperating. The key is designing institutions that align individual incentives with group welfare."</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 9c: COMMON POOL RESOURCE / OSTROM -->
+<!-- ============================================================ -->
+<div class="sim-section" id="cpr-section">
+    <h2 data-ro="9c. Resursă Comună / Principiile de Design ale lui Ostrom">9c. Common Pool Resource / Ostrom's Design Principles</h2>
+    <p class="model-desc" data-ro="O resursă comună (pescărie) se regenerează în timp dar poate fi epuizată dacă recolta totală depășește rata de regenerare. Fără reguli de guvernare, indivizii supraexploatează bunurile comune. Elinor Ostrom a arătat că comunitățile se pot autoguverna prin principii de design.">A shared resource (fishery) regenerates over time but can be depleted if total harvest exceeds the regeneration rate. Without governance rules, individuals over-exploit the commons. Elinor Ostrom showed communities can self-govern through design principles.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Comenzi">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Capacitate de Susținere">Carrying Capacity</span> <span class="val" id="cpr-cap-val">1000</span></label>
+                <input type="range" id="cpr-cap" min="200" max="2000" value="1000" step="50">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Rata de Regenerare">Regeneration Rate</span> <span class="val" id="cpr-regen-val">0.10</span></label>
+                <input type="range" id="cpr-regen" min="2" max="30" value="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Număr de Recoltori">Number of Harvesters</span> <span class="val" id="cpr-harv-val">8</span></label>
+                <input type="range" id="cpr-harv" min="2" max="20" value="8">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Factor de Lăcomie">Harvest Greed Factor</span> <span class="val" id="cpr-greed-val">1.5</span></label>
+                <input type="range" id="cpr-greed" min="5" max="30" value="15">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Viteză Simulare">Sim Speed</span> <span class="val" id="cpr-speed-val">5</span></label>
+                <input type="range" id="cpr-speed" min="1" max="20" value="5">
+            </div>
+
+            <h3 data-ro="Principiile lui Ostrom">Ostrom's Principles</h3>
+            <label class="checkbox-label"><input type="checkbox" id="cpr-monitoring"> <span data-ro="Monitorizare">Monitoring</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="cpr-sanctions"> <span data-ro="Sancțiuni Graduale">Graduated Sanctions</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="cpr-boundaries"> <span data-ro="Granițe Clare">Clear Boundaries</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="cpr-collective"> <span data-ro="Reguli de Alegere Colectivă">Collective Choice Rules</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="cpr-all" style="accent-color:var(--accent-green);"> <span data-ro="Activează Toate Principiile">Enable All Principles</span></label>
+
+            <div class="btn-row" style="margin-top:6px;">
+                <button class="primary" id="cpr-play" data-ro="Pornește">Play</button>
+                <button id="cpr-step" data-ro="Pas">Step</button>
+                <button id="cpr-reset" data-ro="Resetează">Reset</button>
+            </div>
+        </div>
+
+        <div class="viz-area">
+            <div class="stats-bar" id="cpr-stats">
+                <div class="stat-item"><span class="stat-label" data-ro="An">Year</span><span class="stat-value" id="cpr-year">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Resursă">Resource</span><span class="stat-value" id="cpr-resource">1000</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Recoltă Totală">Total Harvest</span><span class="stat-value" id="cpr-total-harv">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Randament Durabil">Sustainable Yield</span><span class="stat-value" id="cpr-sustainable">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="ETA Epuizare">Depletion ETA</span><span class="stat-value" id="cpr-eta">--</span></div>
+            </div>
+            <div class="dual-viz">
+                <div class="chart-container">
+                    <canvas id="cpr-canvas1" width="520" height="380"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="cpr-canvas2" width="520" height="380"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Cum Funcționează">How It Works</h4>
+            <p data-ro="Resursa crește logistic: Creștere = r * Resursă * (1 - Resursă/K). Fără guvernare, fiecare recoltator ia mai mult decât partea sa durabilă.">The resource grows logistically: Growth = r * Resource * (1 - Resource/K). Without governance, each harvester takes more than their sustainable share.</p>
+            <ul>
+                <li data-ro="<strong>Monitorizarea</strong>: Recoltatorii conștienți că sunt urmăriți reduc supraexploatarea cu ~30%."><strong>Monitoring</strong>: Harvesters aware of being watched reduce overextraction by ~30%.</li>
+                <li data-ro="<strong>Sancțiuni Graduale</strong>: Pedepse blânde pentru prima abatere, escaladând pentru infractorii repetați."><strong>Graduated Sanctions</strong>: Mild penalties for first offenses, escalating for repeat violators.</li>
+                <li data-ro="<strong>Granițe Clare</strong>: Definirea cine poate recolta previne tragedia accesului deschis."><strong>Clear Boundaries</strong>: Defining who can harvest prevents open-access tragedy.</li>
+                <li data-ro="<strong>Alegere Colectivă</strong>: Recoltatorii agreează cote, aliniind comportamentul individual cu durabilitatea."><strong>Collective Choice</strong>: Harvesters agree on quotas, aligning individual behavior with sustainability.</li>
+            </ul>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Reală">Real World Examples</h4>
+            <ul>
+                <li data-ro="&#127907; Pescăriile oceanice -- colapsul codului pe Grand Banks, succesul homarului din Maine">&#127907; Ocean fisheries -- cod collapse on Grand Banks, Maine lobster success</li>
+                <li data-ro="&#128167; Epuizarea acviferelor subterane în California, India">&#128167; Groundwater aquifer depletion in California, India</li>
+                <li data-ro="&#127793; Pășunile comune -- pășunile istorice engleze, stepa mongolă">&#127793; Grazing commons -- historical English commons, Mongolian steppe</li>
+                <li data-ro="&#128225; Alocarea spectrului electromagnetic">&#128225; Electromagnetic spectrum allocation</li>
+                <li data-ro="&#127758; CO2 atmosferic ca bun comun global">&#127758; Atmospheric CO2 as a global commons</li>
+                <li data-ro="&#128663; Locuri de parcare în parcările comune">&#128663; Parking spaces in shared lots</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Ideea Cheie">Key Insight</h4>
+            <p style="font-size:1.05em; color:var(--accent-green); font-weight:600;" data-ro="&quot;Elinor Ostrom a câștigat Premiul Nobel arătând că comunitățile se pot autoguverna privind resursele comune fără privatizare sau reglementare de sus în jos -- prin granițe clare, monitorizare, sancțiuni graduale și alegere colectivă. Tragedia bunurilor comune nu este inevitabilă.&quot;">"Elinor Ostrom won the Nobel Prize by showing that communities can self-govern shared resources without privatization or top-down regulation -- through clear boundaries, monitoring, graduated sanctions, and collective choice. The tragedy of the commons is not inevitable."</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// THEME & LANGUAGE UTILITY
+// ============================================================
+function getThemeColor(varName) {
+    return getComputedStyle(document.body).getPropertyValue(varName).trim();
+}
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+const COLORS = {
+    cyan: '#00d4ff', coral: '#ff6b6b', yellow: '#ffd93d', green: '#6bcb77',
+    purple: '#9b59b6', orange: '#f39c12', pink: '#e84393', teal: '#00cec9',
+    blue: '#3498db', lime: '#a8e6cf', red: '#e74c3c', gray: '#636e72'
+};
+
+function getThemeColors() {
+    return {
+        cyan: getThemeColor('--accent-cyan'),
+        red: getThemeColor('--accent-red'),
+        green: getThemeColor('--accent-green'),
+        gold: getThemeColor('--accent-gold'),
+        purple: getThemeColor('--accent-purple'),
+        canvasBg: getThemeColor('--canvas-bg'),
+        textPrimary: getThemeColor('--text-primary'),
+        textSecondary: getThemeColor('--text-secondary'),
+        textMuted: getThemeColor('--text-muted'),
+        gridLine: getThemeColor('--grid-line'),
+        gridLine2: getThemeColor('--grid-line2'),
+        borderColor: getThemeColor('--border-color')
+    };
+}
+
+const STRAT_COLORS = {
+    tft: COLORS.cyan, allc: COLORS.green, alld: COLORS.coral,
+    tf2t: COLORS.teal, random: COLORS.gray, grudger: COLORS.red,
+    pavlov: COLORS.yellow, susp_tft: COLORS.orange
+};
+
+const STRAT_NAMES = {
+    tft: 'Tit-for-Tat', allc: 'Always Cooperate', alld: 'Always Defect',
+    tf2t: 'Tit-for-2-Tats', random: 'Random', grudger: 'Grudger',
+    pavlov: 'Pavlov (WSLS)', susp_tft: 'Suspicious TfT'
+};
+
+function clearCanvas(ctx, w, h) {
+    var tc = getThemeColors();
+    ctx.fillStyle = tc.canvasBg;
+    ctx.fillRect(0, 0, w, h);
+}
+
+function drawText(ctx, text, x, y, color, size, align) {
+    if (!color) color = getThemeColors().textSecondary;
+    if (!size) size = 11;
+    if (!align) align = 'left';
+    ctx.fillStyle = color;
+    ctx.font = size + 'px Inter, sans-serif';
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x, y);
+}
+
+function drawLine(ctx, x1, y1, x2, y2, color, width) {
+    if (!color) color = getThemeColors().gridLine;
+    if (!width) width = 1;
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+}
+
+function redrawAll() {
+    if (PD.results) PD.drawTournament();
+    if (PD.evoHistory.length) PD.drawEvolutionary();
+    if (PG.history.length) PG.draw();
+    if (CPR.history.length) CPR.draw();
+}
+
+// ============================================================
+// 9a. PRISONER'S DILEMMA TOURNAMENT
+// ============================================================
+const PD = {
+    R: 3, T: 5, S: 0, P: 1,
+    running: false,
+    results: null,
+    evoHistory: [],
+
+    getSelectedStrategies() {
+        const checks = document.querySelectorAll('#pd-strategies input:checked');
+        return Array.from(checks).map(c => c.dataset.strat);
+    },
+
+    makePlayer(stratName) {
+        return {
+            strat: stratName,
+            history: [],
+            oppHistory: [],
+            betrayed: false,
+            score: 0
+        };
+    },
+
+    getMove(player, noise) {
+        const s = player.strat;
+        const h = player.oppHistory;
+        const myH = player.history;
+        let move;
+
+        switch(s) {
+            case 'allc': move = 'C'; break;
+            case 'alld': move = 'D'; break;
+            case 'tft': move = h.length === 0 ? 'C' : h[h.length-1]; break;
+            case 'susp_tft': move = h.length === 0 ? 'D' : h[h.length-1]; break;
+            case 'tf2t':
+                if (h.length < 2) move = 'C';
+                else move = (h[h.length-1]==='D' && h[h.length-2]==='D') ? 'D' : 'C';
+                break;
+            case 'random': move = Math.random() < 0.5 ? 'C' : 'D'; break;
+            case 'grudger':
+                if (player.betrayed) move = 'D';
+                else if (h.includes('D')) { player.betrayed = true; move = 'D'; }
+                else move = 'C';
+                break;
+            case 'pavlov':
+                if (myH.length === 0) move = 'C';
+                else {
+                    const lastMy = myH[myH.length-1];
+                    const lastOpp = h[h.length-1];
+                    const lastPayoff = (lastMy==='C' && lastOpp==='C') ? PD.R :
+                                       (lastMy==='C' && lastOpp==='D') ? PD.S :
+                                       (lastMy==='D' && lastOpp==='C') ? PD.T : PD.P;
+                    move = (lastPayoff >= PD.R) ? lastMy : (lastMy==='C' ? 'D' : 'C');
+                }
+                break;
+            default: move = 'C';
+        }
+
+        if (noise > 0 && Math.random() < noise) {
+            move = move === 'C' ? 'D' : 'C';
+        }
+        return move;
+    },
+
+    playMatch(strat1, strat2, rounds, noise) {
+        const p1 = PD.makePlayer(strat1);
+        const p2 = PD.makePlayer(strat2);
+        const moves = [];
+
+        for (let r = 0; r < rounds; r++) {
+            const m1 = PD.getMove(p1, noise);
+            const m2 = PD.getMove(p2, noise);
+
+            let s1, s2;
+            if (m1==='C' && m2==='C') { s1 = PD.R; s2 = PD.R; }
+            else if (m1==='C' && m2==='D') { s1 = PD.S; s2 = PD.T; }
+            else if (m1==='D' && m2==='C') { s1 = PD.T; s2 = PD.S; }
+            else { s1 = PD.P; s2 = PD.P; }
+
+            p1.score += s1; p2.score += s2;
+            p1.history.push(m1); p1.oppHistory.push(m2);
+            p2.history.push(m2); p2.oppHistory.push(m1);
+            moves.push({m1, m2, s1, s2});
+        }
+        return { score1: p1.score, score2: p2.score, moves };
+    },
+
+    runTournament() {
+        const strats = PD.getSelectedStrategies();
+        if (strats.length < 2) { alert('Select at least 2 strategies'); return; }
+
+        const rounds = parseInt(document.getElementById('pd-rounds').value);
+        const noise = parseInt(document.getElementById('pd-noise').value) / 100;
+        const scores = {};
+        const matchResults = {};
+
+        strats.forEach(s => scores[s] = 0);
+
+        for (let i = 0; i < strats.length; i++) {
+            for (let j = i; j < strats.length; j++) {
+                const result = PD.playMatch(strats[i], strats[j], rounds, noise);
+                scores[strats[i]] += result.score1;
+                scores[strats[j]] += result.score2;
+                matchResults[`${strats[i]}_${strats[j]}`] = result;
+                if (i !== j) matchResults[`${strats[j]}_${strats[i]}`] = {
+                    score1: result.score2, score2: result.score1,
+                    moves: result.moves.map(m => ({m1: m.m2, m2: m.m1, s1: m.s2, s2: m.s1}))
+                };
+            }
+        }
+
+        PD.results = { scores, matchResults, strats };
+        PD.drawTournament();
+    },
+
+    runEvolutionary() {
+        const strats = PD.getSelectedStrategies();
+        if (strats.length < 2) { alert('Select at least 2 strategies'); return; }
+
+        const rounds = parseInt(document.getElementById('pd-rounds').value);
+        const noise = parseInt(document.getElementById('pd-noise').value) / 100;
+        const popSize = parseInt(document.getElementById('pd-pop').value);
+        const gens = parseInt(document.getElementById('pd-gens').value);
+
+        let pop = [];
+        const perStrat = Math.floor(popSize / strats.length);
+        strats.forEach(s => {
+            for (let i = 0; i < perStrat; i++) pop.push(s);
+        });
+        while (pop.length < popSize) pop.push(strats[Math.floor(Math.random() * strats.length)]);
+
+        PD.evoHistory = [];
+
+        for (let g = 0; g < gens; g++) {
+            const counts = {};
+            strats.forEach(s => counts[s] = 0);
+            pop.forEach(s => counts[s]++);
+            PD.evoHistory.push({...counts});
+
+            const fitness = new Array(popSize).fill(0);
+            const sampleMatches = Math.min(10, popSize - 1);
+
+            for (let i = 0; i < popSize; i++) {
+                for (let m = 0; m < sampleMatches; m++) {
+                    let j = Math.floor(Math.random() * popSize);
+                    while (j === i) j = Math.floor(Math.random() * popSize);
+                    const result = PD.playMatch(pop[i], pop[j], Math.min(rounds, 50), noise);
+                    fitness[i] += result.score1;
+                }
+            }
+
+            const minFit = Math.min(...fitness);
+            const adjustedFitness = fitness.map(f => f - minFit + 1);
+            const totalFit = adjustedFitness.reduce((a,b) => a+b, 0);
+            const newPop = [];
+
+            for (let i = 0; i < popSize; i++) {
+                let r = Math.random() * totalFit;
+                let cum = 0;
+                for (let j = 0; j < popSize; j++) {
+                    cum += adjustedFitness[j];
+                    if (cum >= r) { newPop.push(pop[j]); break; }
+                }
+            }
+
+            for (let i = 0; i < newPop.length; i++) {
+                if (Math.random() < 0.02) {
+                    newPop[i] = strats[Math.floor(Math.random() * strats.length)];
+                }
+            }
+            pop = newPop;
+        }
+
+        const finalCounts = {};
+        strats.forEach(s => finalCounts[s] = 0);
+        pop.forEach(s => finalCounts[s]++);
+        PD.evoHistory.push({...finalCounts});
+
+        PD.drawEvolutionary();
+    },
+
+    drawTournament() {
+        if (!PD.results) return;
+        const { scores, matchResults, strats } = PD.results;
+        var tc = getThemeColors();
+
+        const c1 = document.getElementById('pd-canvas1');
+        const ctx1 = c1.getContext('2d');
+        const w1 = c1.width, h1 = c1.height;
+        clearCanvas(ctx1, w1, h1);
+
+        const sorted = strats.slice().sort((a,b) => scores[b] - scores[a]);
+        const maxScore = Math.max(...sorted.map(s => scores[s]));
+
+        drawText(ctx1, 'Tournament Scores', w1/2, 18, tc.textPrimary, 14, 'center');
+
+        const barH = Math.min(30, (h1 - 60) / sorted.length - 5);
+        const startY = 40;
+        const maxBarW = w1 - 180;
+
+        sorted.forEach((s, i) => {
+            const y = startY + i * (barH + 5);
+            const barW = (scores[s] / maxScore) * maxBarW;
+
+            drawText(ctx1, STRAT_NAMES[s], 10, y + barH/2, STRAT_COLORS[s], 11);
+
+            ctx1.fillStyle = STRAT_COLORS[s] + '40';
+            ctx1.fillRect(120, y, barW, barH);
+            ctx1.fillStyle = STRAT_COLORS[s];
+            ctx1.fillRect(120, y, barW, 3);
+
+            drawText(ctx1, scores[s].toFixed(0), 125 + barW + 5, y + barH/2, tc.textSecondary, 11);
+        });
+
+        const c2 = document.getElementById('pd-canvas2');
+        const ctx2 = c2.getContext('2d');
+        const w2 = c2.width, h2 = c2.height;
+        clearCanvas(ctx2, w2, h2);
+
+        drawText(ctx2, 'Head-to-Head Results', w2/2, 18, tc.textPrimary, 14, 'center');
+
+        const n = strats.length;
+        const cellSize = Math.min(40, (Math.min(w2, h2) - 100) / n);
+        const offX = 90, offY = 70;
+
+        strats.forEach((s, i) => {
+            ctx2.save();
+            ctx2.translate(offX + i * cellSize + cellSize/2, offY - 8);
+            ctx2.rotate(-Math.PI/4);
+            drawText(ctx2, STRAT_NAMES[s].substring(0, 8), 0, 0, STRAT_COLORS[s], 9, 'left');
+            ctx2.restore();
+        });
+
+        strats.forEach((s1, i) => {
+            drawText(ctx2, STRAT_NAMES[s1].substring(0, 10), offX - 5, offY + i * cellSize + cellSize/2, STRAT_COLORS[s1], 9, 'right');
+
+            strats.forEach((s2, j) => {
+                const key = `${s1}_${s2}`;
+                const result = matchResults[key];
+                const x = offX + j * cellSize;
+                const y = offY + i * cellSize;
+
+                if (result) {
+                    const won = result.score1 > result.score2;
+                    const tied = result.score1 === result.score2;
+                    ctx2.fillStyle = won ? getThemeColor('--win-color') : tied ? getThemeColor('--tie-color') : getThemeColor('--lose-color');
+                    ctx2.fillRect(x, y, cellSize-1, cellSize-1);
+                    drawText(ctx2, result.score1.toString(), x + cellSize/2, y + cellSize/2, tc.textSecondary, 8, 'center');
+                } else {
+                    ctx2.fillStyle = tc.gridLine;
+                    ctx2.fillRect(x, y, cellSize-1, cellSize-1);
+                }
+            });
+        });
+
+        document.getElementById('pd-top').textContent = STRAT_NAMES[sorted[0]].substring(0, 12);
+        document.getElementById('pd-status').textContent = 'Done';
+        document.getElementById('pd-nstrats').textContent = strats.length;
+
+        const tbody = document.getElementById('pd-lb-body');
+        tbody.innerHTML = '';
+        sorted.forEach((s, i) => {
+            const pct = (scores[s] / maxScore) * 100;
+            const row = document.createElement('tr');
+            row.innerHTML = '<td>' + (i+1) + '</td><td style="color:' + STRAT_COLORS[s] + '">' + STRAT_NAMES[s] + '</td>' +
+                '<td>' + scores[s].toFixed(0) + '</td>' +
+                '<td><div class="score-bar" style="width:' + pct + '%;background:' + STRAT_COLORS[s] + ';"></div></td>';
+            tbody.appendChild(row);
+        });
+    },
+
+    drawEvolutionary() {
+        const history = PD.evoHistory;
+        if (!history.length) return;
+        const strats = PD.getSelectedStrategies();
+        const popSize = parseInt(document.getElementById('pd-pop').value);
+        var tc = getThemeColors();
+
+        const c1 = document.getElementById('pd-canvas1');
+        const ctx1 = c1.getContext('2d');
+        const w1 = c1.width, h1 = c1.height;
+        clearCanvas(ctx1, w1, h1);
+
+        drawText(ctx1, 'Population Composition Over Time', w1/2, 18, tc.textPrimary, 14, 'center');
+
+        const margin = { top: 40, right: 20, bottom: 40, left: 50 };
+        const plotW = w1 - margin.left - margin.right;
+        const plotH = h1 - margin.top - margin.bottom;
+        const gens = history.length;
+
+        drawLine(ctx1, margin.left, margin.top, margin.left, h1 - margin.bottom, tc.gridLine2);
+        drawLine(ctx1, margin.left, h1 - margin.bottom, w1 - margin.right, h1 - margin.bottom, tc.gridLine2);
+        drawText(ctx1, 'Generation', w1/2, h1 - 8, tc.textMuted, 10, 'center');
+        ctx1.save();
+        ctx1.translate(12, h1/2);
+        ctx1.rotate(-Math.PI/2);
+        drawText(ctx1, 'Population %', 0, 0, tc.textMuted, 10, 'center');
+        ctx1.restore();
+
+        for (let si = strats.length - 1; si >= 0; si--) {
+            ctx1.beginPath();
+            ctx1.moveTo(margin.left, h1 - margin.bottom);
+
+            for (let g = 0; g < gens; g++) {
+                const x = margin.left + (g / (gens-1)) * plotW;
+                let cumPct = 0;
+                for (let k = 0; k <= si; k++) {
+                    cumPct += (history[g][strats[k]] || 0) / popSize;
+                }
+                const y = margin.top + (1 - cumPct) * plotH;
+                if (g === 0) ctx1.moveTo(x, y);
+                else ctx1.lineTo(x, y);
+            }
+
+            for (let g = gens - 1; g >= 0; g--) {
+                const x = margin.left + (g / (gens-1)) * plotW;
+                let cumPct = 0;
+                for (let k = 0; k < si; k++) {
+                    cumPct += (history[g][strats[k]] || 0) / popSize;
+                }
+                const y = margin.top + (1 - cumPct) * plotH;
+                ctx1.lineTo(x, y);
+            }
+
+            ctx1.closePath();
+            ctx1.fillStyle = STRAT_COLORS[strats[si]] + '80';
+            ctx1.fill();
+            ctx1.strokeStyle = STRAT_COLORS[strats[si]];
+            ctx1.lineWidth = 1;
+            ctx1.stroke();
+        }
+
+        strats.forEach((s, i) => {
+            const lx = margin.left + 10 + (i % 4) * 130;
+            const ly = h1 - 22 + Math.floor(i / 4) * 14;
+            ctx1.fillStyle = STRAT_COLORS[s];
+            ctx1.fillRect(lx, ly - 5, 10, 10);
+            drawText(ctx1, STRAT_NAMES[s], lx + 14, ly, STRAT_COLORS[s], 9);
+        });
+
+        const c2 = document.getElementById('pd-canvas2');
+        const ctx2 = c2.getContext('2d');
+        const w2 = c2.width, h2 = c2.height;
+        clearCanvas(ctx2, w2, h2);
+
+        drawText(ctx2, 'Final Population & Fitness', w2/2, 18, tc.textPrimary, 14, 'center');
+
+        const finalCounts = history[history.length - 1];
+        const total = Object.values(finalCounts).reduce((a,b) => a+b, 0);
+
+        const barW = Math.min(50, (w2 - 80) / strats.length - 10);
+        const chartBottom = h2 - 60;
+        const chartTop = 50;
+        const chartH = chartBottom - chartTop;
+
+        strats.forEach((s, i) => {
+            const pct = (finalCounts[s] || 0) / total;
+            const x = 40 + i * (barW + 10);
+            const barHeight = pct * chartH;
+
+            ctx2.fillStyle = STRAT_COLORS[s] + '60';
+            ctx2.fillRect(x, chartBottom - barHeight, barW, barHeight);
+            ctx2.fillStyle = STRAT_COLORS[s];
+            ctx2.fillRect(x, chartBottom - barHeight, barW, 3);
+
+            drawText(ctx2, (pct * 100).toFixed(0) + '%', x + barW/2, chartBottom - barHeight - 10, STRAT_COLORS[s], 10, 'center');
+
+            ctx2.save();
+            ctx2.translate(x + barW/2, chartBottom + 10);
+            ctx2.rotate(Math.PI/4);
+            drawText(ctx2, STRAT_NAMES[s].substring(0, 8), 0, 0, STRAT_COLORS[s], 8, 'left');
+            ctx2.restore();
+        });
+
+        const winner = strats.reduce((a, b) => (finalCounts[a]||0) > (finalCounts[b]||0) ? a : b);
+        document.getElementById('pd-top').textContent = STRAT_NAMES[winner].substring(0, 12);
+        document.getElementById('pd-status').textContent = 'Done';
+
+        const sorted2 = strats.slice().sort((a,b) => (finalCounts[b]||0) - (finalCounts[a]||0));
+        const tbody = document.getElementById('pd-lb-body');
+        tbody.innerHTML = '';
+        sorted2.forEach((s, i) => {
+            const pct = ((finalCounts[s]||0) / total * 100);
+            const row = document.createElement('tr');
+            row.innerHTML = '<td>' + (i+1) + '</td><td style="color:' + STRAT_COLORS[s] + '">' + STRAT_NAMES[s] + '</td>' +
+                '<td>' + (finalCounts[s]||0) + ' (' + pct.toFixed(1) + '%)</td>' +
+                '<td><div class="score-bar" style="width:' + pct + '%;background:' + STRAT_COLORS[s] + ';"></div></td>';
+            tbody.appendChild(row);
+        });
+    },
+
+    init() {
+        document.getElementById('pd-run').addEventListener('click', () => {
+            const mode = document.getElementById('pd-mode').value;
+            if (mode === 'tournament') PD.runTournament();
+            else PD.runEvolutionary();
+        });
+
+        document.getElementById('pd-reset').addEventListener('click', () => {
+            PD.results = null;
+            PD.evoHistory = [];
+            ['pd-canvas1','pd-canvas2'].forEach(id => {
+                const c = document.getElementById(id);
+                clearCanvas(c.getContext('2d'), c.width, c.height);
+            });
+            document.getElementById('pd-lb-body').innerHTML = '';
+            document.getElementById('pd-status').textContent = 'Ready';
+            document.getElementById('pd-top').textContent = '--';
+        });
+
+        document.getElementById('pd-mode').addEventListener('change', (e) => {
+            const isEvo = e.target.value === 'evolutionary';
+            document.getElementById('pd-popsize-group').style.display = isEvo ? '' : 'none';
+            document.getElementById('pd-gens-group').style.display = isEvo ? '' : 'none';
+        });
+
+        const sliders = [
+            ['pd-rounds', 'pd-rounds-val', v=>v],
+            ['pd-noise', 'pd-noise-val', v=>v+'%'],
+            ['pd-pop', 'pd-pop-val', v=>v],
+            ['pd-gens', 'pd-gens-val', v=>v]
+        ];
+        sliders.forEach(([id, valId, fmt]) => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                document.getElementById(valId).textContent = fmt(e.target.value);
+            });
+        });
+
+        document.getElementById('pd-popsize-group').style.display = 'none';
+        document.getElementById('pd-gens-group').style.display = 'none';
+    }
+};
+
+
+// ============================================================
+// 9b. PUBLIC GOODS GAME
+// ============================================================
+const PG = {
+    round: 0,
+    agents: [],
+    history: [],
+    running: false,
+    timer: null,
+
+    createAgents() {
+        const n = parseInt(document.getElementById('pg-n').value);
+        const type = document.getElementById('pg-types').value;
+        PG.agents = [];
+
+        for (let i = 0; i < n; i++) {
+            let agentType;
+            if (type === 'mixed') {
+                const r = Math.random();
+                agentType = r < 0.3 ? 'cooperator' : r < 0.55 ? 'defector' : 'conditional';
+            } else if (type === 'rational') agentType = 'defector';
+            else if (type === 'altruist') agentType = 'cooperator';
+            else agentType = 'conditional';
+
+            PG.agents.push({
+                type: agentType,
+                contribution: 0,
+                payoff: 0,
+                totalPayoff: 0,
+                punished: false
+            });
+        }
+    },
+
+    stepRound() {
+        const n = PG.agents.length;
+        const m = parseInt(document.getElementById('pg-m').value) / 10;
+        const endow = parseInt(document.getElementById('pg-endow').value);
+        const punishment = document.getElementById('pg-punishment').checked;
+        const communication = document.getElementById('pg-communication').checked;
+
+        const avgContribPrev = PG.round > 0 ?
+            PG.agents.reduce((s, a) => s + a.contribution, 0) / n : endow * 0.5;
+
+        PG.agents.forEach(a => {
+            switch(a.type) {
+                case 'cooperator':
+                    a.contribution = endow * (0.7 + Math.random() * 0.3);
+                    break;
+                case 'defector':
+                    a.contribution = endow * Math.random() * 0.15;
+                    break;
+                case 'conditional':
+                    const target = avgContribPrev / endow;
+                    a.contribution = endow * Math.max(0, Math.min(1, target + (Math.random() - 0.5) * 0.2));
+                    break;
+            }
+
+            if (communication) a.contribution = Math.min(endow, a.contribution * 1.2);
+            if (a.punished && punishment) a.contribution = Math.min(endow, a.contribution * 1.4);
+
+            a.contribution = Math.max(0, Math.min(endow, a.contribution));
+        });
+
+        const totalContrib = PG.agents.reduce((s, a) => s + a.contribution, 0);
+        const publicGood = totalContrib * m;
+        const share = publicGood / n;
+
+        PG.agents.forEach(a => {
+            a.payoff = (endow - a.contribution) + share;
+        });
+
+        if (punishment) {
+            const avgContrib = totalContrib / n;
+            PG.agents.forEach(a => {
+                a.punished = false;
+                if (a.contribution < avgContrib * 0.5) {
+                    const punishers = PG.agents.filter(p => p.contribution > avgContrib * 0.7);
+                    if (punishers.length > 0) {
+                        a.payoff -= 3 * punishers.length * 0.3;
+                        a.punished = true;
+                        punishers.forEach(p => p.payoff -= 1 * 0.3);
+                    }
+                }
+            });
+        }
+
+        PG.agents.forEach(a => a.totalPayoff += a.payoff);
+
+        const freeRiders = PG.agents.filter(a => a.contribution < endow * 0.1).length;
+        const coopRate = PG.agents.reduce((s, a) => s + a.contribution, 0) / (n * endow);
+
+        PG.history.push({
+            totalContrib,
+            publicGood,
+            avgPayoff: PG.agents.reduce((s, a) => s + a.payoff, 0) / n,
+            freeRiderPct: freeRiders / n,
+            coopRate,
+            contributions: PG.agents.map(a => a.contribution),
+            payoffs: PG.agents.map(a => a.payoff)
+        });
+
+        PG.round++;
+        PG.updateStats();
+        PG.draw();
+    },
+
+    updateStats() {
+        const last = PG.history[PG.history.length - 1];
+        document.getElementById('pg-round').textContent = PG.round;
+        document.getElementById('pg-pool').textContent = last.publicGood.toFixed(0);
+        document.getElementById('pg-avgpay').textContent = last.avgPayoff.toFixed(1);
+        document.getElementById('pg-freerider').textContent = (last.freeRiderPct * 100).toFixed(0) + '%';
+        document.getElementById('pg-cooprate').textContent = (last.coopRate * 100).toFixed(0) + '%';
+    },
+
+    draw() {
+        var tc = getThemeColors();
+        const c1 = document.getElementById('pg-canvas1');
+        const ctx1 = c1.getContext('2d');
+        const w1 = c1.width, h1 = c1.height;
+        clearCanvas(ctx1, w1, h1);
+
+        drawText(ctx1, 'Individual Contributions (Current Round)', w1/2, 18, tc.textPrimary, 13, 'center');
+
+        const endow = parseInt(document.getElementById('pg-endow').value);
+        const n = PG.agents.length;
+        const margin = { top: 40, right: 20, bottom: 50, left: 50 };
+        const plotW = w1 - margin.left - margin.right;
+        const plotH = (h1 / 2) - margin.top - 10;
+        const barW = Math.min(30, plotW / n - 2);
+
+        drawLine(ctx1, margin.left, margin.top, margin.left, margin.top + plotH, tc.gridLine2);
+        for (let v = 0; v <= endow; v += Math.ceil(endow / 5)) {
+            const y = margin.top + plotH - (v / endow) * plotH;
+            drawLine(ctx1, margin.left, y, w1 - margin.right, y, tc.gridLine);
+            drawText(ctx1, v.toString(), margin.left - 5, y, tc.textMuted, 9, 'right');
+        }
+
+        const last = PG.history[PG.history.length - 1];
+        if (last) {
+            last.contributions.forEach((c, i) => {
+                const x = margin.left + 10 + i * (barW + 2);
+                const barH = (c / endow) * plotH;
+                const y = margin.top + plotH - barH;
+
+                const typeColors = { cooperator: COLORS.green, defector: COLORS.coral, conditional: COLORS.cyan };
+                const color = typeColors[PG.agents[i].type] || COLORS.gray;
+
+                ctx1.fillStyle = color + '60';
+                ctx1.fillRect(x, y, barW, barH);
+                ctx1.fillStyle = color;
+                ctx1.fillRect(x, y, barW, 2);
+            });
+        }
+
+        const chartTop = h1/2 + 20;
+        const chartH = h1 - chartTop - 30;
+        drawText(ctx1, 'Cooperation Rate Over Time', w1/2, chartTop - 10, tc.textPrimary, 12, 'center');
+        drawLine(ctx1, margin.left, chartTop, margin.left, chartTop + chartH, tc.gridLine2);
+        drawLine(ctx1, margin.left, chartTop + chartH, w1 - margin.right, chartTop + chartH, tc.gridLine2);
+
+        if (PG.history.length > 1) {
+            ctx1.beginPath();
+            ctx1.strokeStyle = COLORS.cyan;
+            ctx1.lineWidth = 2;
+            PG.history.forEach((h, i) => {
+                const x = margin.left + (i / (PG.history.length - 1)) * plotW;
+                const y = chartTop + (1 - h.coopRate) * chartH;
+                if (i === 0) ctx1.moveTo(x, y);
+                else ctx1.lineTo(x, y);
+            });
+            ctx1.stroke();
+
+            ctx1.beginPath();
+            ctx1.strokeStyle = COLORS.coral;
+            ctx1.lineWidth = 2;
+            ctx1.setLineDash([4, 4]);
+            PG.history.forEach((h, i) => {
+                const x = margin.left + (i / (PG.history.length - 1)) * plotW;
+                const y = chartTop + (1 - h.freeRiderPct) * chartH;
+                if (i === 0) ctx1.moveTo(x, y);
+                else ctx1.lineTo(x, y);
+            });
+            ctx1.stroke();
+            ctx1.setLineDash([]);
+        }
+
+        drawText(ctx1, 'Cooperation', w1 - 80, chartTop + 15, COLORS.cyan, 9);
+        drawText(ctx1, 'Free-riders', w1 - 80, chartTop + 30, COLORS.coral, 9);
+
+        const c2 = document.getElementById('pg-canvas2');
+        const ctx2 = c2.getContext('2d');
+        const w2 = c2.width, h2 = c2.height;
+        clearCanvas(ctx2, w2, h2);
+
+        drawText(ctx2, 'Payoffs Over Time', w2/2, 18, tc.textPrimary, 13, 'center');
+
+        if (PG.history.length > 1) {
+            const maxPay = Math.max(...PG.history.map(h => h.avgPayoff)) * 1.2;
+            const minPay = Math.min(0, ...PG.history.map(h => h.avgPayoff));
+            const range = maxPay - minPay || 1;
+
+            const m2 = { top: 40, right: 20, bottom: 50, left: 50 };
+            const pW = w2 - m2.left - m2.right;
+            const pH = (h2/2) - m2.top;
+
+            drawLine(ctx2, m2.left, m2.top, m2.left, m2.top + pH, tc.gridLine2);
+            drawLine(ctx2, m2.left, m2.top + pH, w2 - m2.right, m2.top + pH, tc.gridLine2);
+
+            ctx2.beginPath();
+            ctx2.strokeStyle = COLORS.yellow;
+            ctx2.lineWidth = 2;
+            PG.history.forEach((h, i) => {
+                const x = m2.left + (i / (PG.history.length - 1)) * pW;
+                const y = m2.top + (1 - (h.avgPayoff - minPay) / range) * pH;
+                if (i === 0) ctx2.moveTo(x, y);
+                else ctx2.lineTo(x, y);
+            });
+            ctx2.stroke();
+
+            const endowVal = parseInt(document.getElementById('pg-endow').value);
+            const mul = parseInt(document.getElementById('pg-m').value) / 10;
+            const optimum = endowVal * mul;
+            const optY = m2.top + (1 - (optimum - minPay) / range) * pH;
+            drawLine(ctx2, m2.left, optY, w2 - m2.right, optY, COLORS.green + '60', 1);
+            drawText(ctx2, 'Social Optimum', w2 - 80, optY - 8, COLORS.green, 9);
+            drawText(ctx2, 'Avg Payoff', w2 - 80, m2.top + 15, COLORS.yellow, 9);
+
+            const btop = h2/2 + 20;
+            const bH = h2 - btop - 30;
+            drawText(ctx2, 'Individual Payoffs (Current Round)', w2/2, btop - 10, tc.textPrimary, 12, 'center');
+
+            if (last) {
+                const maxP = Math.max(...last.payoffs) * 1.1 || 1;
+                const bW = Math.min(30, pW / last.payoffs.length - 2);
+
+                last.payoffs.forEach((p, i) => {
+                    const x = m2.left + 10 + i * (bW + 2);
+                    const barH2 = Math.max(0, (p / maxP) * bH);
+                    const y = btop + bH - barH2;
+
+                    const typeColors = { cooperator: COLORS.green, defector: COLORS.coral, conditional: COLORS.cyan };
+                    const color = typeColors[PG.agents[i].type] || COLORS.gray;
+
+                    ctx2.fillStyle = color + '60';
+                    ctx2.fillRect(x, y, bW, barH2);
+                    ctx2.fillStyle = color;
+                    ctx2.fillRect(x, y, bW, 2);
+                });
+            }
+        }
+
+        drawText(ctx2, 'Cooperator', 60, h2 - 10, COLORS.green, 9);
+        drawText(ctx2, 'Defector', 160, h2 - 10, COLORS.coral, 9);
+        drawText(ctx2, 'Conditional', 250, h2 - 10, COLORS.cyan, 9);
+    },
+
+    init() {
+        PG.createAgents();
+
+        document.getElementById('pg-run').addEventListener('click', () => {
+            if (PG.running) {
+                PG.running = false;
+                clearInterval(PG.timer);
+                document.getElementById('pg-run').textContent = 'Run Game';
+                return;
+            }
+            PG.running = true;
+            document.getElementById('pg-run').textContent = 'Pause';
+            const maxRounds = parseInt(document.getElementById('pg-rounds').value);
+            PG.timer = setInterval(() => {
+                if (PG.round >= maxRounds) {
+                    PG.running = false;
+                    clearInterval(PG.timer);
+                    document.getElementById('pg-run').textContent = 'Run Game';
+                    return;
+                }
+                PG.stepRound();
+            }, 200);
+        });
+
+        document.getElementById('pg-step').addEventListener('click', () => {
+            const maxRounds = parseInt(document.getElementById('pg-rounds').value);
+            if (PG.round < maxRounds) PG.stepRound();
+        });
+
+        document.getElementById('pg-reset').addEventListener('click', () => {
+            PG.running = false;
+            clearInterval(PG.timer);
+            PG.round = 0;
+            PG.history = [];
+            PG.createAgents();
+            document.getElementById('pg-run').textContent = 'Run Game';
+            document.getElementById('pg-round').textContent = '0';
+            document.getElementById('pg-pool').textContent = '0';
+            document.getElementById('pg-avgpay').textContent = '0';
+            document.getElementById('pg-freerider').textContent = '0%';
+            document.getElementById('pg-cooprate').textContent = '0%';
+            ['pg-canvas1','pg-canvas2'].forEach(id => {
+                const c = document.getElementById(id);
+                clearCanvas(c.getContext('2d'), c.width, c.height);
+            });
+        });
+
+        const sliders = [
+            ['pg-n', 'pg-n-val', v=>v],
+            ['pg-m', 'pg-m-val', v=>(v/10).toFixed(1)],
+            ['pg-endow', 'pg-endow-val', v=>v],
+            ['pg-rounds', 'pg-rounds-val', v=>v]
+        ];
+        sliders.forEach(([id, valId, fmt]) => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                document.getElementById(valId).textContent = fmt(e.target.value);
+            });
+        });
+
+        document.getElementById('pg-n').addEventListener('change', () => {
+            if (!PG.running && PG.round === 0) PG.createAgents();
+        });
+        document.getElementById('pg-types').addEventListener('change', () => {
+            if (!PG.running && PG.round === 0) PG.createAgents();
+        });
+    }
+};
+
+
+// ============================================================
+// 9c. COMMON POOL RESOURCE / OSTROM
+// ============================================================
+const CPR = {
+    resource: 1000,
+    year: 0,
+    harvesters: [],
+    history: [],
+    running: false,
+    timer: null,
+
+    createHarvesters() {
+        const n = parseInt(document.getElementById('cpr-harv').value);
+        CPR.harvesters = [];
+        for (let i = 0; i < n; i++) {
+            CPR.harvesters.push({
+                greed: 0.8 + Math.random() * 0.8,
+                harvest: 0,
+                totalHarvest: 0,
+                violations: 0
+            });
+        }
+    },
+
+    getSustainableYield() {
+        const K = parseInt(document.getElementById('cpr-cap').value);
+        const r = parseInt(document.getElementById('cpr-regen').value) / 100;
+        return r * CPR.resource * (1 - CPR.resource / K);
+    },
+
+    step() {
+        const K = parseInt(document.getElementById('cpr-cap').value);
+        const r = parseInt(document.getElementById('cpr-regen').value) / 100;
+        const greedFactor = parseInt(document.getElementById('cpr-greed').value) / 10;
+        const n = CPR.harvesters.length;
+
+        const monitoring = document.getElementById('cpr-monitoring').checked;
+        const sanctions = document.getElementById('cpr-sanctions').checked;
+        const boundaries = document.getElementById('cpr-boundaries').checked;
+        const collective = document.getElementById('cpr-collective').checked;
+
+        const sustainableYield = Math.max(0, r * CPR.resource * (1 - CPR.resource / K));
+        const sustainablePerHarvester = sustainableYield / n;
+
+        let totalHarvest = 0;
+        CPR.harvesters.forEach(h => {
+            let desire = sustainablePerHarvester * h.greed * greedFactor;
+
+            if (collective) {
+                desire = Math.min(desire, sustainablePerHarvester * 1.1);
+            }
+            if (monitoring) {
+                desire *= 0.75;
+            }
+            if (sanctions && h.violations > 0) {
+                const penalty = Math.min(0.8, h.violations * 0.15);
+                desire *= (1 - penalty);
+            }
+            if (boundaries) {
+                desire *= 0.9;
+            }
+
+            desire *= (0.8 + Math.random() * 0.4);
+
+            h.harvest = Math.max(0, Math.min(desire, CPR.resource / n));
+            totalHarvest += h.harvest;
+
+            if (h.harvest > sustainablePerHarvester * 1.2 && monitoring) {
+                h.violations++;
+            } else if (h.violations > 0 && Math.random() < 0.2) {
+                h.violations = Math.max(0, h.violations - 1);
+            }
+
+            h.totalHarvest += h.harvest;
+        });
+
+        if (totalHarvest > CPR.resource) {
+            const scale = CPR.resource / totalHarvest;
+            CPR.harvesters.forEach(h => {
+                h.harvest *= scale;
+            });
+            totalHarvest = CPR.resource;
+        }
+
+        const growth = r * CPR.resource * (1 - CPR.resource / K);
+        CPR.resource = Math.max(0, CPR.resource + growth - totalHarvest);
+
+        CPR.year++;
+
+        CPR.history.push({
+            resource: CPR.resource,
+            totalHarvest,
+            sustainableYield,
+            harvests: CPR.harvesters.map(h => h.harvest),
+            growth
+        });
+
+        CPR.updateStats();
+        CPR.draw();
+
+        if (CPR.resource < 1) {
+            CPR.running = false;
+            clearInterval(CPR.timer);
+            document.getElementById('cpr-play').textContent = 'Play';
+        }
+    },
+
+    updateStats() {
+        const last = CPR.history[CPR.history.length - 1];
+        document.getElementById('cpr-year').textContent = CPR.year;
+        document.getElementById('cpr-resource').textContent = CPR.resource.toFixed(0);
+        document.getElementById('cpr-total-harv').textContent = last.totalHarvest.toFixed(0);
+        document.getElementById('cpr-sustainable').textContent = last.sustainableYield.toFixed(0);
+
+        if (CPR.history.length > 2) {
+            const recentDecline = CPR.history.slice(-3).reduce((s, h) => s + (h.totalHarvest - h.growth), 0) / 3;
+            if (recentDecline > 0) {
+                const eta = Math.ceil(CPR.resource / recentDecline);
+                document.getElementById('cpr-eta').textContent = eta + ' yrs';
+                document.getElementById('cpr-eta').style.color = eta < 20 ? COLORS.coral : eta < 50 ? COLORS.yellow : COLORS.green;
+            } else {
+                document.getElementById('cpr-eta').textContent = 'Stable';
+                document.getElementById('cpr-eta').style.color = COLORS.green;
+            }
+        }
+    },
+
+    draw() {
+        var tc = getThemeColors();
+        const c1 = document.getElementById('cpr-canvas1');
+        const ctx1 = c1.getContext('2d');
+        const w1 = c1.width, h1 = c1.height;
+        clearCanvas(ctx1, w1, h1);
+
+        const K = parseInt(document.getElementById('cpr-cap').value);
+
+        drawText(ctx1, 'Resource Level Over Time', w1/2, 18, tc.textPrimary, 14, 'center');
+
+        const margin = { top: 40, right: 20, bottom: 50, left: 55 };
+        const plotW = w1 - margin.left - margin.right;
+        const plotH = h1 - margin.top - margin.bottom;
+
+        drawLine(ctx1, margin.left, margin.top, margin.left, h1 - margin.bottom, tc.gridLine2);
+        drawLine(ctx1, margin.left, h1 - margin.bottom, w1 - margin.right, h1 - margin.bottom, tc.gridLine2);
+
+        for (let v = 0; v <= K; v += K / 5) {
+            const y = margin.top + plotH - (v / K) * plotH;
+            drawLine(ctx1, margin.left, y, w1 - margin.right, y, tc.gridLine);
+            drawText(ctx1, v.toFixed(0), margin.left - 5, y, tc.textMuted, 9, 'right');
+        }
+
+        if (CPR.history.length > 1) {
+            const maxT = CPR.history.length;
+
+            ctx1.beginPath();
+            ctx1.strokeStyle = COLORS.cyan;
+            ctx1.lineWidth = 2.5;
+            CPR.history.forEach((h, i) => {
+                const x = margin.left + (i / maxT) * plotW;
+                const y = margin.top + (1 - h.resource / K) * plotH;
+                if (i === 0) ctx1.moveTo(x, y);
+                else ctx1.lineTo(x, y);
+            });
+            ctx1.stroke();
+
+            ctx1.lineTo(margin.left + ((maxT-1) / maxT) * plotW, h1 - margin.bottom);
+            ctx1.lineTo(margin.left, h1 - margin.bottom);
+            ctx1.closePath();
+            ctx1.fillStyle = COLORS.cyan + '15';
+            ctx1.fill();
+
+            const kY = margin.top;
+            drawLine(ctx1, margin.left, kY, w1 - margin.right, kY, COLORS.green + '40', 1);
+            drawText(ctx1, 'Carrying Capacity (K)', margin.left + 10, kY + 12, COLORS.green, 9);
+
+            const dangerY = margin.top + plotH * 0.8;
+            ctx1.fillStyle = getThemeColor('--danger-zone');
+            ctx1.fillRect(margin.left, dangerY, plotW, h1 - margin.bottom - dangerY);
+            drawText(ctx1, 'DANGER ZONE', margin.left + 10, dangerY + 12, COLORS.coral + '80', 9);
+        }
+
+        drawText(ctx1, 'Year', w1/2, h1 - 10, tc.textMuted, 10, 'center');
+
+        const c2 = document.getElementById('cpr-canvas2');
+        const ctx2 = c2.getContext('2d');
+        const w2 = c2.width, h2 = c2.height;
+        clearCanvas(ctx2, w2, h2);
+
+        drawText(ctx2, 'Total Harvest vs Sustainable Yield', w2/2, 18, tc.textPrimary, 14, 'center');
+
+        const m2 = { top: 40, right: 20, bottom: 80, left: 55 };
+        const pW2 = w2 - m2.left - m2.right;
+        const pH2 = h2 - m2.top - m2.bottom;
+
+        drawLine(ctx2, m2.left, m2.top, m2.left, h2 - m2.bottom, tc.gridLine2);
+        drawLine(ctx2, m2.left, h2 - m2.bottom, w2 - m2.right, h2 - m2.bottom, tc.gridLine2);
+
+        if (CPR.history.length > 1) {
+            const maxVal = Math.max(...CPR.history.map(h => Math.max(h.totalHarvest, h.sustainableYield))) * 1.2 || 1;
+
+            ctx2.beginPath();
+            ctx2.strokeStyle = COLORS.green;
+            ctx2.lineWidth = 2;
+            ctx2.setLineDash([6, 4]);
+            CPR.history.forEach((h, i) => {
+                const x = m2.left + (i / CPR.history.length) * pW2;
+                const y = m2.top + (1 - h.sustainableYield / maxVal) * pH2;
+                if (i === 0) ctx2.moveTo(x, y);
+                else ctx2.lineTo(x, y);
+            });
+            ctx2.stroke();
+            ctx2.setLineDash([]);
+
+            ctx2.beginPath();
+            ctx2.strokeStyle = COLORS.coral;
+            ctx2.lineWidth = 2;
+            CPR.history.forEach((h, i) => {
+                const x = m2.left + (i / CPR.history.length) * pW2;
+                const y = m2.top + (1 - h.totalHarvest / maxVal) * pH2;
+                if (i === 0) ctx2.moveTo(x, y);
+                else ctx2.lineTo(x, y);
+            });
+            ctx2.stroke();
+
+            ctx2.beginPath();
+            ctx2.fillStyle = getThemeColor('--overharvest');
+            CPR.history.forEach((h, i) => {
+                if (h.totalHarvest > h.sustainableYield) {
+                    const x = m2.left + (i / CPR.history.length) * pW2;
+                    const y1 = m2.top + (1 - h.totalHarvest / maxVal) * pH2;
+                    const y2 = m2.top + (1 - h.sustainableYield / maxVal) * pH2;
+                    ctx2.fillRect(x - 1, y1, 3, y2 - y1);
+                }
+            });
+
+            const btop = h2 - m2.bottom + 15;
+            drawText(ctx2, 'Individual Harvests (Current)', w2/2, btop, tc.textSecondary, 10, 'center');
+            const last = CPR.history[CPR.history.length - 1];
+            const barW = Math.min(25, (pW2 - 20) / last.harvests.length - 2);
+            const bH = m2.bottom - 30;
+            const maxH = Math.max(...last.harvests) * 1.2 || 1;
+
+            last.harvests.forEach((h, i) => {
+                const x = m2.left + 10 + i * (barW + 2);
+                const barHeight = (h / maxH) * bH;
+                const y = h2 - 10 - barHeight;
+
+                const overSustainable = h > (last.sustainableYield / last.harvests.length) * 1.1;
+                const color = overSustainable ? COLORS.coral : COLORS.cyan;
+
+                ctx2.fillStyle = color + '60';
+                ctx2.fillRect(x, y, barW, barHeight);
+                ctx2.fillStyle = color;
+                ctx2.fillRect(x, y, barW, 2);
+            });
+        }
+
+        drawText(ctx2, '--- Sustainable Yield', m2.left + 10, m2.top + 12, COLORS.green, 9);
+        drawText(ctx2, '--- Total Harvest', m2.left + 10, m2.top + 26, COLORS.coral, 9);
+    },
+
+    init() {
+        CPR.resource = parseInt(document.getElementById('cpr-cap').value);
+        CPR.createHarvesters();
+
+        document.getElementById('cpr-play').addEventListener('click', () => {
+            if (CPR.running) {
+                CPR.running = false;
+                clearInterval(CPR.timer);
+                document.getElementById('cpr-play').textContent = 'Play';
+                return;
+            }
+            CPR.running = true;
+            document.getElementById('cpr-play').textContent = 'Pause';
+            const speed = parseInt(document.getElementById('cpr-speed').value);
+            CPR.timer = setInterval(() => CPR.step(), 1000 / speed);
+        });
+
+        document.getElementById('cpr-step').addEventListener('click', () => CPR.step());
+
+        document.getElementById('cpr-reset').addEventListener('click', () => {
+            CPR.running = false;
+            clearInterval(CPR.timer);
+            CPR.year = 0;
+            CPR.history = [];
+            CPR.resource = parseInt(document.getElementById('cpr-cap').value);
+            CPR.createHarvesters();
+            document.getElementById('cpr-play').textContent = 'Play';
+            document.getElementById('cpr-year').textContent = '0';
+            document.getElementById('cpr-resource').textContent = CPR.resource.toFixed(0);
+            document.getElementById('cpr-total-harv').textContent = '0';
+            document.getElementById('cpr-sustainable').textContent = '0';
+            document.getElementById('cpr-eta').textContent = '--';
+            document.getElementById('cpr-eta').style.color = '';
+            ['cpr-canvas1','cpr-canvas2'].forEach(id => {
+                const c = document.getElementById(id);
+                clearCanvas(c.getContext('2d'), c.width, c.height);
+            });
+        });
+
+        document.getElementById('cpr-all').addEventListener('change', (e) => {
+            const checked = e.target.checked;
+            ['cpr-monitoring','cpr-sanctions','cpr-boundaries','cpr-collective'].forEach(id => {
+                document.getElementById(id).checked = checked;
+            });
+        });
+
+        const sliders = [
+            ['cpr-cap', 'cpr-cap-val', v=>v],
+            ['cpr-regen', 'cpr-regen-val', v=>(v/100).toFixed(2)],
+            ['cpr-harv', 'cpr-harv-val', v=>v],
+            ['cpr-greed', 'cpr-greed-val', v=>(v/10).toFixed(1)],
+            ['cpr-speed', 'cpr-speed-val', v=>v]
+        ];
+        sliders.forEach(([id, valId, fmt]) => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                document.getElementById(valId).textContent = fmt(e.target.value);
+            });
+        });
+
+        document.getElementById('cpr-speed').addEventListener('input', () => {
+            if (CPR.running) {
+                clearInterval(CPR.timer);
+                const speed = parseInt(document.getElementById('cpr-speed').value);
+                CPR.timer = setInterval(() => CPR.step(), 1000 / speed);
+            }
+        });
+
+        document.getElementById('cpr-cap').addEventListener('change', () => {
+            if (!CPR.running && CPR.year === 0) {
+                CPR.resource = parseInt(document.getElementById('cpr-cap').value);
+                document.getElementById('cpr-resource').textContent = CPR.resource.toFixed(0);
+            }
+        });
+
+        document.getElementById('cpr-harv').addEventListener('change', () => {
+            if (!CPR.running && CPR.year === 0) CPR.createHarvesters();
+        });
+    }
+};
+
+// ============================================================
+// CANVAS RESIZE HANDLER
+// ============================================================
+function resizeCanvases() {
+    document.querySelectorAll('.chart-container canvas').forEach(canvas => {
+        const container = canvas.parentElement;
+        const rect = container.getBoundingClientRect();
+        if (rect.width > 100) {
+            canvas.width = rect.width;
+        }
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+    PD.init();
+    PG.init();
+    CPR.init();
+    setTimeout(resizeCanvases, 100);
+});
+
+window.addEventListener('resize', () => {
+    resizeCanvases();
+    redrawAll();
+});
+</script>
+
+<script>
+function setTheme(t){document.body.className='theme-'+t;localStorage.setItem('mt-theme',t);if(typeof redrawAll==='function')redrawAll();}
+function toggleLang(){var c=document.documentElement.lang||'en',n=c==='en'?'ro':'en';document.documentElement.lang=n;document.getElementById('langBtn').textContent=n==='en'?'RO':'EN';localStorage.setItem('mt-lang',n);applyLanguage(n);}
+function applyLanguage(lang){document.querySelectorAll('[data-ro]').forEach(function(el){if(lang==='ro'){if(!el.dataset.en)el.dataset.en=el.innerHTML;el.innerHTML=el.dataset.ro;}else{if(el.dataset.en)el.innerHTML=el.dataset.en;}});}
+(function(){var t=localStorage.getItem('mt-theme')||'dark',l=localStorage.getItem('mt-lang')||'en';document.body.className='theme-'+t;if(l==='ro'){document.documentElement.lang='ro';document.getElementById('langBtn').textContent='EN';setTimeout(function(){applyLanguage('ro');},100);}})();
+</script>
+</body>
+</html>

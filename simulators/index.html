@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Thinking - Interactive Simulators</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* Dark theme (default) */
+  body.theme-dark {
+    --bg-primary: #0a0e17;
+    --bg-secondary: #12182a;
+    --bg-card: linear-gradient(145deg, #12182a 0%, #0d1220 100%);
+    --bg-panel: #16213e;
+    --bg-input: #1a1a2e;
+    --text-primary: #f0f0f0;
+    --text-secondary: #8899aa;
+    --text-muted: #667788;
+    --border-color: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(0, 210, 255, 0.3);
+    --accent-cyan: #00d2ff;
+    --accent-red: #e94560;
+    --accent-green: #6bcb77;
+    --accent-gold: #ffd93d;
+    --accent-purple: #9b59b6;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --canvas-bg: #0a0e17;
+  }
+
+  /* White theme */
+  body.theme-white {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-card: linear-gradient(145deg, #ffffff 0%, #f0f2f5 100%);
+    --bg-panel: #ffffff;
+    --bg-input: #f0f2f5;
+    --text-primary: #1a1a2e;
+    --text-secondary: #555566;
+    --text-muted: #888899;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-hover: rgba(0, 130, 200, 0.4);
+    --accent-cyan: #0088cc;
+    --accent-red: #d63031;
+    --accent-green: #27ae60;
+    --accent-gold: #f39c12;
+    --accent-purple: #8e44ad;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --canvas-bg: #ffffff;
+  }
+
+  /* Sepia theme */
+  body.theme-sepia {
+    --bg-primary: #f4ecd8;
+    --bg-secondary: #faf6eb;
+    --bg-card: linear-gradient(145deg, #faf6eb 0%, #f0e8d0 100%);
+    --bg-panel: #faf6eb;
+    --bg-input: #efe7d3;
+    --text-primary: #433422;
+    --text-secondary: #6b5b4a;
+    --text-muted: #8b7b6a;
+    --border-color: rgba(100, 70, 30, 0.15);
+    --border-hover: rgba(160, 100, 30, 0.4);
+    --accent-cyan: #b8860b;
+    --accent-red: #a0522d;
+    --accent-green: #6b8e23;
+    --accent-gold: #cd853f;
+    --accent-purple: #8b4513;
+    --shadow: rgba(100, 70, 30, 0.15);
+    --canvas-bg: #faf6eb;
+  }
+
+  /* Ocean theme */
+  body.theme-ocean {
+    --bg-primary: #0b1628;
+    --bg-secondary: #0f2035;
+    --bg-card: linear-gradient(145deg, #0f2035 0%, #0b1628 100%);
+    --bg-panel: #132a42;
+    --bg-input: #163352;
+    --text-primary: #d4e6f1;
+    --text-secondary: #7fb3d3;
+    --text-muted: #5a8faa;
+    --border-color: rgba(100, 180, 255, 0.1);
+    --border-hover: rgba(100, 200, 255, 0.35);
+    --accent-cyan: #5dade2;
+    --accent-red: #e74c3c;
+    --accent-green: #48c9b0;
+    --accent-gold: #f7dc6f;
+    --accent-purple: #a569bd;
+    --shadow: rgba(0, 20, 50, 0.5);
+    --canvas-bg: #0b1628;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(0, 210, 255, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(233, 69, 96, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(107, 203, 119, 0.04) 0%, transparent 50%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 80px 0 60px;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(0, 210, 255, 0.25);
+    color: var(--accent-cyan);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-cyan) 50%, var(--accent-red) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 650px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-top: 32px;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat .number {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+  }
+
+  .hero-stat .label {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+    padding-bottom: 80px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    border-color: var(--border-hover);
+    box-shadow: 0 20px 60px var(--shadow), 0 0 40px rgba(0, 210, 255, 0.08);
+  }
+
+  .card-accent {
+    height: 4px;
+    width: 100%;
+  }
+
+  .card-body {
+    padding: 28px 24px;
+  }
+
+  .card-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .card h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .card .description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .tag {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .sim-count {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .sim-count span {
+    color: var(--accent-cyan);
+    font-weight: 600;
+  }
+
+  .launch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(0, 210, 255, 0.1));
+    border: 1px solid var(--border-hover);
+    transition: all 0.2s;
+  }
+
+  .card:hover .launch-btn {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.35), rgba(0, 210, 255, 0.2));
+    border-color: rgba(0, 210, 255, 0.5);
+  }
+
+  .arrow { transition: transform 0.2s; }
+  .card:hover .arrow { transform: translateX(3px); }
+
+  /* Color themes per card */
+  .theme-cyan .card-accent { background: linear-gradient(90deg, #00d2ff, #0080ff); }
+  .theme-cyan .card-number { background: rgba(0, 210, 255, 0.12); color: #00d2ff; }
+
+  .theme-coral .card-accent { background: linear-gradient(90deg, #e94560, #ff6b6b); }
+  .theme-coral .card-number { background: rgba(233, 69, 96, 0.12); color: #e94560; }
+
+  .theme-green .card-accent { background: linear-gradient(90deg, #6bcb77, #2ecc71); }
+  .theme-green .card-number { background: rgba(107, 203, 119, 0.12); color: #6bcb77; }
+
+  .theme-gold .card-accent { background: linear-gradient(90deg, #ffd93d, #f0a500); }
+  .theme-gold .card-number { background: rgba(255, 217, 61, 0.12); color: #ffd93d; }
+
+  .theme-purple .card-accent { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+  .theme-purple .card-number { background: rgba(155, 89, 182, 0.12); color: #9b59b6; }
+
+  .theme-teal .card-accent { background: linear-gradient(90deg, #1abc9c, #16a085); }
+  .theme-teal .card-number { background: rgba(26, 188, 156, 0.12); color: #1abc9c; }
+
+  .theme-orange .card-accent { background: linear-gradient(90deg, #e67e22, #f39c12); }
+  .theme-orange .card-number { background: rgba(230, 126, 34, 0.12); color: #e67e22; }
+
+  .theme-pink .card-accent { background: linear-gradient(90deg, #e84393, #fd79a8); }
+  .theme-pink .card-number { background: rgba(232, 67, 147, 0.12); color: #e84393; }
+
+  .theme-blue .card-accent { background: linear-gradient(90deg, #3498db, #2980b9); }
+  .theme-blue .card-number { background: rgba(52, 152, 219, 0.12); color: #3498db; }
+
+  .theme-lime .card-accent { background: linear-gradient(90deg, #a8e063, #56ab2f); }
+  .theme-lime .card-number { background: rgba(168, 224, 99, 0.12); color: #a8e063; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 40px 0;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .footer a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+  }
+
+  @media (max-width: 720px) {
+    .hero h1 { font-size: 32px; }
+    .hero-stats { gap: 24px; }
+    .hero-stat .number { font-size: 28px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<div class="container">
+  <section class="hero">
+    <div class="hero-badge" data-ro="Curs Interactiv">Interactive Course</div>
+    <h1 data-ro="Simulatoare de<br>G&acirc;ndire prin Modele">Model Thinking<br>Simulators</h1>
+    <p data-ro="Explorea&#x17A;&#x103; lumea prin modele. 10 capitole interactive despre segregare, teoria jocurilor, puncte de inflexiune, re&#x21B;ele, evolu&#x21B;ie &#x219;i multe altele &mdash; toate rul&acirc;nd live &icirc;n browser.">Explore the world through models. 10 interactive chapters covering segregation, game theory, tipping points, networks, evolution, and more &mdash; all running live in your browser.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="number">10</div>
+        <div class="label" data-ro="Capitole">Chapters</div>
+      </div>
+      <div class="hero-stat">
+        <div class="number">30+</div>
+        <div class="label" data-ro="Simul&#x103;ri">Simulations</div>
+      </div>
+      <div class="hero-stat">
+        <div class="number">0</div>
+        <div class="label" data-ro="Dependen&#x21B;e">Dependencies</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid">
+
+    <a href="01_segregation_peer_effects.html" class="card theme-cyan">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">01</div>
+        <h2 data-ro="Segregare &#x219;i Efecte de Grup">Segregation &amp; Peer Effects</h2>
+        <p class="description" data-ro="Cum preferin&#x21B;ele individuale moderate creeaz&#x103; tipare macro extreme. Explorea&#x17A;&#x103; segregarea Schelling, pragurile Granovetter &#x219;i modelul ova&#x21B;iei.">How mild individual preferences create extreme macro-level patterns. Explore Schelling's segregation, Granovetter's thresholds, and the standing ovation model.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Modelul Schelling">Schelling Model</span>
+          <span class="tag">Granovetter</span>
+          <span class="tag" data-ro="Ova&#x21B;ia">Standing Ovation</span>
+          <span class="tag" data-ro="Emergen&#x21B;&#x103;">Emergence</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>3</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="02_aggregation_decisions.html" class="card theme-coral">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">02</div>
+        <h2 data-ro="Agregare &#x219;i Decizii">Aggregation &amp; Decisions</h2>
+        <p class="description" data-ro="Adunarea lucrurilor dezv&#x103;luie adev&#x103;ruri surprinz&#x103;toare. De la Teorema Limit&#x103; Central&#x103; la automate celulare &#x219;i teorema imposibilit&#x103;&#x21B;ii lui Arrow.">Adding things up reveals surprising truths. From the Central Limit Theorem to cellular automata to Arrow's impossibility theorem on voting.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Teorema Limit&#x103; Central&#x103;">Central Limit Theorem</span>
+          <span class="tag" data-ro="Jocul Vie&#x21B;ii">Game of Life</span>
+          <span class="tag">Wolfram CA</span>
+          <span class="tag">Condorcet</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>4</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="03_thinking_electrons.html" class="card theme-green">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">03</div>
+        <h2 data-ro="Electroni G&acirc;nditori">Thinking Electrons</h2>
+        <p class="description" data-ro="Trei moduri de a modela oamenii: actori ra&#x21B;ionali, agen&#x21B;i comportamentali &#x219;i traderi baza&#x21B;i pe reguli. Joac&#x103; Concursul de Frumuse&#x21B;e &#x219;i explorea&#x17A;&#x103; teoria prospectului.">Three ways to model people: rational actors, behavioral agents, and rule-based traders. Play the Beauty Contest and explore prospect theory.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Actor Ra&#x21B;ional">Rational Actor</span>
+          <span class="tag" data-ro="Econ. Comportamental&#x103;">Behavioral Econ</span>
+          <span class="tag" data-ro="Inteligen&#x21B;&#x103; Zero">Zero Intelligence</span>
+          <span class="tag" data-ro="Concursul de Frumuse&#x21B;e">Beauty Contest</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>3</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="04_tipping_points_growth.html" class="card theme-gold">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">04</div>
+        <h2 data-ro="Puncte de Inflexiune &#x219;i Cre&#x219;tere">Tipping Points &amp; Growth</h2>
+        <p class="description" data-ro="Tranzi&#x21B;ii de faz&#x103;, epidemii &#x219;i adoptarea tehnologiei. Vezi cum sistemele se schimb&#x103; brusc dintr-o stare &icirc;n alta.">Phase transitions, epidemics, and technology adoption. See how systems suddenly flip from one state to another and why diseases go viral.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Percola&#x21B;ie">Percolation</span>
+          <span class="tag" data-ro="Modelul SIR">SIR Model</span>
+          <span class="tag" data-ro="Difuzia Bass">Bass Diffusion</span>
+          <span class="tag">R&#8320;</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>3</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="05_diversity_innovation_markov.html" class="card theme-purple">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">05</div>
+        <h2 data-ro="Diversitate &#x219;i Inova&#x21B;ie">Diversity &amp; Innovation</h2>
+        <p class="description" data-ro="De ce echipele diverse dep&#x103;&#x219;esc exper&#x21B;ii omogeni. Explorea&#x17A;&#x103; peisaje accidentate, teorema Diversitatea &Icirc;nvinge Abilitatea &#x219;i cre&#x219;terea prin recombinare.">Why diverse teams outperform homogeneous experts. Explore rugged landscapes, the Diversity Trumps Ability theorem, and recombinant growth.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Peisaje Accidentate">Rugged Landscapes</span>
+          <span class="tag" data-ro="Optime Locale">Local Optima</span>
+          <span class="tag" data-ro="Recombinare">Recombination</span>
+          <span class="tag">Markov</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>3</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="06_lyapunov_coordination.html" class="card theme-teal">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">06</div>
+        <h2 data-ro="Lyapunov &#x219;i Coordonare">Lyapunov &amp; Coordination</h2>
+        <p class="description" data-ro="Demonstrarea c&#x103; sistemele ating echilibrul cu func&#x21B;ii Lyapunov. Plus jocuri de coordonare &#x219;i modelul Axelrod de formare a culturii.">Proving systems reach equilibrium with Lyapunov functions. Plus coordination games and Axelrod's model of culture formation.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Func&#x21B;ii Lyapunov">Lyapunov Functions</span>
+          <span class="tag" data-ro="Echilibru">Equilibrium</span>
+          <span class="tag" data-ro="Coordonare">Coordination</span>
+          <span class="tag" data-ro="Cultura Axelrod">Axelrod Culture</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>3</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="07_path_dependency_networks.html" class="card theme-orange">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">07</div>
+        <h2 data-ro="Dependen&#x21B;&#x103; de Cale &#x219;i Re&#x21B;ele">Path Dependence &amp; Networks</h2>
+        <p class="description" data-ro="Istoria conteaz&#x103;. Explorea&#x17A;&#x103; Procesul Polya, blocarea tehnologic&#x103; &#x219;i cum re&#x21B;elele aleatoare, lumea-mic&#x103; &#x219;i f&#x103;r&#x103;-scar&#x103; ne modeleaz&#x103; lumea.">History matters. Explore the Polya Process, technology lock-in, and how random, small-world, and scale-free networks shape our world.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Procesul Polya">Polya Process</span>
+          <span class="tag" data-ro="Blocare">Lock-in</span>
+          <span class="tag" data-ro="Lume Mic&#x103;">Small World</span>
+          <span class="tag" data-ro="F&#x103;r&#x103; Scar&#x103;">Scale Free</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>3</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="08_randomness_colonel_blotto.html" class="card theme-pink">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">08</div>
+        <h2 data-ro="Aleatoriu &#x219;i Colonelul Blotto">Randomness &amp; Colonel Blotto</h2>
+        <p class="description" data-ro="Abilitate vs noroc, plimb&#x103;ri aleatoare, pie&#x21B;e eficiente &#x219;i jocul de alocare strategic&#x103; unde nu exist&#x103; o strategie optim&#x103; unic&#x103;.">Skill vs luck, random walks, efficient markets, and the strategic allocation game where there is no single best strategy.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Abilitate vs Noroc">Skill vs Luck</span>
+          <span class="tag" data-ro="Plimbare Aleatoare">Random Walk</span>
+          <span class="tag" data-ro="PME">EMH</span>
+          <span class="tag" data-ro="Colonelul Blotto">Colonel Blotto</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>4</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="09_prisoners_dilemma_collective.html" class="card theme-blue">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">09</div>
+        <h2 data-ro="Dilema Prizonierului &#x219;i Ac&#x21B;iune Colectiv&#x103;">Prisoner's Dilemma &amp; Collective Action</h2>
+        <p class="description" data-ro="C&acirc;nd ra&#x21B;ionalitatea individual&#x103; &icirc;nt&acirc;lne&#x219;te rezultatele sociale. Ruleaz&#x103; turnamentul Axelrod, gestioneaz&#x103; bunuri publice &#x219;i guverneaz&#x103; resursele comune.">When individual rationality meets social outcomes. Run Axelrod's tournament, manage public goods, and govern the commons with Ostrom's principles.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Turnamentul Axelrod">Axelrod Tournament</span>
+          <span class="tag" data-ro="Bunuri Publice">Public Goods</span>
+          <span class="tag">Ostrom</span>
+          <span class="tag" data-ro="Cooperare">Cooperation</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>3</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="10_replicator_dynamics_prediction.html" class="card theme-lime">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-number">10</div>
+        <h2 data-ro="Dinamica Replicatorului &#x219;i Multi-Model">Replicator Dynamics &amp; Many Models</h2>
+        <p class="description" data-ro="Evolu&#x21B;ie, adaptare &#x219;i puterea combin&#x103;rii modelelor. Vezi teorema lui Fisher &icirc;n ac&#x21B;iune &#x219;i de ce predic&#x21B;iile diverse bat cel mai bun expert.">Evolution, adaptation, and the power of combining models. See Fisher's theorem in action and why diverse predictions beat the best expert.</p>
+        <div class="card-tags">
+          <span class="tag" data-ro="Dinamica Replicatorului">Replicator Dynamics</span>
+          <span class="tag" data-ro="Teorema lui Fisher">Fisher's Theorem</span>
+          <span class="tag" data-ro="&Icirc;n&#x21B;elepciunea Mul&#x21B;imii">Wisdom of Crowds</span>
+          <span class="tag" data-ro="Ansambluri">Ensembles</span>
+        </div>
+        <div class="card-footer">
+          <div class="sim-count"><span>3</span> <span data-ro="simul&#x103;ri">simulations</span></div>
+          <div class="launch-btn" data-ro="Lansea&#x17A;&#x103; <span class='arrow'>&rarr;</span>">Launch <span class="arrow">&rarr;</span></div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <footer class="footer">
+    <span data-ro="Bazat pe <a href='#'>Model Thinking</a> de Scott E. Page &mdash; University of Michigan">Based on <a href="#">Model Thinking</a> by Scott E. Page &mdash; University of Michigan</span>
+  </footer>
+</div>
+
+<script>
+function setTheme(theme) {
+  document.body.className = 'theme-' + theme;
+  localStorage.setItem('mt-theme', theme);
+  if (typeof redrawAll === 'function') redrawAll();
+}
+
+function toggleLang() {
+  const current = document.documentElement.lang || 'en';
+  const newLang = current === 'en' ? 'ro' : 'en';
+  document.documentElement.lang = newLang;
+  document.getElementById('langBtn').textContent = newLang === 'en' ? 'RO' : 'EN';
+  localStorage.setItem('mt-lang', newLang);
+  applyLanguage(newLang);
+}
+
+function applyLanguage(lang) {
+  document.querySelectorAll('[data-ro]').forEach(function(el) {
+    if (lang === 'ro') {
+      if (!el.dataset.en) el.dataset.en = el.innerHTML;
+      el.innerHTML = el.dataset.ro;
+    } else {
+      if (el.dataset.en) el.innerHTML = el.dataset.en;
+    }
+  });
+}
+
+// On load, restore saved preferences
+(function() {
+  var savedTheme = localStorage.getItem('mt-theme') || 'dark';
+  var savedLang = localStorage.getItem('mt-lang') || 'en';
+  document.body.className = 'theme-' + savedTheme;
+  if (savedLang === 'ro') {
+    document.documentElement.lang = 'ro';
+    document.getElementById('langBtn').textContent = 'EN';
+    applyLanguage('ro');
+  }
+})();
+</script>
+
+</body>
+</html>

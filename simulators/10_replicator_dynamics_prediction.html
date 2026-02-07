@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Replicator Dynamics, Fisher's Theorem & Many-Model Thinking - Model Thinking Simulators</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================================ */
+/* THEME DEFINITIONS */
+/* ============================================================ */
+body.theme-dark {
+  --bg-primary: #0a0e17; --bg-secondary: #12182a; --bg-panel: #16213e; --bg-input: #1a1a2e;
+  --text-primary: #f0f0f0; --text-secondary: #8899aa; --text-muted: #667788;
+  --border-color: rgba(255,255,255,0.06); --border-hover: rgba(0,210,255,0.3);
+  --accent-cyan: #00d2ff; --accent-red: #e94560; --accent-green: #6bcb77; --accent-gold: #ffd93d; --accent-purple: #9b59b6;
+  --shadow: rgba(0,0,0,0.4); --canvas-bg: #0a0e17;
+  --header-gradient: linear-gradient(135deg, #0d1321 0%, #1a1a2e 50%, #16213e 100%);
+  --sim-bg: #111827; --controls-bg: #0f172a; --stat-bg: #0f172a; --insight-bg: #0f2922;
+  --divider-color: #1e3a5f; --slider-track: #1e293b; --slider-thumb: #00d2ff; --slider-border: #0099b8;
+  --btn-bg: #1e293b; --btn-border: #334155; --btn-hover-bg: #334155;
+  --btn-primary-bg: #0077b6; --btn-primary-hover: #0099b8; --btn-active-bg: #059669; --btn-active-border: #10b981;
+  --table-hover: #1e293b; --payoff-cell-bg: #1e293b;
+  --chart-bg: #0a0e17; --grid-line: #1e293b; --grid-line2: #334155;
+  --theorem-bg: #0f172a; --theorem-border: #334155;
+}
+body.theme-white {
+  --bg-primary: #f5f7fa; --bg-secondary: #ffffff; --bg-panel: #ffffff; --bg-input: #f0f2f5;
+  --text-primary: #1a1a2e; --text-secondary: #555566; --text-muted: #888899;
+  --border-color: rgba(0,0,0,0.1); --border-hover: rgba(0,130,200,0.4);
+  --accent-cyan: #0088cc; --accent-red: #d63031; --accent-green: #27ae60; --accent-gold: #f39c12; --accent-purple: #8e44ad;
+  --shadow: rgba(0,0,0,0.1); --canvas-bg: #ffffff;
+  --header-gradient: linear-gradient(135deg, #e8ecf1 0%, #f5f7fa 50%, #eef1f5 100%);
+  --sim-bg: #f9fafb; --controls-bg: #ffffff; --stat-bg: #ffffff; --insight-bg: #eaf7ee;
+  --divider-color: #c8d6e5; --slider-track: #dde2e8; --slider-thumb: #0088cc; --slider-border: #006699;
+  --btn-bg: #e8ecf1; --btn-border: #c8d6e5; --btn-hover-bg: #dde2e8;
+  --btn-primary-bg: #0077b6; --btn-primary-hover: #005f8a; --btn-active-bg: #27ae60; --btn-active-border: #219a52;
+  --table-hover: #f0f2f5; --payoff-cell-bg: #f0f2f5;
+  --chart-bg: #ffffff; --grid-line: #e0e4e8; --grid-line2: #c8d0d8;
+  --theorem-bg: #f0f2f5; --theorem-border: #c8d6e5;
+}
+body.theme-sepia {
+  --bg-primary: #f4ecd8; --bg-secondary: #faf6eb; --bg-panel: #faf6eb; --bg-input: #efe7d3;
+  --text-primary: #433422; --text-secondary: #6b5b4a; --text-muted: #8b7b6a;
+  --border-color: rgba(100,70,30,0.15); --border-hover: rgba(160,100,30,0.4);
+  --accent-cyan: #b8860b; --accent-red: #a0522d; --accent-green: #6b8e23; --accent-gold: #cd853f; --accent-purple: #8b4513;
+  --shadow: rgba(100,70,30,0.15); --canvas-bg: #faf6eb;
+  --header-gradient: linear-gradient(135deg, #efe4c8 0%, #f4ecd8 50%, #f0e6cc 100%);
+  --sim-bg: #f7f0de; --controls-bg: #faf6eb; --stat-bg: #faf6eb; --insight-bg: #f0edd5;
+  --divider-color: #d4c9a8; --slider-track: #e0d5b8; --slider-thumb: #b8860b; --slider-border: #8b6914;
+  --btn-bg: #efe7d3; --btn-border: #d4c9a8; --btn-hover-bg: #e5dcc0;
+  --btn-primary-bg: #b8860b; --btn-primary-hover: #9a7209; --btn-active-bg: #6b8e23; --btn-active-border: #5a7a1e;
+  --table-hover: #efe7d3; --payoff-cell-bg: #efe7d3;
+  --chart-bg: #faf6eb; --grid-line: #e5dcc0; --grid-line2: #d4c9a8;
+  --theorem-bg: #f7f0de; --theorem-border: #d4c9a8;
+}
+body.theme-ocean {
+  --bg-primary: #0b1628; --bg-secondary: #0f2035; --bg-panel: #132a42; --bg-input: #163352;
+  --text-primary: #d4e6f1; --text-secondary: #7fb3d3; --text-muted: #5a8faa;
+  --border-color: rgba(100,180,255,0.1); --border-hover: rgba(100,200,255,0.35);
+  --accent-cyan: #5dade2; --accent-red: #e74c3c; --accent-green: #48c9b0; --accent-gold: #f7dc6f; --accent-purple: #a569bd;
+  --shadow: rgba(0,20,50,0.5); --canvas-bg: #0b1628;
+  --header-gradient: linear-gradient(135deg, #081422 0%, #0b1628 50%, #0f2035 100%);
+  --sim-bg: #0d1c30; --controls-bg: #0f2035; --stat-bg: #0f2035; --insight-bg: #0d2a2a;
+  --divider-color: #1a3a5c; --slider-track: #163352; --slider-thumb: #5dade2; --slider-border: #2e86c1;
+  --btn-bg: #163352; --btn-border: #1a4570; --btn-hover-bg: #1a4570;
+  --btn-primary-bg: #2e86c1; --btn-primary-hover: #3498db; --btn-active-bg: #48c9b0; --btn-active-border: #1abc9c;
+  --table-hover: #163352; --payoff-cell-bg: #163352;
+  --chart-bg: #0b1628; --grid-line: #132a42; --grid-line2: #1a3a5c;
+  --theorem-bg: #0f2035; --theorem-border: #1a4570;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.page-header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: var(--header-gradient);
+    border-bottom: 2px solid var(--divider-color);
+}
+
+.page-header h1 {
+    font-size: 2.4em;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+    font-weight: 800;
+}
+
+.page-header .subtitle {
+    font-size: 1.1em;
+    color: var(--text-muted);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.sim-section {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.sim-section h2 {
+    font-size: 1.8em;
+    color: var(--accent-cyan);
+    margin-bottom: 6px;
+    border-left: 4px solid var(--accent-cyan);
+    padding-left: 16px;
+    font-weight: 700;
+}
+
+.sim-section .model-desc {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    padding-left: 20px;
+    max-width: 900px;
+    font-size: 0.95em;
+}
+
+.sim-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    background: var(--sim-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.controls-panel {
+    background: var(--controls-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 750px;
+    overflow-y: auto;
+}
+
+.controls-panel h3 {
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.control-group label {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.control-group label span.val {
+    color: var(--accent-cyan);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--slider-track);
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--slider-thumb);
+    cursor: pointer;
+    border: 2px solid var(--slider-border);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--slider-thumb);
+    cursor: pointer;
+    border: 2px solid var(--slider-border);
+}
+
+select {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--btn-border);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 0.85em;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+select:focus { border-color: var(--accent-cyan); }
+
+input[type="number"] {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--btn-border);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 0.82em;
+    width: 60px;
+    outline: none;
+    font-family: 'Courier New', monospace;
+}
+
+input[type="number"]:focus { border-color: var(--accent-cyan); }
+
+.btn-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+button {
+    background: var(--btn-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.82em;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+button:hover {
+    background: var(--btn-hover-bg);
+    border-color: var(--accent-cyan);
+}
+
+button.primary {
+    background: var(--btn-primary-bg);
+    border-color: var(--accent-cyan);
+    color: #fff;
+}
+
+button.primary:hover {
+    background: var(--btn-primary-hover);
+}
+
+button.active {
+    background: var(--btn-active-bg);
+    border-color: var(--btn-active-border);
+    color: #fff;
+}
+
+.viz-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+canvas {
+    border-radius: 6px;
+    width: 100%;
+}
+
+.stats-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.85em;
+}
+
+.stat-item {
+    background: var(--stat-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+}
+
+.stat-item .stat-label {
+    color: var(--text-muted);
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-item .stat-value {
+    color: var(--text-primary);
+    font-size: 1.2em;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.info-panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.info-box {
+    background: var(--controls-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.info-box.mechanism { border-left: 3px solid var(--accent-gold); }
+.info-box.examples { border-left: 3px solid var(--accent-purple); }
+.info-box.insight { border-left: 3px solid var(--accent-green); background: var(--insight-bg); }
+
+.info-box h4 {
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.info-box.mechanism h4 { color: var(--accent-gold); }
+.info-box.examples h4 { color: var(--accent-purple); }
+.info-box.insight h4 { color: var(--accent-green); }
+
+.info-box p, .info-box li {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.info-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-box ul li {
+    margin-bottom: 3px;
+}
+
+.info-box ul li::before {
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+.info-box.examples ul li::before {
+    content: "\2022 ";
+    color: var(--accent-purple);
+}
+
+.info-box.mechanism ul li::before {
+    content: "\2022 ";
+    color: var(--accent-gold);
+}
+
+.section-divider {
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--divider-color), transparent);
+    margin: 50px auto;
+    max-width: 1400px;
+}
+
+.chart-container {
+    position: relative;
+    background: var(--chart-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.dual-viz {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.payoff-grid {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 2px;
+    font-size: 0.75em;
+    margin-top: 4px;
+}
+
+.payoff-grid div {
+    padding: 3px 6px;
+    text-align: center;
+    background: var(--payoff-cell-bg);
+    border-radius: 2px;
+}
+
+.payoff-grid .header {
+    color: var(--text-muted);
+    font-weight: 600;
+    background: transparent;
+}
+
+.model-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.model-row .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.model-row .name {
+    font-size: 0.78em;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.model-row .value {
+    font-size: 0.78em;
+    color: var(--accent-cyan);
+    font-family: 'Courier New', monospace;
+}
+
+.theorem-display {
+    background: var(--theorem-bg);
+    border: 1px solid var(--theorem-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 8px;
+    text-align: center;
+}
+
+.theorem-display .equation {
+    font-size: 1.1em;
+    color: var(--accent-gold);
+    font-weight: 600;
+    margin: 6px 0;
+}
+
+.theorem-display .parts {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.theorem-display .part {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.theorem-display .part-value {
+    font-size: 1.3em;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.theorem-display .part-label {
+    font-size: 0.72em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+@media (max-width: 1000px) {
+    .sim-container { grid-template-columns: 1fr; }
+    .dual-viz { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);backdrop-filter:blur(10px);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;padding:0;min-width:0;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;padding:0;min-width:0;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;padding:0;min-width:0;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;padding:0;min-width:0;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<div class="page-header">
+    <h1 data-ro="Dinamica Replicatorului, Teorema lui Fisher și Gândirea Multi-Model">Replicator Dynamics, Fisher's Theorem & Many-Model Thinking</h1>
+    <p class="subtitle" data-ro="Cum dinamica evolutivă modelează populațiile de strategii, de ce variația conduce adaptarea, și cum combinarea modelelor diverse produce înțelepciune dincolo de orice individ.">How evolutionary dynamics shape strategy populations, why variation drives adaptation, and how combining diverse models produces wisdom exceeding any individual.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 10a: REPLICATOR DYNAMICS -->
+<!-- ============================================================ -->
+<div class="sim-section" id="rd-section">
+    <h2 data-ro="10a. Simulatorul Dinamicii Replicatorului">10a. Replicator Dynamics Simulator</h2>
+    <p class="model-desc" data-ro="Strategiile care performează peste media populației cresc proporțional; cele sub medie se micșorează. Se aplică jocurilor clasice precum Șoim-Porumbel, Piatră-Foarfecă-Hârtie și Coordonare -- fiecare producând dinamici fundamental diferite.">Strategies that perform above the population average grow in proportion; those below average shrink. Apply to classic games like Hawk-Dove, Rock-Paper-Scissors, and Coordination -- each producing fundamentally different dynamics.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Selecția Jocului">Game Selection</h3>
+            <div class="control-group">
+                <label data-ro="Tipul Jocului">Game Type</label>
+                <select id="rd-game">
+                    <option value="hawk-dove" data-ro="Șoim-Porumbel">Hawk-Dove</option>
+                    <option value="rps" data-ro="Piatră-Foarfecă-Hârtie">Rock-Paper-Scissors</option>
+                    <option value="coordination" data-ro="Joc de Coordonare">Coordination Game</option>
+                    <option value="custom" data-ro="Personalizat">Custom Payoff Matrix</option>
+                </select>
+            </div>
+
+            <h3 data-ro="Matricea Câștigurilor">Payoff Matrix</h3>
+            <div id="rd-matrix-display"></div>
+            <div id="rd-custom-matrix" style="display:none;">
+                <div style="font-size:0.75em; color:var(--text-muted); margin-bottom:4px;" data-ro="Editează câștigurile (jucătorul rând):">Edit payoffs (row player):</div>
+                <div class="payoff-grid" id="rd-custom-grid"></div>
+            </div>
+
+            <h3 data-ro="Populație">Population</h3>
+            <div id="rd-pop-sliders"></div>
+
+            <div class="control-group">
+                <label><span data-ro="Rata de Mutație">Mutation Rate</span> <span class="val" id="rd-mut-val">0.01</span></label>
+                <input type="range" id="rd-mutation" min="0" max="50" value="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Viteză">Speed</span> <span class="val" id="rd-speed-val">5</span></label>
+                <input type="range" id="rd-speed" min="1" max="20" value="5">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Pași de Timp">Time Steps</span> <span class="val" id="rd-steps-val">500</span></label>
+                <input type="range" id="rd-steps" min="100" max="2000" value="500" step="50">
+            </div>
+
+            <div class="btn-row" style="margin-top:6px;">
+                <button class="primary" id="rd-play" data-ro="Pornește">Play</button>
+                <button id="rd-step" data-ro="Pas">Step</button>
+                <button id="rd-reset" data-ro="Resetează">Reset</button>
+            </div>
+        </div>
+
+        <div class="viz-area">
+            <div class="stats-bar" id="rd-stats">
+                <div class="stat-item"><span class="stat-label" data-ro="Timp">Time</span><span class="stat-value" id="rd-time">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Dominant">Dominant</span><span class="stat-value" id="rd-dominant">--</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Echilibru">Equilibrium</span><span class="stat-value" id="rd-equil">No</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Fitness Mediu">Avg Fitness</span><span class="stat-value" id="rd-avgfit">--</span></div>
+            </div>
+            <div class="dual-viz">
+                <div class="chart-container">
+                    <canvas id="rd-canvas1" width="520" height="420"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="rd-canvas2" width="520" height="420"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Cum Funcționează">How It Works</h4>
+            <p data-ro="Dinamica replicatorului: dx_i/dt = x_i * (f_i - f_avg), unde x_i este proporția strategiei și f_i este fitness-ul său față de mixul curent al populației.">Replicator dynamics: dx_i/dt = x_i * (f_i - f_avg), where x_i is strategy proportion and f_i is its fitness against the current population mix.</p>
+            <ul>
+                <li data-ro="<strong>Șoim-Porumbel</strong>: Șoimii luptă pentru resurse, Porumbeii împart. Prea mulți Șoimi înseamnă lupte costisitoare -- echilibrul apare la o populație mixtă."><strong>Hawk-Dove</strong>: Hawks fight for resources, Doves share. Too many Hawks means costly fights -- equilibrium emerges at a mixed population.</li>
+                <li data-ro="<strong>Piatră-Foarfecă-Hârtie</strong>: Dominanță ciclică fără echilibru stabil. Populațiile orbitează la nesfârșit (sau spiralează în interior/exterior)."><strong>Rock-Paper-Scissors</strong>: Cyclic dominance with no stable equilibrium. Populations orbit forever (or spiral inward/outward).</li>
+                <li data-ro="<strong>Coordonare</strong>: Două echilibre (toți A sau toți B). Care câștigă depinde de condițiile inițiale -- dependența de cale contează."><strong>Coordination</strong>: Two equilibria (all A or all B). Which one depends on initial conditions -- path dependence matters.</li>
+                <li data-ro="<strong>Esențial</strong>: Structura câștigurilor jocului determină dacă obținem mixare stabilă, ciclare, sau câștigător-ia-tot."><strong>Key</strong>: The payoff structure of the game determines whether we get stable mixing, cycling, or winner-take-all.</li>
+            </ul>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Reală">Real World Examples</h4>
+            <ul>
+                <li data-ro="&#129413; Șoim-Porumbel în contestele teritoriale animale (escaladare vs retragere)">&#129413; Hawk-Dove in animal territorial contests (escalation vs retreat)</li>
+                <li data-ro="&#127970; Firme agresive vs cooperative care concurează pe piețe">&#127970; Aggressive vs cooperative firms competing in markets</li>
+                <li data-ro="&#127891; Evoluția culturală a normelor sociale de-a lungul generațiilor">&#127891; Cultural evolution of social norms over generations</li>
+                <li data-ro="&#128138; Cicluri de rezistență la antibiotice prin populații bacteriene">&#128138; Antibiotic resistance cycling through bacterial populations</li>
+                <li data-ro="&#128084; Cicluri ale modei -- stilurile intră și ies pe măsură ce devin prea comune">&#128084; Fashion cycles -- styles go in and out as they become too common</li>
+                <li data-ro="&#127757; Biologie evolutivă -- selecție dependentă de frecvență">&#127757; Evolutionary biology -- frequency-dependent selection</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Ideea Cheie">Key Insight</h4>
+            <p style="font-size:1.05em; color:var(--accent-green); font-weight:600;" data-ro="&quot;Structura jocului determină totul. Șoim-Porumbel ajunge la un mix stabil, Piatră-Foarfecă-Hârtie ciclează la nesfârșit, iar Coordonarea se blochează -- aceeași dinamică evolutivă, dar trei rezultate complet diferite în funcție de matricea câștigurilor.&quot;">"The structure of the game determines everything. Hawk-Dove reaches a stable mix, Rock-Paper-Scissors cycles forever, and Coordination locks in -- the same evolutionary dynamics, but three completely different outcomes depending on the payoff matrix."</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 10b: FISHER'S FUNDAMENTAL THEOREM -->
+<!-- ============================================================ -->
+<div class="sim-section" id="fisher-section">
+    <h2 data-ro="10b. Teorema Fundamentală a lui Fisher a Selecției Naturale">10b. Fisher's Fundamental Theorem of Natural Selection</h2>
+    <p class="model-desc" data-ro="Rata de creștere a fitness-ului mediu al unei populații este egală cu varianța genetică a fitness-ului. Mai multă variație înseamnă adaptare mai rapidă -- dar aceasta nu este aceeași cu &quot;reduceți variația pentru a îmbunătăți calitatea&quot; din Six Sigma.">The rate of increase in mean fitness of a population equals the genetic variance in fitness. More variation means faster adaptation -- but this is not the same as Six Sigma's "reduce variation to improve quality."</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Comenzi">Controls</h3>
+            <div class="control-group">
+                <label data-ro="Distribuție Inițială">Initial Distribution</label>
+                <select id="fisher-dist">
+                    <option value="normal" data-ro="Normală (Clopot)">Normal (Bell Curve)</option>
+                    <option value="uniform" data-ro="Uniformă (Plată)">Uniform (Flat)</option>
+                    <option value="bimodal" data-ro="Bimodală (Două Vârfuri)">Bimodal (Two Peaks)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Dimensiunea Populației">Population Size</span> <span class="val" id="fisher-pop-val">200</span></label>
+                <input type="range" id="fisher-pop" min="50" max="500" value="200" step="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Rata de Mutație">Mutation Rate</span> <span class="val" id="fisher-mut-val">0.05</span></label>
+                <input type="range" id="fisher-mutation" min="0" max="30" value="5">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Puterea Selecției">Selection Strength</span> <span class="val" id="fisher-sel-val">1.0</span></label>
+                <input type="range" id="fisher-sel" min="1" max="30" value="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Viteza Generației">Generation Speed</span> <span class="val" id="fisher-speed-val">5</span></label>
+                <input type="range" id="fisher-speed" min="1" max="20" value="5">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Generații Maxime">Max Generations</span> <span class="val" id="fisher-maxgen-val">100</span></label>
+                <input type="range" id="fisher-maxgen" min="20" max="300" value="100" step="10">
+            </div>
+            <div class="btn-row" style="margin-top:6px;">
+                <button class="primary" id="fisher-play" data-ro="Pornește">Play</button>
+                <button id="fisher-step" data-ro="Pas">Step</button>
+                <button id="fisher-reset" data-ro="Resetează">Reset</button>
+            </div>
+
+            <div class="theorem-display">
+                <div style="font-size:0.75em; color:var(--text-muted);" data-ro="TEOREMA LUI FISHER">FISHER'S THEOREM</div>
+                <div class="equation" data-ro="d(fitness mediu)/dt = Var(fitness)">d(mean fitness)/dt = Var(fitness)</div>
+                <div class="parts" id="fisher-parts">
+                    <div class="part">
+                        <span class="part-value" id="fisher-rate" style="color:var(--accent-gold);">--</span>
+                        <span class="part-label" data-ro="Rata de Schimbare">Rate of Change</span>
+                    </div>
+                    <div class="part">
+                        <span style="font-size:1.5em; color:var(--text-muted);">=</span>
+                        <span class="part-label">&nbsp;</span>
+                    </div>
+                    <div class="part">
+                        <span class="part-value" id="fisher-var" style="color:var(--accent-cyan);">--</span>
+                        <span class="part-label" data-ro="Varianță">Variance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="viz-area">
+            <div class="stats-bar">
+                <div class="stat-item"><span class="stat-label" data-ro="Generația">Generation</span><span class="stat-value" id="fisher-gen">0</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Fitness Mediu">Mean Fitness</span><span class="stat-value" id="fisher-mean">--</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Varianță">Variance</span><span class="stat-value" id="fisher-variance">--</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Rata de Adaptare">Adaptation Rate</span><span class="stat-value" id="fisher-adapt">--</span></div>
+            </div>
+            <div class="dual-viz">
+                <div class="chart-container">
+                    <canvas id="fisher-canvas1" width="520" height="420"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="fisher-canvas2" width="520" height="420"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Cum Funcționează">How It Works</h4>
+            <p data-ro="Teorema Fundamentală a lui Fisher (1930): rata de creștere a fitness-ului mediu al unei populații la orice moment este egală cu varianța genetică a fitness-ului la acel moment.">Fisher's Fundamental Theorem (1930): the rate of increase in mean fitness of a population at any time equals the genetic variance in fitness at that time.</p>
+            <ul>
+                <li data-ro="<strong>Varianță mare = adaptare rapidă</strong>: O populație diversă se adaptează rapid deoarece selecția are mai mult material cu care să lucreze."><strong>High variance = fast adaptation</strong>: A diverse population adapts quickly because selection has more material to work with.</li>
+                <li data-ro="<strong>Varianță mică = adaptare lentă</strong>: O populație consangvinizată, omogenă se îmbunătățește lent -- chiar dacă fitness-ul mediu curent este ridicat."><strong>Low variance = slow adaptation</strong>: An inbred, homogeneous population improves slowly -- even if current average fitness is high.</li>
+                <li data-ro="<strong>Selecția reduce varianța</strong>: Paradox -- adaptarea consumă însăși variația care o conduce, încetinindu-se în timp."><strong>Selection reduces variance</strong>: Paradox -- adaptation consumes the very variation that drives it, slowing itself down over time.</li>
+                <li data-ro="<strong>vs Six Sigma</strong>: Six Sigma reduce variația în rezultat (erori). Fisher spune că variația în abordări (explorare) accelerează îmbunătățirea. Ambele sunt corecte -- variați strategiile, standardizați execuția."><strong>vs Six Sigma</strong>: Six Sigma reduces variation in output (errors). Fisher says variation in approaches (exploration) speeds improvement. Both are correct -- vary strategies, standardize execution.</li>
+            </ul>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Reală">Real World Examples</h4>
+            <ul>
+                <li data-ro="&#129516; Populații diverse vs consangvinizate -- gheparzii (diversitate genetică scăzută) se adaptează lent la boli noi">&#129516; Diverse vs inbred populations -- cheetahs (low genetic diversity) adapt slowly to new diseases</li>
+                <li data-ro="&#128640; Ecosistemele startup-urilor -- multe companii diverse înseamnă inovație generală mai rapidă">&#128640; Startup ecosystems -- many diverse companies means faster innovation overall</li>
+                <li data-ro="&#128161; Brainstorming -- faza de gândire divergentă generează variație pentru selecție">&#128161; Brainstorming -- the divergent thinking phase generates variation for selection</li>
+                <li data-ro="&#127919; Testarea A/B -- mai multe variante testate înseamnă optimizare mai rapidă">&#127919; A/B testing -- more variants tested means faster optimization</li>
+                <li data-ro="&#129440; Diversitatea sistemului imunitar -- un repertoriu mai larg de anticorpi combate mai bine patogenii noi">&#129440; Immune system diversity -- broader antibody repertoire fights novel pathogens better</li>
+                <li data-ro="&#127981; Economiile orașelor -- un mix industrial divers rezistă mai bine la șocuri (Jane Jacobs)">&#127981; City economies -- diverse industry mix weathers shocks better (Jane Jacobs)</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Ideea Cheie">Key Insight</h4>
+            <p style="font-size:1.05em; color:var(--accent-green); font-weight:600;" data-ro="&quot;Variația este combustibilul adaptării. Teorema lui Fisher spune: mai multă diversitate = îmbunătățire mai rapidă. Six Sigma spune: mai puțină variație = calitate mai mare. Ambele au dreptate -- vrei variație în STRATEGII (explorare) dar consistență în EXECUȚIE (exploatare).&quot;">"Variation is the fuel of adaptation. Fisher's theorem says: more diversity = faster improvement. Six Sigma says: less variation = higher quality. Both are right -- you want variation in STRATEGIES (exploration) but consistency in EXECUTION (exploitation)."</p>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================ -->
+<!-- SECTION 10c: MANY-MODEL THINKING / WISDOM OF CROWDS -->
+<!-- ============================================================ -->
+<div class="sim-section" id="mm-section">
+    <h2 data-ro="10c. Gândirea Multi-Model / Teorema Predicției Diverse">10c. Many-Model Thinking / Diversity Prediction Theorem</h2>
+    <p class="model-desc" data-ro="Teorema Predicției Diverse demonstrează matematic: Eroarea Mulțimii = Eroarea Individuală Medie - Diversitatea Predicțiilor. Mulțimile diverse ÎNTOTDEAUNA depășesc membrul lor mediu. Cheia este diversitatea gândirii, nu doar cantitatea.">The Diversity Prediction Theorem proves mathematically: Crowd Error = Average Individual Error - Prediction Diversity. Diverse crowds ALWAYS outperform their average member. The key is diversity of thought, not just quantity.</p>
+
+    <div class="sim-container">
+        <div class="controls-panel">
+            <h3 data-ro="Comenzi">Controls</h3>
+            <div class="control-group">
+                <label><span data-ro="Valoarea Reală">True Value</span> <span class="val" id="mm-true-val">50.0</span></label>
+                <input type="range" id="mm-true" min="0" max="100" value="50" step="0.5">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Număr de Modele">Number of Models</span> <span class="val" id="mm-n-val">10</span></label>
+                <input type="range" id="mm-n" min="2" max="50" value="10">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Zgomot Individual">Individual Noise</span> <span class="val" id="mm-noise-val">15</span></label>
+                <input type="range" id="mm-noise" min="1" max="40" value="15">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Tendință Individuală">Individual Bias</span> <span class="val" id="mm-bias-val">5</span></label>
+                <input type="range" id="mm-bias" min="0" max="30" value="5">
+            </div>
+            <div class="control-group">
+                <label><span data-ro="Diversitatea Modelelor">Model Diversity</span> <span class="val" id="mm-div-val">High</span></label>
+                <input type="range" id="mm-diversity" min="1" max="10" value="7">
+            </div>
+            <div class="control-group">
+                <label data-ro="Metoda de Agregare">Aggregation Method</label>
+                <select id="mm-aggregate">
+                    <option value="mean" data-ro="Medie (Aritmetică)">Average (Mean)</option>
+                    <option value="median" data-ro="Mediană">Median</option>
+                    <option value="trimmed" data-ro="Medie Trunchiată (elimină extremele)">Trimmed Mean (drop extremes)</option>
+                </select>
+            </div>
+            <div class="btn-row" style="margin-top:6px;">
+                <button class="primary" id="mm-generate" data-ro="Generează Predicții">Generate Predictions</button>
+                <button id="mm-add" data-ro="Adaugă Model">Add Model</button>
+                <button id="mm-reset" data-ro="Resetează">Reset</button>
+            </div>
+
+            <h3 style="margin-top:8px;" data-ro="Modele">Models</h3>
+            <div id="mm-model-list" style="max-height:150px; overflow-y:auto;"></div>
+        </div>
+
+        <div class="viz-area">
+            <div class="stats-bar">
+                <div class="stat-item"><span class="stat-label" data-ro="Eroarea Mulțimii">Crowd Error</span><span class="stat-value" id="mm-crowd-err" style="color:var(--accent-green);">--</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Eroare Indiv. Medie">Avg Indiv Error</span><span class="stat-value" id="mm-avg-err" style="color:var(--accent-red);">--</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Diversitate">Diversity</span><span class="stat-value" id="mm-pred-div" style="color:var(--accent-cyan);">--</span></div>
+                <div class="stat-item"><span class="stat-label" data-ro="Îmbunătățire">Improvement</span><span class="stat-value" id="mm-improvement">--</span></div>
+            </div>
+
+            <div class="theorem-display">
+                <div style="font-size:0.8em; color:var(--text-muted);" data-ro="TEOREMA PREDICȚIEI DIVERSE">DIVERSITY PREDICTION THEOREM</div>
+                <div class="equation" id="mm-equation" data-ro="Eroarea Mulțimii = Eroarea Individuală Medie - Diversitatea Predicțiilor">Crowd Error = Avg Individual Error - Prediction Diversity</div>
+                <div class="parts" id="mm-theorem-parts">
+                    <div class="part">
+                        <span class="part-value" id="mm-t-crowd" style="color:var(--accent-green);">--</span>
+                        <span class="part-label" data-ro="Eroarea Mulțimii">Crowd Error</span>
+                    </div>
+                    <div class="part">
+                        <span style="font-size:1.5em; color:var(--text-muted);">=</span>
+                        <span class="part-label">&nbsp;</span>
+                    </div>
+                    <div class="part">
+                        <span class="part-value" id="mm-t-avg" style="color:var(--accent-red);">--</span>
+                        <span class="part-label" data-ro="Eroare Medie">Avg Error</span>
+                    </div>
+                    <div class="part">
+                        <span style="font-size:1.5em; color:var(--text-muted);">-</span>
+                        <span class="part-label">&nbsp;</span>
+                    </div>
+                    <div class="part">
+                        <span class="part-value" id="mm-t-div" style="color:var(--accent-cyan);">--</span>
+                        <span class="part-label" data-ro="Diversitate">Diversity</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dual-viz">
+                <div class="chart-container">
+                    <canvas id="mm-canvas1" width="520" height="340"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="mm-canvas2" width="520" height="340"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panels">
+        <div class="info-box mechanism">
+            <h4 data-ro="Cum Funcționează">How It Works</h4>
+            <p data-ro="Teorema Predicției Diverse este o identitate algebrică (nu o aproximare statistică -- este întotdeauna exact adevărată):">The Diversity Prediction Theorem is an algebraic identity (not a statistical approximation -- it is always exactly true):</p>
+            <ul>
+                <li data-ro="<strong>Eroarea Mulțimii</strong> = eroarea pătratică a predicției medii a mulțimii față de adevăr"><strong>Crowd Error</strong> = squared error of the crowd's average prediction from truth</li>
+                <li data-ro="<strong>Eroarea Individuală Medie</strong> = media erorilor pătratice ale fiecărui model față de adevăr"><strong>Avg Individual Error</strong> = average of each model's squared error from truth</li>
+                <li data-ro="<strong>Diversitatea Predicțiilor</strong> = distanța pătratică medie a predicțiilor individuale față de media mulțimii"><strong>Prediction Diversity</strong> = average squared distance of individual predictions from the crowd average</li>
+                <li data-ro="Deoarece diversitatea este întotdeauna >= 0, mulțimea se descurcă ÎNTOTDEAUNA cel puțin la fel de bine ca individul mediu.">Since diversity is always >= 0, the crowd ALWAYS does at least as well as the average individual.</li>
+                <li data-ro="<strong>Insight cheie</strong>: Adăugarea unui model care gândește DIFERIT ajută mai mult decât adăugarea unei copii a celui mai bun model."><strong>Key insight</strong>: Adding a model that thinks DIFFERENTLY helps more than adding a copy of the best model.</li>
+            </ul>
+        </div>
+        <div class="info-box examples">
+            <h4 data-ro="Exemple din Lumea Reală">Real World Examples</h4>
+            <ul>
+                <li data-ro="&#127780; Prognoza meteo -- ansamblul de modele atmosferice diferite bate orice model singur">&#127780; Weather forecasting -- ensemble of different atmospheric models beats any single one</li>
+                <li data-ro="&#127916; Premiul Netflix -- echipa câștigătoare a combinat peste 800 de modele diferite">&#127916; Netflix Prize -- winning team combined 800+ different models</li>
+                <li data-ro="&#128200; Piețele de predicții -- agregă opinii diverse în prognoze surprinzător de precise">&#128200; Prediction markets -- aggregate diverse opinions into surprisingly accurate forecasts</li>
+                <li data-ro="&#129657; Diagnostic medical -- paneluri de specialiști cu formări diferite depășesc experții solitari">&#129657; Medical diagnosis -- panels of specialists with different training outperform lone experts</li>
+                <li data-ro="&#128499; Prognoza alegerilor -- 538/Economist agregă multe sondaje cu metodologii diferite">&#128499; Election forecasting -- 538/Economist aggregate many polls with different methodologies</li>
+                <li data-ro="&#128101; Deciziile juriului -- juriile diverse iau decizii mai bune decât cele omogene">&#128101; Jury decisions -- diverse juries make better decisions than homogeneous ones</li>
+            </ul>
+        </div>
+        <div class="info-box insight">
+            <h4 data-ro="Ideea Cheie">Key Insight</h4>
+            <p style="font-size:1.05em; color:var(--accent-green); font-weight:600;" data-ro="&quot;Diversitatea bate abilitatea. Al 10-lea cel mai bun model care gândește diferit contribuie mai mult la acuratețea mulțimii decât o a doua copie a celui mai bun model. Acest lucru este garantat matematic de Teorema Predicției Diverse -- și de aceea echipele diverse, metodele de ansamblu și piețele de predicții depășesc constant experții individuali.&quot;">"Diversity trumps ability. The 10th-best model that thinks differently contributes more to the crowd's accuracy than a second copy of the best model. This is mathematically guaranteed by the Diversity Prediction Theorem -- and it's why diverse teams, ensemble methods, and prediction markets consistently outperform individual experts."</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// THEME & LANGUAGE UTILITY
+// ============================================================
+function getThemeColor(varName) {
+    return getComputedStyle(document.body).getPropertyValue(varName).trim();
+}
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+const COLORS = {
+    cyan: '#00d4ff', coral: '#ff6b6b', yellow: '#ffd93d', green: '#6bcb77',
+    purple: '#9b59b6', orange: '#f39c12', pink: '#e84393', teal: '#00cec9',
+    blue: '#3498db', lime: '#a8e6cf', red: '#e74c3c', gray: '#636e72'
+};
+
+const PALETTE = [COLORS.cyan, COLORS.coral, COLORS.yellow, COLORS.green, COLORS.purple, COLORS.orange, COLORS.pink, COLORS.teal, COLORS.blue, COLORS.lime];
+
+function getThemeColors() {
+    return {
+        cyan: getThemeColor('--accent-cyan'),
+        red: getThemeColor('--accent-red'),
+        green: getThemeColor('--accent-green'),
+        gold: getThemeColor('--accent-gold'),
+        purple: getThemeColor('--accent-purple'),
+        canvasBg: getThemeColor('--canvas-bg'),
+        textPrimary: getThemeColor('--text-primary'),
+        textSecondary: getThemeColor('--text-secondary'),
+        textMuted: getThemeColor('--text-muted'),
+        gridLine: getThemeColor('--grid-line'),
+        gridLine2: getThemeColor('--grid-line2'),
+        borderColor: getThemeColor('--border-color')
+    };
+}
+
+function clearCanvas(ctx, w, h) {
+    var tc = getThemeColors();
+    ctx.fillStyle = tc.canvasBg;
+    ctx.fillRect(0, 0, w, h);
+}
+
+function drawText(ctx, text, x, y, color, size, align) {
+    if (!color) color = getThemeColors().textSecondary;
+    if (!size) size = 11;
+    if (!align) align = 'left';
+    ctx.fillStyle = color;
+    ctx.font = size + 'px Inter, sans-serif';
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x, y);
+}
+
+function drawLine(ctx, x1, y1, x2, y2, color, width) {
+    if (!color) color = getThemeColors().gridLine;
+    if (!width) width = 1;
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+}
+
+function redrawAll() {
+    if (RD.history.length) RD.draw();
+    if (FISHER.history.length) FISHER.draw();
+    if (MM.models.length) MM.draw();
+}
+
+// ============================================================
+// 10a. REPLICATOR DYNAMICS
+// ============================================================
+const RD = {
+    running: false,
+    timer: null,
+    time: 0,
+    strategies: [],
+    proportions: [],
+    history: [],
+    payoffMatrix: [],
+    fitnessHistory: [],
+
+    GAMES: {
+        'hawk-dove': {
+            strategies: ['Hawk', 'Dove'],
+            matrix: [[-1, 2], [0, 1]],
+            colors: [COLORS.coral, COLORS.green],
+            desc: 'V=2, C=2. Hawk vs Hawk: (V-C)/2. Hawk vs Dove: V. Dove vs Hawk: 0. Dove vs Dove: V/2.'
+        },
+        'rps': {
+            strategies: ['Rock', 'Paper', 'Scissors'],
+            matrix: [[0, -1, 1], [1, 0, -1], [-1, 1, 0]],
+            colors: [COLORS.coral, COLORS.cyan, COLORS.yellow],
+            desc: 'Cyclic dominance. Each beats one and loses to another.'
+        },
+        'coordination': {
+            strategies: ['Strategy A', 'Strategy B'],
+            matrix: [[3, 0], [0, 2]],
+            colors: [COLORS.cyan, COLORS.purple],
+            desc: 'Both prefer to coordinate. A-A pays 3 each, B-B pays 2 each. Miscoordination pays 0.'
+        },
+        'custom': {
+            strategies: ['X', 'Y'],
+            matrix: [[2, 0], [3, 1]],
+            colors: [COLORS.cyan, COLORS.coral],
+            desc: 'Custom 2x2 game. Edit the payoff values.'
+        }
+    },
+
+    getGame() {
+        return document.getElementById('rd-game').value;
+    },
+
+    loadGame() {
+        const game = RD.GAMES[RD.getGame()];
+        RD.strategies = game.strategies;
+        RD.payoffMatrix = game.matrix.map(r => [...r]);
+
+        const n = RD.strategies.length;
+        RD.proportions = new Array(n).fill(1 / n);
+
+        RD.updateMatrixDisplay();
+        RD.updatePopSliders();
+        RD.time = 0;
+        RD.history = [];
+        RD.fitnessHistory = [];
+    },
+
+    updateMatrixDisplay() {
+        const game = RD.GAMES[RD.getGame()];
+        const container = document.getElementById('rd-matrix-display');
+        const n = RD.strategies.length;
+
+        let html = '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:4px;">' + game.desc + '</div>';
+        html += '<div class="payoff-grid" style="grid-template-columns: auto ' + 'auto '.repeat(n) + '">';
+        html += '<div class="header"></div>';
+        RD.strategies.forEach((s, i) => {
+            html += '<div class="header" style="color:' + game.colors[i] + '">' + s + '</div>';
+        });
+
+        for (let i = 0; i < n; i++) {
+            html += '<div class="header" style="color:' + game.colors[i] + '">' + RD.strategies[i] + '</div>';
+            for (let j = 0; j < n; j++) {
+                html += '<div>' + RD.payoffMatrix[i][j] + '</div>';
+            }
+        }
+        html += '</div>';
+        container.innerHTML = html;
+
+        if (RD.getGame() === 'custom') {
+            document.getElementById('rd-custom-matrix').style.display = '';
+            const grid = document.getElementById('rd-custom-grid');
+            const cn = RD.strategies.length;
+            grid.style.gridTemplateColumns = 'auto ' + 'auto '.repeat(cn);
+            grid.innerHTML = '';
+
+            grid.innerHTML += '<div class="header"></div>';
+            RD.strategies.forEach(s => grid.innerHTML += '<div class="header">' + s + '</div>');
+
+            for (let i = 0; i < cn; i++) {
+                grid.innerHTML += '<div class="header">' + RD.strategies[i] + '</div>';
+                for (let j = 0; j < cn; j++) {
+                    const inp = document.createElement('input');
+                    inp.type = 'number';
+                    inp.value = RD.payoffMatrix[i][j];
+                    inp.style.width = '50px';
+                    inp.dataset.row = i;
+                    inp.dataset.col = j;
+                    inp.addEventListener('change', (e) => {
+                        RD.payoffMatrix[parseInt(e.target.dataset.row)][parseInt(e.target.dataset.col)] = parseFloat(e.target.value);
+                    });
+                    const div = document.createElement('div');
+                    div.appendChild(inp);
+                    grid.appendChild(div);
+                }
+            }
+        } else {
+            document.getElementById('rd-custom-matrix').style.display = 'none';
+        }
+    },
+
+    updatePopSliders() {
+        const container = document.getElementById('rd-pop-sliders');
+        const game = RD.GAMES[RD.getGame()];
+        const n = RD.strategies.length;
+        container.innerHTML = '';
+
+        RD.strategies.forEach((s, i) => {
+            const div = document.createElement('div');
+            div.className = 'control-group';
+            const pct = (RD.proportions[i] * 100).toFixed(0);
+            div.innerHTML = '<label style="color:' + game.colors[i] + '">' + s + ' <span class="val" id="rd-pop-val-' + i + '">' + pct + '%</span></label>' +
+                '<input type="range" id="rd-pop-' + i + '" min="1" max="98" value="' + pct + '" data-idx="' + i + '">';
+            container.appendChild(div);
+
+            setTimeout(() => {
+                document.getElementById('rd-pop-' + i).addEventListener('input', (e) => {
+                    const idx = parseInt(e.target.dataset.idx);
+                    const val = parseInt(e.target.value) / 100;
+                    RD.proportions[idx] = val;
+                    const others = RD.proportions.filter((_, k) => k !== idx);
+                    const otherSum = others.reduce((a, b) => a + b, 0) || 1;
+                    const remaining = 1 - val;
+                    RD.proportions.forEach((p, k) => {
+                        if (k !== idx) RD.proportions[k] = (RD.proportions[k] / otherSum) * remaining;
+                    });
+                    RD.strategies.forEach((_, k) => {
+                        document.getElementById('rd-pop-val-' + k).textContent = (RD.proportions[k] * 100).toFixed(0) + '%';
+                        if (k !== idx) document.getElementById('rd-pop-' + k).value = (RD.proportions[k] * 100).toFixed(0);
+                    });
+                });
+            }, 10);
+        });
+    },
+
+    computeFitness() {
+        const n = RD.strategies.length;
+        const fitness = new Array(n).fill(0);
+
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                fitness[i] += RD.payoffMatrix[i][j] * RD.proportions[j];
+            }
+        }
+        return fitness;
+    },
+
+    step() {
+        const n = RD.strategies.length;
+        const mutation = parseInt(document.getElementById('rd-mutation').value) / 1000;
+        const dt = 0.02;
+
+        const fitness = RD.computeFitness();
+        const avgFitness = fitness.reduce((s, f, i) => s + f * RD.proportions[i], 0);
+
+        const newProp = new Array(n);
+        for (let i = 0; i < n; i++) {
+            const replicator = RD.proportions[i] * (fitness[i] - avgFitness) * dt;
+            const mutationFlow = mutation * (1/n - RD.proportions[i]) * dt;
+            newProp[i] = Math.max(0.0001, RD.proportions[i] + replicator + mutationFlow);
+        }
+
+        const total = newProp.reduce((a, b) => a + b, 0);
+        for (let i = 0; i < n; i++) newProp[i] /= total;
+
+        RD.proportions = newProp;
+        RD.time++;
+
+        RD.history.push([...RD.proportions]);
+        RD.fitnessHistory.push([...fitness]);
+
+        RD.updateStats(fitness, avgFitness);
+        RD.draw();
+
+        const maxSteps = parseInt(document.getElementById('rd-steps').value);
+        if (RD.time >= maxSteps) {
+            RD.running = false;
+            clearInterval(RD.timer);
+            document.getElementById('rd-play').textContent = 'Play';
+        }
+    },
+
+    updateStats(fitness, avgFitness) {
+        document.getElementById('rd-time').textContent = RD.time;
+        const maxIdx = RD.proportions.indexOf(Math.max(...RD.proportions));
+        const game = RD.GAMES[RD.getGame()];
+        document.getElementById('rd-dominant').textContent = RD.strategies[maxIdx];
+        document.getElementById('rd-dominant').style.color = game.colors[maxIdx];
+        document.getElementById('rd-avgfit').textContent = avgFitness.toFixed(3);
+
+        const diffs = RD.proportions.map((p, i) => Math.abs(p * (fitness[i] - avgFitness)));
+        const maxDiff = Math.max(...diffs);
+        document.getElementById('rd-equil').textContent = maxDiff < 0.001 ? 'Yes' : 'No';
+        document.getElementById('rd-equil').style.color = maxDiff < 0.001 ? COLORS.green : COLORS.coral;
+    },
+
+    draw() {
+        const game = RD.GAMES[RD.getGame()];
+        const n = RD.strategies.length;
+        var tc = getThemeColors();
+
+        const c1 = document.getElementById('rd-canvas1');
+        const ctx1 = c1.getContext('2d');
+        const w1 = c1.width, h1 = c1.height;
+        clearCanvas(ctx1, w1, h1);
+
+        drawText(ctx1, 'Population Proportions Over Time', w1/2, 18, tc.textPrimary, 14, 'center');
+
+        const margin = { top: 40, right: 20, bottom: 50, left: 50 };
+        const plotW = w1 - margin.left - margin.right;
+        const plotH = h1 - margin.top - margin.bottom;
+
+        drawLine(ctx1, margin.left, margin.top, margin.left, h1 - margin.bottom, tc.gridLine2);
+        drawLine(ctx1, margin.left, h1 - margin.bottom, w1 - margin.right, h1 - margin.bottom, tc.gridLine2);
+
+        for (let v = 0; v <= 1; v += 0.25) {
+            const y = margin.top + (1 - v) * plotH;
+            drawLine(ctx1, margin.left, y, w1 - margin.right, y, tc.gridLine);
+            drawText(ctx1, (v * 100).toFixed(0) + '%', margin.left - 5, y, tc.textMuted, 9, 'right');
+        }
+
+        if (RD.history.length > 1) {
+            const maxT = RD.history.length;
+
+            for (let s = 0; s < n; s++) {
+                ctx1.beginPath();
+                ctx1.strokeStyle = game.colors[s];
+                ctx1.lineWidth = 2.5;
+
+                for (let t = 0; t < maxT; t++) {
+                    const x = margin.left + (t / (maxT - 1)) * plotW;
+                    const y = margin.top + (1 - RD.history[t][s]) * plotH;
+                    if (t === 0) ctx1.moveTo(x, y);
+                    else ctx1.lineTo(x, y);
+                }
+                ctx1.stroke();
+            }
+        }
+
+        RD.strategies.forEach((s, i) => {
+            const lx = margin.left + 10 + i * 120;
+            drawText(ctx1, s + ': ' + (RD.proportions[i]*100).toFixed(1)+'%', lx, h1 - 15, game.colors[i], 10);
+        });
+
+        drawText(ctx1, 'Time Step', w1/2, h1 - 2, tc.textMuted, 10, 'center');
+
+        const c2 = document.getElementById('rd-canvas2');
+        const ctx2 = c2.getContext('2d');
+        const w2 = c2.width, h2 = c2.height;
+        clearCanvas(ctx2, w2, h2);
+
+        if (n === 2) {
+            drawText(ctx2, 'Phase Portrait (Fitness Landscape)', w2/2, 18, tc.textPrimary, 14, 'center');
+
+            const m2 = { top: 45, right: 30, bottom: 50, left: 60 };
+            const pW = w2 - m2.left - m2.right;
+            const pH = h2 - m2.top - m2.bottom;
+
+            drawLine(ctx2, m2.left, m2.top, m2.left, h2 - m2.bottom, tc.gridLine2);
+            drawLine(ctx2, m2.left, h2 - m2.bottom, w2 - m2.right, h2 - m2.bottom, tc.gridLine2);
+
+            drawText(ctx2, '% ' + RD.strategies[0], w2/2, h2 - 8, tc.textMuted, 10, 'center');
+
+            for (let px = 0.05; px <= 0.95; px += 0.08) {
+                const props = [px, 1-px];
+                let fit = [0, 0];
+                for (let i = 0; i < 2; i++)
+                    for (let j = 0; j < 2; j++)
+                        fit[i] += RD.payoffMatrix[i][j] * props[j];
+
+                const avgF = fit[0]*props[0] + fit[1]*props[1];
+                const dx = props[0] * (fit[0] - avgF);
+
+                const x = m2.left + px * pW;
+                const y = h2 - m2.bottom - pH * 0.5;
+
+                const arrowLen = Math.min(Math.abs(dx) * pW * 3, 20);
+                const dir = dx > 0 ? 1 : -1;
+
+                ctx2.beginPath();
+                ctx2.strokeStyle = dx > 0 ? game.colors[0] + '80' : game.colors[1] + '80';
+                ctx2.lineWidth = 2;
+                ctx2.moveTo(x, y);
+                ctx2.lineTo(x + arrowLen * dir, y);
+                ctx2.lineTo(x + arrowLen * dir - 5 * dir, y - 4);
+                ctx2.moveTo(x + arrowLen * dir, y);
+                ctx2.lineTo(x + arrowLen * dir - 5 * dir, y + 4);
+                ctx2.stroke();
+            }
+
+            for (let s = 0; s < 2; s++) {
+                ctx2.beginPath();
+                ctx2.strokeStyle = game.colors[s];
+                ctx2.lineWidth = 2;
+                ctx2.setLineDash(s === 1 ? [6, 4] : []);
+
+                for (let px = 0; px <= 1; px += 0.01) {
+                    const props = [px, 1-px];
+                    let fit = 0;
+                    for (let j = 0; j < 2; j++) fit += RD.payoffMatrix[s][j] * props[j];
+
+                    const x = m2.left + px * pW;
+                    const fNorm = (fit - (-2)) / 5;
+                    const y = m2.top + (1 - fNorm) * pH;
+                    if (px === 0) ctx2.moveTo(x, y);
+                    else ctx2.lineTo(x, y);
+                }
+                ctx2.stroke();
+                ctx2.setLineDash([]);
+            }
+
+            const curX = m2.left + RD.proportions[0] * pW;
+            ctx2.beginPath();
+            ctx2.arc(curX, h2 - m2.bottom - pH * 0.5, 6, 0, Math.PI*2);
+            ctx2.fillStyle = '#ffffff';
+            ctx2.fill();
+            ctx2.beginPath();
+            ctx2.arc(curX, h2 - m2.bottom - pH * 0.5, 4, 0, Math.PI*2);
+            ctx2.fillStyle = COLORS.yellow;
+            ctx2.fill();
+
+            drawText(ctx2, 'Fitness of ' + RD.strategies[0], m2.left + 10, m2.top + 10, game.colors[0], 9);
+            drawText(ctx2, 'Fitness of ' + RD.strategies[1], m2.left + 10, m2.top + 24, game.colors[1], 9);
+
+        } else if (n === 3) {
+            drawText(ctx2, 'Ternary Phase Diagram', w2/2, 18, tc.textPrimary, 14, 'center');
+
+            const cx = w2 / 2;
+            const cy = h2 / 2 + 15;
+            const size = Math.min(w2, h2) * 0.35;
+
+            const verts = [
+                { x: cx, y: cy - size },
+                { x: cx - size * 0.866, y: cy + size * 0.5 },
+                { x: cx + size * 0.866, y: cy + size * 0.5 }
+            ];
+
+            ctx2.beginPath();
+            ctx2.moveTo(verts[0].x, verts[0].y);
+            ctx2.lineTo(verts[1].x, verts[1].y);
+            ctx2.lineTo(verts[2].x, verts[2].y);
+            ctx2.closePath();
+            ctx2.strokeStyle = tc.gridLine2;
+            ctx2.lineWidth = 1;
+            ctx2.stroke();
+
+            drawText(ctx2, RD.strategies[0], verts[0].x, verts[0].y - 12, game.colors[0], 11, 'center');
+            drawText(ctx2, RD.strategies[1], verts[1].x - 10, verts[1].y + 15, game.colors[1], 11, 'center');
+            drawText(ctx2, RD.strategies[2], verts[2].x + 10, verts[2].y + 15, game.colors[2], 11, 'center');
+
+            function toTernary(p) {
+                return {
+                    x: verts[0].x * p[0] + verts[1].x * p[1] + verts[2].x * p[2],
+                    y: verts[0].y * p[0] + verts[1].y * p[1] + verts[2].y * p[2]
+                };
+            }
+
+            for (let a = 0.1; a <= 0.8; a += 0.15) {
+                for (let b = 0.1; b <= 0.8 - a; b += 0.15) {
+                    const c = 1 - a - b;
+                    if (c < 0.05) continue;
+                    const props = [a, b, c];
+                    let fit = [0, 0, 0];
+                    for (let i = 0; i < 3; i++)
+                        for (let j = 0; j < 3; j++)
+                            fit[i] += RD.payoffMatrix[i][j] * props[j];
+                    const avgF = fit[0]*props[0] + fit[1]*props[1] + fit[2]*props[2];
+                    const dp = props.map((p, i) => p * (fit[i] - avgF) * 0.5);
+
+                    const pos = toTernary(props);
+                    const newProps = props.map((p, i) => Math.max(0, p + dp[i]));
+                    const newTotal = newProps.reduce((s, v) => s + v, 0);
+                    const normProps = newProps.map(p => p / newTotal);
+                    const newPos = toTernary(normProps);
+
+                    const ddx = newPos.x - pos.x;
+                    const ddy = newPos.y - pos.y;
+                    const len = Math.sqrt(ddx*ddx + ddy*ddy);
+
+                    if (len > 0.5) {
+                        const scale = Math.min(len, 15) / len;
+                        ctx2.beginPath();
+                        ctx2.strokeStyle = tc.textMuted + '50';
+                        ctx2.lineWidth = 1;
+                        ctx2.moveTo(pos.x, pos.y);
+                        ctx2.lineTo(pos.x + ddx * scale, pos.y + ddy * scale);
+                        ctx2.stroke();
+                    }
+                }
+            }
+
+            if (RD.history.length > 1) {
+                ctx2.beginPath();
+                ctx2.strokeStyle = COLORS.yellow + '80';
+                ctx2.lineWidth = 1.5;
+                RD.history.forEach((p, t) => {
+                    const pos = toTernary(p);
+                    if (t === 0) ctx2.moveTo(pos.x, pos.y);
+                    else ctx2.lineTo(pos.x, pos.y);
+                });
+                ctx2.stroke();
+
+                const cur = toTernary(RD.proportions);
+                ctx2.beginPath();
+                ctx2.arc(cur.x, cur.y, 6, 0, Math.PI*2);
+                ctx2.fillStyle = COLORS.yellow;
+                ctx2.fill();
+                ctx2.strokeStyle = '#000';
+                ctx2.lineWidth = 1;
+                ctx2.stroke();
+            }
+        }
+    },
+
+    init() {
+        RD.loadGame();
+
+        document.getElementById('rd-game').addEventListener('change', () => {
+            RD.running = false;
+            clearInterval(RD.timer);
+            document.getElementById('rd-play').textContent = 'Play';
+            RD.loadGame();
+            RD.draw();
+        });
+
+        document.getElementById('rd-play').addEventListener('click', () => {
+            if (RD.running) {
+                RD.running = false;
+                clearInterval(RD.timer);
+                document.getElementById('rd-play').textContent = 'Play';
+                return;
+            }
+            RD.running = true;
+            document.getElementById('rd-play').textContent = 'Pause';
+            const speed = parseInt(document.getElementById('rd-speed').value);
+            RD.timer = setInterval(() => RD.step(), 1000 / (speed * 3));
+        });
+
+        document.getElementById('rd-step').addEventListener('click', () => RD.step());
+
+        document.getElementById('rd-reset').addEventListener('click', () => {
+            RD.running = false;
+            clearInterval(RD.timer);
+            document.getElementById('rd-play').textContent = 'Play';
+            RD.loadGame();
+            document.getElementById('rd-time').textContent = '0';
+            document.getElementById('rd-dominant').textContent = '--';
+            document.getElementById('rd-equil').textContent = 'No';
+            document.getElementById('rd-avgfit').textContent = '--';
+            ['rd-canvas1','rd-canvas2'].forEach(id => {
+                const c = document.getElementById(id);
+                clearCanvas(c.getContext('2d'), c.width, c.height);
+            });
+        });
+
+        document.getElementById('rd-speed').addEventListener('input', (e) => {
+            document.getElementById('rd-speed-val').textContent = e.target.value;
+            if (RD.running) {
+                clearInterval(RD.timer);
+                RD.timer = setInterval(() => RD.step(), 1000 / (parseInt(e.target.value) * 3));
+            }
+        });
+
+        document.getElementById('rd-mutation').addEventListener('input', (e) => {
+            document.getElementById('rd-mut-val').textContent = (parseInt(e.target.value)/1000).toFixed(3);
+        });
+        document.getElementById('rd-steps').addEventListener('input', (e) => {
+            document.getElementById('rd-steps-val').textContent = e.target.value;
+        });
+    }
+};
+
+// ============================================================
+// 10b. FISHER'S FUNDAMENTAL THEOREM
+// ============================================================
+const FISHER = {
+    population: [],
+    generation: 0,
+    history: [],
+    running: false,
+    timer: null,
+
+    createPopulation() {
+        const n = parseInt(document.getElementById('fisher-pop').value);
+        const dist = document.getElementById('fisher-dist').value;
+        FISHER.population = [];
+
+        for (let i = 0; i < n; i++) {
+            let fitness;
+            switch(dist) {
+                case 'normal':
+                    const u1 = Math.random(), u2 = Math.random();
+                    fitness = 50 + 15 * Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+                    break;
+                case 'uniform':
+                    fitness = 20 + Math.random() * 60;
+                    break;
+                case 'bimodal':
+                    if (Math.random() < 0.5) {
+                        const u1b = Math.random(), u2b = Math.random();
+                        fitness = 35 + 8 * Math.sqrt(-2*Math.log(u1b)) * Math.cos(2*Math.PI*u2b);
+                    } else {
+                        const u1b = Math.random(), u2b = Math.random();
+                        fitness = 65 + 8 * Math.sqrt(-2*Math.log(u1b)) * Math.cos(2*Math.PI*u2b);
+                    }
+                    break;
+            }
+            FISHER.population.push(Math.max(1, Math.min(100, fitness)));
+        }
+    },
+
+    getStats() {
+        const n = FISHER.population.length;
+        const mean = FISHER.population.reduce((s, f) => s + f, 0) / n;
+        const variance = FISHER.population.reduce((s, f) => s + (f - mean) ** 2, 0) / n;
+        return { mean, variance, n };
+    },
+
+    step() {
+        const n = parseInt(document.getElementById('fisher-pop').value);
+        const mutRate = parseInt(document.getElementById('fisher-mutation').value) / 100;
+        const selStrength = parseInt(document.getElementById('fisher-sel').value) / 10;
+
+        const stats = FISHER.getStats();
+
+        const minFit = Math.min(...FISHER.population);
+        const adjustedFit = FISHER.population.map(f => Math.pow(f - minFit + 1, selStrength));
+        const totalFit = adjustedFit.reduce((a, b) => a + b, 0);
+
+        const newPop = [];
+        for (let i = 0; i < n; i++) {
+            let r = Math.random() * totalFit;
+            let cum = 0;
+            let selected = 0;
+            for (let j = 0; j < FISHER.population.length; j++) {
+                cum += adjustedFit[j];
+                if (cum >= r) { selected = FISHER.population[j]; break; }
+            }
+
+            if (Math.random() < mutRate) {
+                const u1 = Math.random(), u2 = Math.random();
+                selected += 5 * Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+            }
+
+            newPop.push(Math.max(1, Math.min(100, selected)));
+        }
+
+        FISHER.population = newPop;
+        FISHER.generation++;
+
+        const newStats = FISHER.getStats();
+        const rateOfChange = newStats.mean - stats.mean;
+
+        FISHER.history.push({
+            mean: newStats.mean,
+            variance: newStats.variance,
+            rate: rateOfChange,
+            distribution: [...FISHER.population]
+        });
+
+        FISHER.updateDisplay(newStats, rateOfChange);
+        FISHER.draw();
+
+        const maxGens = parseInt(document.getElementById('fisher-maxgen').value);
+        if (FISHER.generation >= maxGens) {
+            FISHER.running = false;
+            clearInterval(FISHER.timer);
+            document.getElementById('fisher-play').textContent = 'Play';
+        }
+    },
+
+    updateDisplay(stats, rate) {
+        document.getElementById('fisher-gen').textContent = FISHER.generation;
+        document.getElementById('fisher-mean').textContent = stats.mean.toFixed(1);
+        document.getElementById('fisher-variance').textContent = stats.variance.toFixed(1);
+        document.getElementById('fisher-adapt').textContent = rate.toFixed(3);
+
+        document.getElementById('fisher-rate').textContent = rate.toFixed(3);
+        document.getElementById('fisher-var').textContent = stats.variance.toFixed(1);
+    },
+
+    draw() {
+        var tc = getThemeColors();
+
+        const c1 = document.getElementById('fisher-canvas1');
+        const ctx1 = c1.getContext('2d');
+        const w1 = c1.width, h1 = c1.height;
+        clearCanvas(ctx1, w1, h1);
+
+        drawText(ctx1, 'Fitness Distribution (Generation ' + FISHER.generation + ')', w1/2, 18, tc.textPrimary, 13, 'center');
+
+        const margin = { top: 35, right: 20, bottom: 15, left: 50 };
+        const plotH = h1/2 - margin.top - margin.bottom;
+        const plotW = w1 - margin.left - margin.right;
+
+        const numBins = 30;
+        const bins = new Array(numBins).fill(0);
+        const binWidth = 100 / numBins;
+
+        FISHER.population.forEach(f => {
+            const bin = Math.min(numBins - 1, Math.floor(f / binWidth));
+            bins[bin]++;
+        });
+
+        const maxBin = Math.max(...bins);
+        const barW = plotW / numBins;
+
+        bins.forEach((count, i) => {
+            const x = margin.left + i * barW;
+            const barH = (count / maxBin) * plotH;
+            const y = margin.top + plotH - barH;
+
+            const hue = (i / numBins) * 120;
+            ctx1.fillStyle = 'hsla(' + hue + ', 70%, 50%, 0.6)';
+            ctx1.fillRect(x, y, barW - 1, barH);
+        });
+
+        const stats = FISHER.getStats();
+        const meanX = margin.left + (stats.mean / 100) * plotW;
+        drawLine(ctx1, meanX, margin.top, meanX, margin.top + plotH, COLORS.yellow, 2);
+        drawText(ctx1, 'Mean: ' + stats.mean.toFixed(1), meanX + 5, margin.top + 12, COLORS.yellow, 10);
+
+        const chartTop = h1/2 + 15;
+        const chartH = h1 - chartTop - 40;
+        drawText(ctx1, 'Mean Fitness Over Time', w1/2, chartTop - 5, tc.textPrimary, 12, 'center');
+
+        drawLine(ctx1, margin.left, chartTop, margin.left, chartTop + chartH, tc.gridLine2);
+        drawLine(ctx1, margin.left, chartTop + chartH, w1 - margin.right, chartTop + chartH, tc.gridLine2);
+
+        if (FISHER.history.length > 1) {
+            const means = FISHER.history.map(h => h.mean);
+            const maxMean = Math.max(...means) * 1.05;
+            const minMean = Math.min(...means) * 0.95;
+            const range = maxMean - minMean || 1;
+
+            ctx1.beginPath();
+            ctx1.strokeStyle = COLORS.yellow;
+            ctx1.lineWidth = 2;
+            FISHER.history.forEach((h, i) => {
+                const x = margin.left + (i / (FISHER.history.length - 1)) * plotW;
+                const y = chartTop + (1 - (h.mean - minMean) / range) * chartH;
+                if (i === 0) ctx1.moveTo(x, y);
+                else ctx1.lineTo(x, y);
+            });
+            ctx1.stroke();
+
+            for (let v = 0; v <= 4; v++) {
+                const val = minMean + (v / 4) * range;
+                const y = chartTop + (1 - v / 4) * chartH;
+                drawText(ctx1, val.toFixed(0), margin.left - 5, y, tc.textMuted, 8, 'right');
+            }
+        }
+
+        drawText(ctx1, 'Generation', w1/2, h1 - 8, tc.textMuted, 9, 'center');
+
+        const c2 = document.getElementById('fisher-canvas2');
+        const ctx2 = c2.getContext('2d');
+        const w2 = c2.width, h2 = c2.height;
+        clearCanvas(ctx2, w2, h2);
+
+        drawText(ctx2, "Fisher's Theorem: Rate = Variance", w2/2, 18, tc.textPrimary, 13, 'center');
+
+        const m2 = { top: 35, right: 20, bottom: 15, left: 55 };
+        const pH2 = h2/2 - m2.top - m2.bottom;
+        const pW2 = w2 - m2.left - m2.right;
+
+        drawLine(ctx2, m2.left, m2.top, m2.left, m2.top + pH2, tc.gridLine2);
+
+        if (FISHER.history.length > 1) {
+            const variances = FISHER.history.map(h => h.variance);
+            const maxVar = Math.max(...variances) * 1.1 || 1;
+
+            ctx2.beginPath();
+            ctx2.strokeStyle = COLORS.cyan;
+            ctx2.lineWidth = 2;
+            FISHER.history.forEach((h, i) => {
+                const x = m2.left + (i / (FISHER.history.length - 1)) * pW2;
+                const y = m2.top + (1 - h.variance / maxVar) * pH2;
+                if (i === 0) ctx2.moveTo(x, y);
+                else ctx2.lineTo(x, y);
+            });
+            ctx2.stroke();
+            drawText(ctx2, 'Variance in Fitness', m2.left + 10, m2.top + 12, COLORS.cyan, 10);
+
+            const rates = FISHER.history.map(h => h.rate);
+            const maxRate = Math.max(...rates.map(Math.abs)) * 1.1 || 1;
+
+            ctx2.beginPath();
+            ctx2.strokeStyle = COLORS.coral;
+            ctx2.lineWidth = 2;
+            ctx2.setLineDash([5, 3]);
+            FISHER.history.forEach((h, i) => {
+                const x = m2.left + (i / (FISHER.history.length - 1)) * pW2;
+                const scaledRate = h.rate / maxRate;
+                const y = m2.top + (1 - (scaledRate * 0.5 + 0.5)) * pH2;
+                if (i === 0) ctx2.moveTo(x, y);
+                else ctx2.lineTo(x, y);
+            });
+            ctx2.stroke();
+            ctx2.setLineDash([]);
+            drawText(ctx2, 'Rate of Adaptation', m2.left + 10, m2.top + 26, COLORS.coral, 10);
+        }
+
+        const sTop = h2/2 + 20;
+        const sH = h2 - sTop - 40;
+        drawText(ctx2, 'Variance vs Rate (each dot = generation)', w2/2, sTop - 5, tc.textPrimary, 11, 'center');
+
+        drawLine(ctx2, m2.left, sTop, m2.left, sTop + sH, tc.gridLine2);
+        drawLine(ctx2, m2.left, sTop + sH, w2 - m2.right, sTop + sH, tc.gridLine2);
+
+        if (FISHER.history.length > 2) {
+            const vars = FISHER.history.map(h => h.variance);
+            const rates = FISHER.history.map(h => h.rate);
+            const maxV = Math.max(...vars) * 1.1 || 1;
+            const maxR = Math.max(...rates) * 1.2 || 1;
+            const minR = Math.min(0, ...rates);
+            const rangeR = maxR - minR || 1;
+
+            FISHER.history.forEach((h, i) => {
+                const x = m2.left + (h.variance / maxV) * pW2;
+                const y = sTop + (1 - (h.rate - minR) / rangeR) * sH;
+
+                const alpha = 0.3 + (i / FISHER.history.length) * 0.7;
+                ctx2.beginPath();
+                ctx2.arc(x, y, 3, 0, Math.PI*2);
+                ctx2.fillStyle = 'rgba(255, 217, 61, ' + alpha + ')';
+                ctx2.fill();
+            });
+
+            const avgVar = vars.reduce((s,v) => s+v, 0) / vars.length;
+            const avgRate = rates.reduce((s,v) => s+v, 0) / rates.length;
+            let num = 0, den = 0;
+            for (let i = 0; i < vars.length; i++) {
+                num += (vars[i] - avgVar) * (rates[i] - avgRate);
+                den += (vars[i] - avgVar) ** 2;
+            }
+            const slope = den > 0 ? num / den : 0;
+            const intercept = avgRate - slope * avgVar;
+
+            const x1 = m2.left;
+            const x2 = w2 - m2.right;
+            const y1 = sTop + (1 - (intercept - minR) / rangeR) * sH;
+            const y2 = sTop + (1 - (slope * maxV + intercept - minR) / rangeR) * sH;
+
+            drawLine(ctx2, x1, y1, x2, y2, COLORS.green + '60', 2);
+
+            drawText(ctx2, 'Variance', w2/2, h2 - 8, tc.textMuted, 9, 'center');
+            ctx2.save();
+            ctx2.translate(12, sTop + sH/2);
+            ctx2.rotate(-Math.PI/2);
+            drawText(ctx2, 'Rate', 0, 0, tc.textMuted, 9, 'center');
+            ctx2.restore();
+
+            if (slope > 0) {
+                drawText(ctx2, 'Correlation confirms: Higher variance = Faster adaptation', w2/2, h2 - 20, COLORS.green, 9, 'center');
+            }
+        }
+    },
+
+    init() {
+        FISHER.createPopulation();
+
+        document.getElementById('fisher-play').addEventListener('click', () => {
+            if (FISHER.running) {
+                FISHER.running = false;
+                clearInterval(FISHER.timer);
+                document.getElementById('fisher-play').textContent = 'Play';
+                return;
+            }
+            FISHER.running = true;
+            document.getElementById('fisher-play').textContent = 'Pause';
+            const speed = parseInt(document.getElementById('fisher-speed').value);
+            FISHER.timer = setInterval(() => FISHER.step(), 1000 / speed);
+        });
+
+        document.getElementById('fisher-step').addEventListener('click', () => FISHER.step());
+
+        document.getElementById('fisher-reset').addEventListener('click', () => {
+            FISHER.running = false;
+            clearInterval(FISHER.timer);
+            document.getElementById('fisher-play').textContent = 'Play';
+            FISHER.generation = 0;
+            FISHER.history = [];
+            FISHER.createPopulation();
+            document.getElementById('fisher-gen').textContent = '0';
+            document.getElementById('fisher-mean').textContent = '--';
+            document.getElementById('fisher-variance').textContent = '--';
+            document.getElementById('fisher-adapt').textContent = '--';
+            document.getElementById('fisher-rate').textContent = '--';
+            document.getElementById('fisher-var').textContent = '--';
+            ['fisher-canvas1','fisher-canvas2'].forEach(id => {
+                const c = document.getElementById(id);
+                clearCanvas(c.getContext('2d'), c.width, c.height);
+            });
+        });
+
+        const sliders = [
+            ['fisher-pop', 'fisher-pop-val', v=>v],
+            ['fisher-mutation', 'fisher-mut-val', v=>(v/100).toFixed(2)],
+            ['fisher-sel', 'fisher-sel-val', v=>(v/10).toFixed(1)],
+            ['fisher-speed', 'fisher-speed-val', v=>v],
+            ['fisher-maxgen', 'fisher-maxgen-val', v=>v]
+        ];
+        sliders.forEach(([id, valId, fmt]) => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                document.getElementById(valId).textContent = fmt(e.target.value);
+            });
+        });
+
+        document.getElementById('fisher-speed').addEventListener('input', () => {
+            if (FISHER.running) {
+                clearInterval(FISHER.timer);
+                const speed = parseInt(document.getElementById('fisher-speed').value);
+                FISHER.timer = setInterval(() => FISHER.step(), 1000 / speed);
+            }
+        });
+    }
+};
+
+
+// ============================================================
+// 10c. MANY-MODEL THINKING / DIVERSITY PREDICTION THEOREM
+// ============================================================
+const MM = {
+    models: [],
+    modelColors: [],
+
+    generateModels() {
+        const n = parseInt(document.getElementById('mm-n').value);
+        const trueVal = parseFloat(document.getElementById('mm-true').value);
+        const noise = parseInt(document.getElementById('mm-noise').value);
+        const bias = parseInt(document.getElementById('mm-bias').value);
+        const diversity = parseInt(document.getElementById('mm-diversity').value);
+
+        MM.models = [];
+        MM.modelColors = [];
+
+        for (let i = 0; i < n; i++) {
+            const modelBias = (Math.random() - 0.5) * bias * 2 * (diversity / 5);
+            const u1 = Math.random(), u2 = Math.random();
+            const modelNoise = noise * Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+
+            const prediction = trueVal + modelBias + modelNoise * (1 + (10 - diversity) * 0.1);
+
+            MM.models.push({
+                prediction: Math.max(0, Math.min(100, prediction)),
+                bias: modelBias,
+                name: 'Model ' + (i + 1)
+            });
+
+            MM.modelColors.push(PALETTE[i % PALETTE.length]);
+        }
+
+        MM.calculate();
+        MM.draw();
+        MM.updateModelList();
+    },
+
+    addModel() {
+        const trueVal = parseFloat(document.getElementById('mm-true').value);
+        const noise = parseInt(document.getElementById('mm-noise').value);
+        const bias = parseInt(document.getElementById('mm-bias').value);
+        const diversity = parseInt(document.getElementById('mm-diversity').value);
+
+        const modelBias = (Math.random() - 0.5) * bias * 2 * (diversity / 5);
+        const u1 = Math.random(), u2 = Math.random();
+        const modelNoise = noise * Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+        const prediction = trueVal + modelBias + modelNoise;
+
+        MM.models.push({
+            prediction: Math.max(0, Math.min(100, prediction)),
+            bias: modelBias,
+            name: 'Model ' + (MM.models.length + 1)
+        });
+        MM.modelColors.push(PALETTE[MM.models.length % PALETTE.length]);
+
+        document.getElementById('mm-n').value = MM.models.length;
+        document.getElementById('mm-n-val').textContent = MM.models.length;
+
+        MM.calculate();
+        MM.draw();
+        MM.updateModelList();
+    },
+
+    getAggregate() {
+        const method = document.getElementById('mm-aggregate').value;
+        const preds = MM.models.map(m => m.prediction);
+
+        if (method === 'mean') {
+            return preds.reduce((s, p) => s + p, 0) / preds.length;
+        } else if (method === 'median') {
+            const sorted = [...preds].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 === 0 ? (sorted[mid-1] + sorted[mid]) / 2 : sorted[mid];
+        } else {
+            const sorted = [...preds].sort((a, b) => a - b);
+            const trim = Math.max(1, Math.floor(sorted.length * 0.1));
+            const trimmed = sorted.slice(trim, sorted.length - trim);
+            return trimmed.reduce((s, p) => s + p, 0) / trimmed.length;
+        }
+    },
+
+    calculate() {
+        const trueVal = parseFloat(document.getElementById('mm-true').value);
+        const crowdPred = MM.getAggregate();
+
+        const crowdError = (crowdPred - trueVal) ** 2;
+        const avgIndivError = MM.models.reduce((s, m) => s + (m.prediction - trueVal) ** 2, 0) / MM.models.length;
+        const predDiversity = MM.models.reduce((s, m) => s + (m.prediction - crowdPred) ** 2, 0) / MM.models.length;
+
+        document.getElementById('mm-crowd-err').textContent = crowdError.toFixed(1);
+        document.getElementById('mm-avg-err').textContent = avgIndivError.toFixed(1);
+        document.getElementById('mm-pred-div').textContent = predDiversity.toFixed(1);
+        const improvement = avgIndivError > 0 ? ((1 - crowdError / avgIndivError) * 100).toFixed(0) : 0;
+        document.getElementById('mm-improvement').textContent = improvement + '%';
+        document.getElementById('mm-improvement').style.color = parseInt(improvement) > 0 ? COLORS.green : COLORS.coral;
+
+        document.getElementById('mm-t-crowd').textContent = crowdError.toFixed(1);
+        document.getElementById('mm-t-avg').textContent = avgIndivError.toFixed(1);
+        document.getElementById('mm-t-div').textContent = predDiversity.toFixed(1);
+
+        return { crowdError, avgIndivError, predDiversity, crowdPred };
+    },
+
+    updateModelList() {
+        const list = document.getElementById('mm-model-list');
+        const trueVal = parseFloat(document.getElementById('mm-true').value);
+        list.innerHTML = '';
+
+        MM.models.forEach((m, i) => {
+            const error = Math.abs(m.prediction - trueVal);
+            const div = document.createElement('div');
+            div.className = 'model-row';
+            div.innerHTML = '<div class="dot" style="background:' + MM.modelColors[i] + '"></div>' +
+                '<span class="name">' + m.name + '</span>' +
+                '<span class="value">' + m.prediction.toFixed(1) + '</span>' +
+                '<span style="font-size:0.7em;color:' + (error > 15 ? COLORS.coral : COLORS.gray) + '">err:' + error.toFixed(1) + '</span>';
+            list.appendChild(div);
+        });
+    },
+
+    draw() {
+        var tc = getThemeColors();
+        const trueVal = parseFloat(document.getElementById('mm-true').value);
+        const result = MM.calculate();
+
+        const c1 = document.getElementById('mm-canvas1');
+        const ctx1 = c1.getContext('2d');
+        const w1 = c1.width, h1 = c1.height;
+        clearCanvas(ctx1, w1, h1);
+
+        drawText(ctx1, 'Individual vs Crowd Predictions', w1/2, 18, tc.textPrimary, 13, 'center');
+
+        const margin = { left: 40, right: 40, top: 45, bottom: 30 };
+        const plotW = w1 - margin.left - margin.right;
+        const lineY = h1 * 0.35;
+
+        drawLine(ctx1, margin.left, lineY, w1 - margin.right, lineY, tc.gridLine2, 2);
+
+        for (let v = 0; v <= 100; v += 10) {
+            const x = margin.left + (v / 100) * plotW;
+            drawLine(ctx1, x, lineY - 6, x, lineY + 6, tc.gridLine2);
+            drawText(ctx1, v.toString(), x, lineY + 18, tc.textMuted, 9, 'center');
+        }
+
+        const trueX = margin.left + (trueVal / 100) * plotW;
+        drawLine(ctx1, trueX, lineY - 50, trueX, lineY + 30, COLORS.green, 3);
+        drawText(ctx1, 'TRUE', trueX, lineY - 55, COLORS.green, 10, 'center');
+        drawText(ctx1, trueVal.toFixed(1), trueX, lineY - 42, COLORS.green, 9, 'center');
+
+        MM.models.forEach((m, i) => {
+            const x = margin.left + (m.prediction / 100) * plotW;
+            const yOff = ((i % 5) + 1) * 12;
+
+            ctx1.beginPath();
+            ctx1.arc(x, lineY - yOff, 4, 0, Math.PI*2);
+            ctx1.fillStyle = MM.modelColors[i] + '90';
+            ctx1.fill();
+            ctx1.strokeStyle = MM.modelColors[i];
+            ctx1.lineWidth = 1;
+            ctx1.stroke();
+
+            drawLine(ctx1, x, lineY - yOff + 4, x, lineY - 2, MM.modelColors[i] + '30');
+        });
+
+        const crowdX = margin.left + (result.crowdPred / 100) * plotW;
+        ctx1.beginPath();
+        ctx1.moveTo(crowdX, lineY + 30);
+        ctx1.lineTo(crowdX - 8, lineY + 50);
+        ctx1.lineTo(crowdX + 8, lineY + 50);
+        ctx1.closePath();
+        ctx1.fillStyle = COLORS.yellow;
+        ctx1.fill();
+        drawText(ctx1, 'CROWD', crowdX, lineY + 62, COLORS.yellow, 10, 'center');
+        drawText(ctx1, result.crowdPred.toFixed(1), crowdX, lineY + 75, COLORS.yellow, 9, 'center');
+
+        const barTop = h1 * 0.6;
+        const barH = h1 * 0.25;
+
+        drawText(ctx1, 'Diversity Prediction Theorem', w1/2, barTop - 10, tc.textPrimary, 12, 'center');
+
+        const maxVal = Math.max(result.crowdError, result.avgIndivError, result.predDiversity) * 1.2 || 1;
+        const barWidth = (plotW - 60) / 3;
+
+        const bars = [
+            { label: 'Crowd Error', value: result.crowdError, color: COLORS.green },
+            { label: 'Avg Indiv Error', value: result.avgIndivError, color: COLORS.coral },
+            { label: 'Pred Diversity', value: result.predDiversity, color: COLORS.cyan }
+        ];
+
+        bars.forEach((b, i) => {
+            const x = margin.left + 10 + i * (barWidth + 20);
+            const h = (b.value / maxVal) * barH;
+            const y = barTop + barH - h;
+
+            ctx1.fillStyle = b.color + '50';
+            ctx1.fillRect(x, y, barWidth, h);
+            ctx1.fillStyle = b.color;
+            ctx1.fillRect(x, y, barWidth, 3);
+
+            drawText(ctx1, b.value.toFixed(1), x + barWidth/2, y - 10, b.color, 11, 'center');
+            drawText(ctx1, b.label, x + barWidth/2, barTop + barH + 12, b.color, 9, 'center');
+        });
+
+        const eqY = barTop + barH + 28;
+        drawText(ctx1, result.crowdError.toFixed(1) + ' = ' + result.avgIndivError.toFixed(1) + ' - ' + result.predDiversity.toFixed(1), w1/2, eqY, COLORS.yellow, 11, 'center');
+
+        const c2 = document.getElementById('mm-canvas2');
+        const ctx2 = c2.getContext('2d');
+        const w2 = c2.width, h2 = c2.height;
+        clearCanvas(ctx2, w2, h2);
+
+        drawText(ctx2, 'Crowd Error as Models Are Added', w2/2, 18, tc.textPrimary, 13, 'center');
+
+        const m2 = { top: 40, right: 20, bottom: 50, left: 55 };
+        const pW2 = w2 - m2.left - m2.right;
+        const pH2 = h2 - m2.top - m2.bottom;
+
+        drawLine(ctx2, m2.left, m2.top, m2.left, h2 - m2.bottom, tc.gridLine2);
+        drawLine(ctx2, m2.left, h2 - m2.bottom, w2 - m2.right, h2 - m2.bottom, tc.gridLine2);
+
+        if (MM.models.length >= 2) {
+            const errors = [];
+            const avgErrors = [];
+
+            for (let k = 1; k <= MM.models.length; k++) {
+                const subset = MM.models.slice(0, k);
+                const subPred = subset.reduce((s, m) => s + m.prediction, 0) / k;
+                const crowdErr = (subPred - trueVal) ** 2;
+                const avgErr = subset.reduce((s, m) => s + (m.prediction - trueVal) ** 2, 0) / k;
+                errors.push(crowdErr);
+                avgErrors.push(avgErr);
+            }
+
+            const maxErr = Math.max(...errors, ...avgErrors) * 1.1 || 1;
+
+            ctx2.beginPath();
+            ctx2.strokeStyle = COLORS.coral;
+            ctx2.lineWidth = 2;
+            ctx2.setLineDash([5, 3]);
+            avgErrors.forEach((e, i) => {
+                const x = m2.left + ((i + 1) / MM.models.length) * pW2;
+                const y = m2.top + (1 - e / maxErr) * pH2;
+                if (i === 0) ctx2.moveTo(x, y);
+                else ctx2.lineTo(x, y);
+            });
+            ctx2.stroke();
+            ctx2.setLineDash([]);
+
+            ctx2.beginPath();
+            ctx2.strokeStyle = COLORS.green;
+            ctx2.lineWidth = 2.5;
+            errors.forEach((e, i) => {
+                const x = m2.left + ((i + 1) / MM.models.length) * pW2;
+                const y = m2.top + (1 - e / maxErr) * pH2;
+                if (i === 0) ctx2.moveTo(x, y);
+                else ctx2.lineTo(x, y);
+            });
+            ctx2.stroke();
+
+            errors.forEach((e, i) => {
+                const x = m2.left + ((i + 1) / MM.models.length) * pW2;
+                const y = m2.top + (1 - e / maxErr) * pH2;
+                ctx2.beginPath();
+                ctx2.arc(x, y, 4, 0, Math.PI*2);
+                ctx2.fillStyle = COLORS.green;
+                ctx2.fill();
+            });
+
+            for (let k = 1; k <= MM.models.length; k += Math.max(1, Math.floor(MM.models.length / 10))) {
+                const x = m2.left + (k / MM.models.length) * pW2;
+                drawText(ctx2, k.toString(), x, h2 - m2.bottom + 15, tc.textMuted, 9, 'center');
+            }
+
+            drawText(ctx2, '# of Models', w2/2, h2 - 10, tc.textMuted, 10, 'center');
+
+            for (let v = 0; v <= 4; v++) {
+                const val = (v / 4) * maxErr;
+                const y = m2.top + (1 - v / 4) * pH2;
+                drawText(ctx2, val.toFixed(0), m2.left - 5, y, tc.textMuted, 8, 'right');
+            }
+
+            drawText(ctx2, 'Crowd Error', w2 - 100, m2.top + 10, COLORS.green, 10);
+            drawText(ctx2, 'Avg Indiv Error', w2 - 100, m2.top + 25, COLORS.coral, 10);
+
+            if (errors.length > 2 && errors[errors.length-1] < avgErrors[avgErrors.length-1] * 0.8) {
+                drawText(ctx2, 'Crowd beats average individual by ' +
+                    ((1 - errors[errors.length-1] / avgErrors[avgErrors.length-1]) * 100).toFixed(0) + '%!',
+                    w2/2, h2 - m2.bottom - 15, COLORS.green, 11, 'center');
+            }
+        }
+
+        ctx2.save();
+        ctx2.translate(12, h2/2);
+        ctx2.rotate(-Math.PI/2);
+        drawText(ctx2, 'Squared Error', 0, 0, tc.textMuted, 9, 'center');
+        ctx2.restore();
+    },
+
+    init() {
+        MM.generateModels();
+
+        document.getElementById('mm-generate').addEventListener('click', () => MM.generateModels());
+        document.getElementById('mm-add').addEventListener('click', () => MM.addModel());
+        document.getElementById('mm-reset').addEventListener('click', () => {
+            MM.models = [];
+            MM.modelColors = [];
+            document.getElementById('mm-model-list').innerHTML = '';
+            document.getElementById('mm-crowd-err').textContent = '--';
+            document.getElementById('mm-avg-err').textContent = '--';
+            document.getElementById('mm-pred-div').textContent = '--';
+            document.getElementById('mm-improvement').textContent = '--';
+            document.getElementById('mm-t-crowd').textContent = '--';
+            document.getElementById('mm-t-avg').textContent = '--';
+            document.getElementById('mm-t-div').textContent = '--';
+            ['mm-canvas1','mm-canvas2'].forEach(id => {
+                const c = document.getElementById(id);
+                clearCanvas(c.getContext('2d'), c.width, c.height);
+            });
+        });
+
+        document.getElementById('mm-aggregate').addEventListener('change', () => {
+            if (MM.models.length > 0) { MM.calculate(); MM.draw(); }
+        });
+
+        const sliders = [
+            ['mm-true', 'mm-true-val', v=>parseFloat(v).toFixed(1)],
+            ['mm-n', 'mm-n-val', v=>v],
+            ['mm-noise', 'mm-noise-val', v=>v],
+            ['mm-bias', 'mm-bias-val', v=>v],
+            ['mm-diversity', 'mm-div-val', v=>v<=3?'Low':v<=6?'Med':'High']
+        ];
+        sliders.forEach(([id, valId, fmt]) => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                document.getElementById(valId).textContent = fmt(e.target.value);
+            });
+        });
+    }
+};
+
+
+// ============================================================
+// CANVAS RESIZE
+// ============================================================
+function resizeCanvases() {
+    document.querySelectorAll('.chart-container canvas').forEach(canvas => {
+        const container = canvas.parentElement;
+        const rect = container.getBoundingClientRect();
+        if (rect.width > 100) {
+            canvas.width = rect.width;
+        }
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+    RD.init();
+    FISHER.init();
+    MM.init();
+    setTimeout(resizeCanvases, 100);
+});
+
+window.addEventListener('resize', () => {
+    resizeCanvases();
+    redrawAll();
+});
+</script>
+
+<script>
+function setTheme(t){document.body.className='theme-'+t;localStorage.setItem('mt-theme',t);if(typeof redrawAll==='function')redrawAll();}
+function toggleLang(){var c=document.documentElement.lang||'en',n=c==='en'?'ro':'en';document.documentElement.lang=n;document.getElementById('langBtn').textContent=n==='en'?'RO':'EN';localStorage.setItem('mt-lang',n);applyLanguage(n);}
+function applyLanguage(lang){document.querySelectorAll('[data-ro]').forEach(function(el){if(lang==='ro'){if(!el.dataset.en)el.dataset.en=el.innerHTML;el.innerHTML=el.dataset.ro;}else{if(el.dataset.en)el.innerHTML=el.dataset.en;}});}
+(function(){var t=localStorage.getItem('mt-theme')||'dark',l=localStorage.getItem('mt-lang')||'en';document.body.className='theme-'+t;if(l==='ro'){document.documentElement.lang='ro';document.getElementById('langBtn').textContent='EN';setTimeout(function(){applyLanguage('ro');},100);}})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulator 7: Path Dependence & Networks</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body.theme-dark {
+  --bg-primary: #1a1a2e; --bg-secondary: #16213e; --bg-panel: #16213e; --bg-input: #0f3460;
+  --text-primary: #e0e0e0; --text-secondary: #aaa; --text-muted: #888;
+  --border-color: rgba(255,255,255,0.06); --border-hover: rgba(0,210,255,0.3);
+  --accent-cyan: #00d2ff; --accent-red: #e94560; --accent-green: #00ff88; --accent-gold: #ffd700; --accent-purple: #9b59b6;
+  --shadow: rgba(0,0,0,0.4); --canvas-bg: #0d1117;
+  --bg-header-start: #16213e; --bg-header-end: #0f3460;
+  --stat-bg: #0f3460; --grid-line: rgba(255,255,255,0.05); --grid-line-strong: rgba(255,255,255,0.13);
+  --text-chart: #666; --text-chart-light: #aaa; --text-chart-white: #fff; --text-chart-dim: #555;
+  --text-info: #bbb; --edge-line: rgba(255,255,255,0.07);
+  --btn-reset-bg: #333; --btn-reset-hover: #555;
+  --divider-color: #0f3460; --input-border: #233;
+  --bar-bg-dim: rgba(15,52,96,0.4);
+}
+body.theme-white {
+  --bg-primary: #f5f7fa; --bg-secondary: #ffffff; --bg-panel: #ffffff; --bg-input: #f0f2f5;
+  --text-primary: #1a1a2e; --text-secondary: #555566; --text-muted: #888899;
+  --border-color: rgba(0,0,0,0.1); --border-hover: rgba(0,130,200,0.4);
+  --accent-cyan: #0088cc; --accent-red: #d63031; --accent-green: #27ae60; --accent-gold: #f39c12; --accent-purple: #8e44ad;
+  --shadow: rgba(0,0,0,0.1); --canvas-bg: #ffffff;
+  --bg-header-start: #e8ecf1; --bg-header-end: #dce3ed;
+  --stat-bg: #e8ecf1; --grid-line: rgba(0,0,0,0.06); --grid-line-strong: rgba(0,0,0,0.12);
+  --text-chart: #999; --text-chart-light: #555; --text-chart-white: #222; --text-chart-dim: #aaa;
+  --text-info: #555; --edge-line: rgba(0,0,0,0.08);
+  --btn-reset-bg: #ddd; --btn-reset-hover: #ccc;
+  --divider-color: #dce3ed; --input-border: #ccc;
+  --bar-bg-dim: rgba(0,0,0,0.06);
+}
+body.theme-sepia {
+  --bg-primary: #f4ecd8; --bg-secondary: #faf6eb; --bg-panel: #faf6eb; --bg-input: #efe7d3;
+  --text-primary: #433422; --text-secondary: #6b5b4a; --text-muted: #8b7b6a;
+  --border-color: rgba(100,70,30,0.15); --border-hover: rgba(160,100,30,0.4);
+  --accent-cyan: #b8860b; --accent-red: #a0522d; --accent-green: #6b8e23; --accent-gold: #cd853f; --accent-purple: #8b4513;
+  --shadow: rgba(100,70,30,0.15); --canvas-bg: #faf6eb;
+  --bg-header-start: #efe7d3; --bg-header-end: #e6dcc4;
+  --stat-bg: #efe7d3; --grid-line: rgba(100,70,30,0.08); --grid-line-strong: rgba(100,70,30,0.15);
+  --text-chart: #8b7b6a; --text-chart-light: #6b5b4a; --text-chart-white: #433422; --text-chart-dim: #a09080;
+  --text-info: #6b5b4a; --edge-line: rgba(100,70,30,0.1);
+  --btn-reset-bg: #e6dcc4; --btn-reset-hover: #d9ccb0;
+  --divider-color: #e6dcc4; --input-border: #c4b08a;
+  --bar-bg-dim: rgba(100,70,30,0.08);
+}
+body.theme-ocean {
+  --bg-primary: #0b1628; --bg-secondary: #0f2035; --bg-panel: #132a42; --bg-input: #163352;
+  --text-primary: #d4e6f1; --text-secondary: #7fb3d3; --text-muted: #5a8faa;
+  --border-color: rgba(100,180,255,0.1); --border-hover: rgba(100,200,255,0.35);
+  --accent-cyan: #5dade2; --accent-red: #e74c3c; --accent-green: #48c9b0; --accent-gold: #f7dc6f; --accent-purple: #a569bd;
+  --shadow: rgba(0,20,50,0.5); --canvas-bg: #0b1628;
+  --bg-header-start: #132a42; --bg-header-end: #0f2035;
+  --stat-bg: #132a42; --grid-line: rgba(100,180,255,0.06); --grid-line-strong: rgba(100,180,255,0.12);
+  --text-chart: #5a8faa; --text-chart-light: #7fb3d3; --text-chart-white: #d4e6f1; --text-chart-dim: #3a6f8a;
+  --text-info: #7fb3d3; --edge-line: rgba(100,180,255,0.08);
+  --btn-reset-bg: #163352; --btn-reset-hover: #1a4060;
+  --divider-color: #132a42; --input-border: #1a4060;
+  --bar-bg-dim: rgba(100,180,255,0.08);
+}
+
+body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow-x:hidden}
+h1{text-align:center;padding:24px;font-size:1.8rem;background:linear-gradient(135deg,var(--bg-header-start),var(--bg-header-end));border-bottom:2px solid var(--accent-red);letter-spacing:1px;color:var(--text-primary)}
+h1 span{color:var(--accent-red)}
+.sim-section{max-width:1400px;margin:30px auto;padding:0 20px}
+.sim-title{font-size:1.4rem;color:var(--accent-cyan);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.sim-title .badge{background:var(--accent-red);color:#fff;font-size:0.7rem;padding:2px 10px;border-radius:10px;font-weight:700}
+.sim-subtitle{color:var(--text-muted);font-size:0.95rem;margin-bottom:16px;font-style:italic}
+.sim-container{display:grid;grid-template-columns:280px 1fr;gap:16px;background:var(--bg-panel);border-radius:12px;padding:20px;border:1px solid var(--border-color)}
+.controls{display:flex;flex-direction:column;gap:10px}
+.control-group{background:var(--bg-primary);border-radius:8px;padding:12px}
+.control-group label{display:block;font-size:0.78rem;color:var(--text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.control-group input[type=range]{width:100%;accent-color:var(--accent-red)}
+.control-group input[type=number]{width:100%;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--input-border);padding:6px;border-radius:4px;font-size:0.85rem}
+.control-group select{width:100%;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--input-border);padding:6px;border-radius:4px;font-size:0.85rem}
+.control-group .val{float:right;color:var(--accent-cyan);font-weight:700;font-size:0.85rem}
+.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all 0.2s}
+.btn-play{background:var(--accent-cyan);color:var(--bg-primary)}.btn-play:hover{opacity:0.85}
+.btn-step{background:var(--accent-red);color:#fff}.btn-step:hover{opacity:0.85}
+.btn-reset{background:var(--btn-reset-bg);color:var(--text-primary)}.btn-reset:hover{background:var(--btn-reset-hover)}
+.btn-run{background:var(--accent-green);color:var(--bg-primary)}.btn-run:hover{opacity:0.85}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+canvas{border-radius:8px;background:var(--canvas-bg);display:block}
+.viz-area{display:flex;flex-direction:column;gap:12px;min-height:400px}
+.info-panels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+.info-box{background:var(--bg-primary);border-radius:8px;padding:14px;border-left:3px solid var(--accent-red)}
+.info-box.mechanism{border-left-color:var(--accent-cyan)}
+.info-box.examples{border-left-color:var(--accent-gold)}
+.info-box.insight{border-left-color:var(--accent-green)}
+.info-box h3{font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.info-box.mechanism h3{color:var(--accent-cyan)}
+.info-box.examples h3{color:var(--accent-gold)}
+.info-box.insight h3{color:var(--accent-green)}
+.info-box p,.info-box ul{font-size:0.82rem;color:var(--text-info);line-height:1.5}
+.info-box ul{padding-left:16px}
+.info-box li{margin-bottom:3px}
+.stats-bar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.stat{background:var(--stat-bg);padding:6px 14px;border-radius:6px;font-size:0.82rem;color:var(--text-primary)}
+.stat .num{color:var(--accent-cyan);font-weight:700;font-size:1.1rem}
+.divider{height:2px;background:linear-gradient(90deg,transparent,var(--divider-color),transparent);margin:40px 0}
+.viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.viz-grid-3{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+@media(max-width:900px){.sim-container{grid-template-columns:1fr}.info-panels{grid-template-columns:1fr}.viz-grid{grid-template-columns:1fr}.viz-grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="theme-dark">
+
+<div id="toolbar" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;padding:6px 12px;box-shadow:0 4px 20px var(--shadow);backdrop-filter:blur(10px);">
+  <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;border:2px solid #555;background:#0a0e17;cursor:pointer;"></button>
+  <button onclick="setTheme('white')" title="White" style="width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#f5f7fa;cursor:pointer;"></button>
+  <button onclick="setTheme('sepia')" title="Sepia" style="width:28px;height:28px;border-radius:50%;border:2px solid #c4a56a;background:#f4ecd8;cursor:pointer;"></button>
+  <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;border:2px solid #2980b9;background:#0b1628;cursor:pointer;"></button>
+  <div style="width:1px;height:20px;background:var(--border-color);margin:0 4px;"></div>
+  <button onclick="toggleLang()" id="langBtn" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);cursor:pointer;font-size:13px;font-weight:600;">RO</button>
+</div>
+
+<h1 data-ro="Simulator 7: <span>Dependență de Cale și Rețele</span>">Simulator 7: <span>Path Dependence & Networks</span></h1>
+
+<!-- ===================== 7a: Polya Urn Process ===================== -->
+<div class="sim-section" id="sec7a">
+<div class="sim-title"><span data-ro="7a. Procesul Urnei Polya">7a. Polya Urn Process</span> <span class="badge" data-ro="Dependență de Cale">Path Dependence</span></div>
+<div class="sim-subtitle" data-ro="O urnă începe cu 1 bilă roșie și 1 albastră. Extrage o bilă, pune-o înapoi plus încă una de aceeași culoare. Urmărește cum divergența apare din puncte de start identice.">An urn starts with 1 red and 1 blue ball. Draw a ball, return it plus one more of the same color. Watch divergence emerge from identical starting points.</div>
+<div class="sim-container">
+  <div class="controls">
+    <div class="control-group">
+      <label><span data-ro="Număr de Urne">Number of Urns</span> <span class="val" id="v7a_urns">20</span></label>
+      <input type="range" id="s7a_urns" min="1" max="50" value="20">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Număr de Extrageri">Number of Draws</span> <span class="val" id="v7a_draws">200</span></label>
+      <input type="range" id="s7a_draws" min="20" max="1000" value="200" step="10">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Viteză">Speed</span> <span class="val" id="v7a_speed">50</span></label>
+      <input type="range" id="s7a_speed" min="1" max="100" value="50">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-step" onclick="sim7a.step()" data-ro="Pas">Step</button>
+      <button class="btn btn-play" id="btn7a_play" onclick="sim7a.togglePlay()" data-ro="Pornește">Play</button>
+      <button class="btn btn-reset" onclick="sim7a.reset()" data-ro="Resetează">Reset</button>
+    </div>
+  </div>
+  <div class="viz-area">
+    <div class="stats-bar">
+      <div class="stat"><span data-ro="Extragere">Draw</span>: <span class="num" id="st7a_draw">0</span></div>
+      <div class="stat"><span data-ro="Roșu Urnă Selectată">Selected Urn Red</span>: <span class="num" id="st7a_red" style="color:#ff6b6b">1</span></div>
+      <div class="stat"><span data-ro="Albastru Urnă Selectată">Selected Urn Blue</span>: <span class="num" id="st7a_blue" style="color:#4dabf7">1</span></div>
+      <div class="stat"><span data-ro="Proporție Medie">Mean Proportion</span>: <span class="num" id="st7a_mean">0.500</span></div>
+      <div class="stat"><span data-ro="Deviație Std">Std Dev</span>: <span class="num" id="st7a_std">0.000</span></div>
+    </div>
+    <div class="viz-grid-3">
+      <canvas id="c7a_lines" width="700" height="380"></canvas>
+      <canvas id="c7a_hist" width="340" height="380"></canvas>
+    </div>
+    <canvas id="c7a_detail" width="1060" height="120"></canvas>
+  </div>
+</div>
+<div class="info-panels">
+  <div class="info-box mechanism">
+    <h3 data-ro="Cum Funcționează">Mechanism</h3>
+    <p data-ro="În fiecare rundă: extrage o bilă la întâmplare, pune-o înapoi plus încă una de aceeași culoare. Extragerile timpurii aleatorii sunt amplificate prin feedback pozitiv (bogatul se îmbogățește). Proporția finală este determinată în întregime de norocul inițial. Spre deosebire de o monedă corectă (care converge la 50%), procesul Polya se BLOCHEAZĂ într-un raport imprevizibil. Aceasta este esența dependenței de cale: istoria contează, iar procese identice produc rezultate foarte diferite.">Each round: draw a ball at random, return it plus one more of the same color. Early random draws get amplified by positive feedback (rich-get-richer). The final proportion is entirely determined by early luck. Unlike a fair coin (which converges to 50%), the Polya process LOCKS IN to an unpredictable ratio. This is the essence of path dependence: history matters, and identical processes produce very different outcomes.</p>
+  </div>
+  <div class="info-box examples">
+    <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+    <ul>
+      <li data-ro="Războiul formatelor VHS vs Betamax">VHS vs Betamax format war</li>
+      <li data-ro="Persistența tastaturii QWERTY">QWERTY keyboard layout persistence</li>
+      <li data-ro="Dominanța Silicon Valley (firmele timpurii au atras mai multe)">Silicon Valley's dominance (early firms attracted more)</li>
+      <li data-ro="Popularitatea limbajelor de programare">Programming language popularity</li>
+      <li data-ro="Creșterea orașelor și aglomerarea">City growth and agglomeration</li>
+    </ul>
+  </div>
+  <div class="info-box insight">
+    <h3 data-ro="Ideea Cheie">Key Insight</h3>
+    <p data-ro="Distribuția finală pe mai multe urne este <strong>uniformă pe [0, 1]</strong>. Orice proporție finală este la fel de probabilă! Asta înseamnă că nu putem prezice unde va ajunge o singură urnă. Histograma ar trebui să se aplatizeze pe măsură ce rulezi mai multe urne -- fiecare rezultat este la fel de probabil.">The final distribution across many urns is <strong>uniform on [0, 1]</strong>. Any final proportion is equally likely! This means we cannot predict where any single urn will end up. The histogram should flatten as you run more urns -- every outcome is equally probable.</p>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 7b: Increasing Returns & Lock-in ===================== -->
+<div class="sim-section" id="sec7b">
+<div class="sim-title"><span data-ro="7b. Randamente Crescătoare și Blocare Tehnologică">7b. Increasing Returns & Technology Lock-in</span> <span class="badge" data-ro="Efecte de Rețea">Network Effects</span></div>
+<div class="sim-subtitle" data-ro="Două tehnologii concurente se luptă pentru utilizatori. Calitatea intrinsecă + efectele de rețea determină adoptarea. Urmărește cum o tehnologie inferioară poate câștiga.">Two competing technologies vie for users. Intrinsic quality + network effects determine adoption. Watch how inferior tech can win.</div>
+<div class="sim-container">
+  <div class="controls">
+    <div class="control-group">
+      <label><span data-ro="Calitate A">Quality A</span> <span class="val" id="v7b_qa" style="color:#ff6b6b">45</span></label>
+      <input type="range" id="s7b_qa" min="0" max="100" value="45">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Calitate B">Quality B</span> <span class="val" id="v7b_qb" style="color:#4dabf7">55</span></label>
+      <input type="range" id="s7b_qb" min="0" max="100" value="55">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Puterea Efectului de Rețea">Network Effect Strength</span> <span class="val" id="v7b_net">50</span></label>
+      <input type="range" id="s7b_net" min="0" max="100" value="50">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Zgomot Aleatoriu">Random Noise</span> <span class="val" id="v7b_noise">30</span></label>
+      <input type="range" id="s7b_noise" min="0" max="100" value="30">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Utilizatori">Users</span> <span class="val" id="v7b_users">200</span></label>
+      <input type="range" id="s7b_users" min="20" max="500" value="200" step="10">
+    </div>
+    <div class="control-group">
+      <label><span data-ro="Număr Rulări Multiple">Multi-Run Count</span> <span class="val" id="v7b_runs">20</span></label>
+      <input type="range" id="s7b_runs" min="2" max="50" value="20">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-step" onclick="sim7b.step()" data-ro="Pas">Step</button>
+      <button class="btn btn-play" id="btn7b_play" onclick="sim7b.togglePlay()" data-ro="Pornește">Play</button>
+      <button class="btn btn-run" onclick="sim7b.runAll()" data-ro="Rulează Tot">Run All</button>
+      <button class="btn btn-reset" onclick="sim7b.reset()" data-ro="Resetează">Reset</button>
+    </div>
+  </div>
+  <div class="viz-area">
+    <div class="stats-bar">
+      <div class="stat"><span data-ro="Utilizator">User</span>: <span class="num" id="st7b_user">0</span></div>
+      <div class="stat"><span data-ro="Adoptanți A">A Adopters</span>: <span class="num" id="st7b_a" style="color:#ff6b6b">0</span></div>
+      <div class="stat"><span data-ro="Adoptanți B">B Adopters</span>: <span class="num" id="st7b_b" style="color:#4dabf7">0</span></div>
+      <div class="stat"><span data-ro="Blocare">Lock-In</span>: <span class="num" id="st7b_lock" style="color:#ffd700">No</span></div>
+      <div class="stat"><span data-ro="Punct de Cotitură">Tipping</span>: <span class="num" id="st7b_tip">--</span></div>
+    </div>
+    <div class="viz-grid">
+      <canvas id="c7b_share" width="520" height="360"></canvas>
+      <canvas id="c7b_multi" width="520" height="360"></canvas>
+    </div>
+  </div>
+</div>
+<div class="info-panels">
+  <div class="info-box mechanism">
+    <h3 data-ro="Cum Funcționează">Mechanism</h3>
+    <p data-ro="Fiecare utilizator nou evaluează: Valoare = Calitate + Efect de Rețea * (fracțiunea de adoptanți). Cu randamente crescătoare, adoptanții timpurii îi influențează pe cei ulteriori. O tehnologie ușor inferioară poate domina dacă obține un avantaj timpuriu, deoarece efectele de rețea o fac mai valoroasă. Odată blocată, costurile de schimbare împiedică schimbarea chiar și când există o alternativă mai bună.">Each new user evaluates: Value = Quality + NetworkEffect * (fraction of adopters). With increasing returns, early adopters influence later ones. A slightly inferior technology can dominate if it gets an early lead, because network effects make it more valuable. Once locked in, switching costs prevent change even when a better alternative exists.</p>
+  </div>
+  <div class="info-box examples">
+    <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+    <ul>
+      <li data-ro="Dinamica ecosistemului iOS vs Android">iOS vs Android ecosystem dynamics</li>
+      <li data-ro="Dominanța rețelei sociale Facebook">Facebook's social network dominance</li>
+      <li data-ro="Blocarea în Microsoft Office / Windows">Microsoft Office / Windows lock-in</li>
+      <li data-ro="Engleza ca lingua franca globală">English as global lingua franca</li>
+      <li data-ro="Rețelele de carduri de credit (Visa/Mastercard)">Credit card networks (Visa/Mastercard)</li>
+    </ul>
+  </div>
+  <div class="info-box insight">
+    <h3 data-ro="Ideea Cheie">Key Insight</h3>
+    <p data-ro="Încearcă să setezi calitatea lui A mai mică decât a lui B și rulează multe simulări. Chiar și tehnologia inferioară câștigă uneori! Crește efectele de rețea pentru a vedea cum amplifică aleatoriul timpuriu. &quot;Punctul de cotitură&quot; este momentul când efectele de rețea depășesc diferențele de calitate și blocarea devine inevitabilă.">Try setting A's quality lower than B's but running many simulations. Even the inferior technology wins sometimes! Increase network effects to see how they amplify early randomness. The "tipping point" is when network effects overwhelm quality differences and lock-in becomes inevitable.</p>
+  </div>
+</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== 7c: Network Models ===================== -->
+<div class="sim-section" id="sec7c">
+<div class="sim-title"><span data-ro="7c. Modele de Rețele">7c. Network Models</span> <span class="badge" data-ro="Aleatoriu / Lume Mică / Fără Scară">Random / Small-World / Scale-Free</span></div>
+<div class="sim-subtitle" data-ro="Generează și explorează trei tipuri fundamentale de rețele. Fă clic pe două noduri pentru a găsi cea mai scurtă cale între ele.">Generate and explore three fundamental network types. Click two nodes to find the shortest path between them.</div>
+<div class="sim-container">
+  <div class="controls">
+    <div class="control-group">
+      <label><span data-ro="Număr de Noduri">Number of Nodes</span> <span class="val" id="v7c_nodes">60</span></label>
+      <input type="range" id="s7c_nodes" min="10" max="150" value="60">
+    </div>
+    <div class="control-group">
+      <label data-ro="Tip de Rețea">Network Type</label>
+      <select id="s7c_type" onchange="sim7c.updateControls()">
+        <option value="random" data-ro="Erdos-Renyi Aleatoriu">Erdos-Renyi Random</option>
+        <option value="smallworld" data-ro="Watts-Strogatz Lume Mică">Watts-Strogatz Small-World</option>
+        <option value="scalefree" data-ro="Barabasi-Albert Fără Scară">Barabasi-Albert Scale-Free</option>
+      </select>
+    </div>
+    <div class="control-group" id="grp7c_p">
+      <label><span data-ro="Probabilitate Muchie">Edge Probability</span> <span class="val" id="v7c_p">0.08</span></label>
+      <input type="range" id="s7c_p" min="1" max="40" value="8">
+    </div>
+    <div class="control-group" id="grp7c_k" style="display:none">
+      <label><span data-ro="Vecini K">Neighbors K</span> <span class="val" id="v7c_k">4</span></label>
+      <input type="range" id="s7c_k" min="2" max="20" value="4" step="2">
+    </div>
+    <div class="control-group" id="grp7c_beta" style="display:none">
+      <label><span data-ro="Probabilitate Recablare">Rewire Probability</span> <span class="val" id="v7c_beta">0.10</span></label>
+      <input type="range" id="s7c_beta" min="0" max="100" value="10">
+    </div>
+    <div class="control-group" id="grp7c_m" style="display:none">
+      <label><span data-ro="Atașamente m">Attachments m</span> <span class="val" id="v7c_m">2</span></label>
+      <input type="range" id="s7c_m" min="1" max="10" value="2">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-run" onclick="sim7c.generate()" data-ro="Generează">Generate</button>
+      <button class="btn btn-step" onclick="sim7c.findPath()" data-ro="Găsește Cale">Find Path</button>
+      <button class="btn btn-reset" onclick="sim7c.clearSelection()" data-ro="Curăță">Clear</button>
+    </div>
+  </div>
+  <div class="viz-area">
+    <div class="stats-bar">
+      <div class="stat"><span data-ro="Noduri">Nodes</span>: <span class="num" id="st7c_nodes">0</span></div>
+      <div class="stat"><span data-ro="Muchii">Edges</span>: <span class="num" id="st7c_edges">0</span></div>
+      <div class="stat"><span data-ro="Grad Mediu">Avg Degree</span>: <span class="num" id="st7c_deg">0</span></div>
+      <div class="stat"><span data-ro="Grupare">Clustering</span>: <span class="num" id="st7c_cc">0</span></div>
+      <div class="stat"><span data-ro="Cale Medie">Avg Path</span>: <span class="num" id="st7c_apl">0</span></div>
+      <div class="stat"><span data-ro="Cale">Path</span>: <span class="num" id="st7c_path" style="font-size:0.85rem" data-ro="Fă clic pe două noduri">Click two nodes</span></div>
+    </div>
+    <div class="viz-grid-3">
+      <canvas id="c7c_graph" width="700" height="500"></canvas>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <canvas id="c7c_degree" width="340" height="240"></canvas>
+        <canvas id="c7c_props" width="340" height="240"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="info-panels">
+  <div class="info-box mechanism">
+    <h3 data-ro="Cum Funcționează">Mechanism</h3>
+    <p data-ro="<strong>Aleatoriu (Erdos-Renyi):</strong> Fiecare pereche conectată cu probabilitatea p. Căi scurte dar grupare scăzută. <strong>Lume Mică (Watts-Strogatz):</strong> Începe ca rețea inelară, recablează aleatoriu muchii. Atât căi scurte CÂT ȘI grupare ridicată -- &quot;prietenii tăi se cunosc între ei.&quot; <strong>Fără Scară (Barabasi-Albert):</strong> Noduri adăugate pe rând, conectându-se preferențial la noduri cu grad mare. Creează distribuție de grad tip lege de putere cu hub-uri."><strong>Random (Erdos-Renyi):</strong> Each pair connected with probability p. Short paths but low clustering. <strong>Small-World (Watts-Strogatz):</strong> Start as ring lattice, randomly rewire edges. Both short paths AND high clustering -- "your friends know each other." <strong>Scale-Free (Barabasi-Albert):</strong> Nodes added one at a time, connecting preferentially to high-degree nodes. Creates power-law degree distribution with hubs.</p>
+  </div>
+  <div class="info-box examples">
+    <h3 data-ro="Exemple din Lumea Reală">Real-World Examples</h3>
+    <ul>
+      <li data-ro="Rețele sociale (Facebook, LinkedIn)">Social networks (Facebook, LinkedIn)</li>
+      <li data-ro="Rețele de rute aeriene hub-and-spoke">Airline hub-and-spoke route networks</li>
+      <li data-ro="Topologia fizică a internetului">The internet's physical topology</li>
+      <li data-ro="Rețele neuronale ale creierului">Brain neural networks</li>
+      <li data-ro="Rețele trofice în ecologie">Food webs in ecology</li>
+      <li data-ro="Rețele de citări academice">Academic citation networks</li>
+    </ul>
+  </div>
+  <div class="info-box insight">
+    <h3 data-ro="Ideea Cheie">Key Insight</h3>
+    <p data-ro="Rețelele fără scară sunt <strong>robuste la defecțiuni aleatorii</strong> (eliminarea nodurilor aleatorii abia afectează conectivitatea) dar <strong>vulnerabile la atacuri țintite</strong> (eliminarea hub-urilor sparge rețeaua). Șase grade de separare apare în rețelele de lume mică: cele mai multe perechi pot fi conectate în surprinzător de puțini pași.">Scale-free networks are <strong>robust to random failure</strong> (removing random nodes barely affects connectivity) but <strong>vulnerable to targeted attack</strong> (removing hubs shatters the network). Six degrees of separation emerges in small-world networks: most pairs can be connected in surprisingly few hops.</p>
+  </div>
+</div>
+</div>
+
+<script>
+// ==========================================
+// THEME & LANGUAGE UTILITIES
+// ==========================================
+function getThemeColors() {
+  var s = getComputedStyle(document.body);
+  return {
+    gridLine: s.getPropertyValue('--grid-line').trim(),
+    gridLineStrong: s.getPropertyValue('--grid-line-strong').trim(),
+    textChart: s.getPropertyValue('--text-chart').trim(),
+    textChartLight: s.getPropertyValue('--text-chart-light').trim(),
+    textChartWhite: s.getPropertyValue('--text-chart-white').trim(),
+    textChartDim: s.getPropertyValue('--text-chart-dim').trim(),
+    accentCyan: s.getPropertyValue('--accent-cyan').trim(),
+    accentRed: s.getPropertyValue('--accent-red').trim(),
+    accentGreen: s.getPropertyValue('--accent-green').trim(),
+    accentGold: s.getPropertyValue('--accent-gold').trim(),
+    canvasBg: s.getPropertyValue('--canvas-bg').trim(),
+    edgeLine: s.getPropertyValue('--edge-line').trim(),
+    barBgDim: s.getPropertyValue('--bar-bg-dim').trim(),
+    textInfo: s.getPropertyValue('--text-info').trim()
+  };
+}
+
+function redrawAll() {
+  try { sim7a.reset(); } catch(e){}
+  try { sim7b.reset(); } catch(e){}
+  try { sim7c.generate(); } catch(e){}
+}
+
+// ==========================================
+// UTILITIES
+// ==========================================
+function bindSlider(id, valId, fmt) {
+  const el = document.getElementById(id);
+  const vel = document.getElementById(valId);
+  el.addEventListener('input', () => { vel.textContent = fmt ? fmt(el.value) : el.value; });
+}
+
+// ==========================================
+// 7a. POLYA URN PROCESS
+// ==========================================
+const sim7a = (() => {
+  let urns = [], histories = [], numUrns = 20, numDraws = 200, currentDraw = 0;
+  let playing = false, timer = null, selectedUrn = 0;
+
+  bindSlider('s7a_urns', 'v7a_urns');
+  bindSlider('s7a_draws', 'v7a_draws');
+  bindSlider('s7a_speed', 'v7a_speed');
+
+  function reset() {
+    playing = false; clearInterval(timer);
+    var lang = document.documentElement.lang || 'en';
+    document.getElementById('btn7a_play').textContent = lang === 'ro' ? 'Pornește' : 'Play';
+    numUrns = +document.getElementById('s7a_urns').value;
+    numDraws = +document.getElementById('s7a_draws').value;
+    currentDraw = 0; selectedUrn = 0;
+    urns = []; histories = [];
+    for (let i = 0; i < numUrns; i++) {
+      urns.push({ r: 1, b: 1 });
+      histories.push([0.5]);
+    }
+    draw();
+  }
+
+  function step() {
+    if (currentDraw >= numDraws) return;
+    currentDraw++;
+    for (let i = 0; i < numUrns; i++) {
+      const u = urns[i], total = u.r + u.b;
+      if (Math.random() < u.r / total) u.r++; else u.b++;
+      histories[i].push(u.r / (u.r + u.b));
+    }
+    draw();
+  }
+
+  function togglePlay() {
+    playing = !playing;
+    var lang = document.documentElement.lang || 'en';
+    document.getElementById('btn7a_play').textContent = playing ? (lang === 'ro' ? 'Pauză' : 'Pause') : (lang === 'ro' ? 'Pornește' : 'Play');
+    if (playing) {
+      const speed = +document.getElementById('s7a_speed').value;
+      const interval = Math.max(5, 200 - speed * 2);
+      timer = setInterval(() => {
+        if (currentDraw >= numDraws) { playing = false; clearInterval(timer); document.getElementById('btn7a_play').textContent = (lang === 'ro' ? 'Pornește' : 'Play'); return; }
+        const batch = Math.max(1, Math.floor(speed / 15));
+        for (let b = 0; b < batch && currentDraw < numDraws; b++) step();
+      }, interval);
+    } else clearInterval(timer);
+  }
+
+  function draw() {
+    const u = urns[selectedUrn];
+    document.getElementById('st7a_draw').textContent = currentDraw;
+    document.getElementById('st7a_red').textContent = u.r;
+    document.getElementById('st7a_blue').textContent = u.b;
+    const props = urns.map(u => u.r / (u.r + u.b));
+    const mean = props.reduce((a, b) => a + b, 0) / numUrns;
+    const std = Math.sqrt(props.reduce((s, p) => s + (p - mean) ** 2, 0) / numUrns);
+    document.getElementById('st7a_mean').textContent = mean.toFixed(3);
+    document.getElementById('st7a_std').textContent = std.toFixed(3);
+
+    drawLines();
+    drawHist();
+    drawDetail();
+  }
+
+  function drawLines() {
+    const c = document.getElementById('c7a_lines'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const tc = getThemeColors();
+    ctx.clearRect(0, 0, W, H);
+    // Grid
+    const pad = { l: 50, r: 10, t: 15, b: 30 }, pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    ctx.strokeStyle = tc.gridLine; ctx.lineWidth = 1;
+    ctx.fillStyle = tc.textChart; ctx.font = '11px sans-serif';
+    for (let y = 0; y <= 1; y += 0.25) {
+      const py = pad.t + (1 - y) * ph;
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(W - pad.r, py); ctx.stroke();
+      ctx.fillText(y.toFixed(2), 8, py + 4);
+    }
+    // 50% reference
+    ctx.strokeStyle = tc.gridLineStrong; ctx.setLineDash([5, 5]);
+    const hy = pad.t + 0.5 * ph;
+    ctx.beginPath(); ctx.moveTo(pad.l, hy); ctx.lineTo(W - pad.r, hy); ctx.stroke();
+    ctx.setLineDash([]);
+    // X labels
+    const maxD = numDraws;
+    for (let x = 0; x <= maxD; x += Math.max(1, Math.floor(maxD / 5))) {
+      const px = pad.l + (x / maxD) * pw;
+      ctx.fillStyle = tc.textChart; ctx.fillText(x, px - 5, H - 8);
+    }
+    // Lines
+    for (let i = 0; i < numUrns; i++) {
+      const hist = histories[i];
+      const hue = (i / numUrns) * 360;
+      ctx.strokeStyle = i === selectedUrn ? (tc.textChartWhite + 'dd') : `hsla(${hue},70%,60%,0.55)`;
+      ctx.lineWidth = i === selectedUrn ? 2.5 : 1;
+      ctx.beginPath();
+      for (let j = 0; j < hist.length; j++) {
+        const px = pad.l + (j / maxD) * pw, py = pad.t + (1 - hist[j]) * ph;
+        j === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    var lang = document.documentElement.lang || 'en';
+    ctx.fillStyle = tc.textChart; ctx.font = '10px sans-serif';
+    ctx.fillText(lang === 'ro' ? 'Extragere #' : 'Draw #', W / 2 - 15, H - 1);
+  }
+
+  function drawHist() {
+    const c = document.getElementById('c7a_hist'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const tc = getThemeColors();
+    ctx.clearRect(0, 0, W, H);
+    const pad = { l: 35, r: 10, t: 15, b: 35 }, pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    const bins = 20, bc = new Array(bins).fill(0);
+    for (let i = 0; i < numUrns; i++) {
+      const p = urns[i].r / (urns[i].r + urns[i].b);
+      bc[Math.min(bins - 1, Math.floor(p * bins))]++;
+    }
+    const maxB = Math.max(...bc, 1), barW = pw / bins;
+    for (let i = 0; i < bins; i++) {
+      const bh = (bc[i] / maxB) * ph, hue = (i / bins) * 360;
+      ctx.fillStyle = `hsla(${hue},70%,60%,0.75)`;
+      ctx.fillRect(pad.l + i * barW, pad.t + ph - bh, barW - 2, bh);
+    }
+    // Uniform reference
+    const uH = (numUrns / bins) / maxB * ph;
+    ctx.strokeStyle = tc.accentRed + '88'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t + ph - uH); ctx.lineTo(W - pad.r, pad.t + ph - uH); ctx.stroke();
+    ctx.setLineDash([]);
+    var lang = document.documentElement.lang || 'en';
+    ctx.fillStyle = tc.accentRed; ctx.font = '10px sans-serif';
+    ctx.fillText(lang === 'ro' ? 'Uniformă' : 'Uniform', W - 60, pad.t + ph - uH - 5);
+    // X labels
+    ctx.fillStyle = tc.textChart; ctx.font = '10px sans-serif';
+    ctx.fillText('0', pad.l, H - 10); ctx.fillText('0.5', pad.l + pw / 2 - 8, H - 10); ctx.fillText('1', W - pad.r - 8, H - 10);
+    ctx.fillText(lang === 'ro' ? 'Proporție Roșu' : 'Proportion Red', W / 2 - 35, H - 1);
+  }
+
+  function drawDetail() {
+    const c = document.getElementById('c7a_detail'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const tc = getThemeColors();
+    ctx.clearRect(0, 0, W, H);
+    const u = urns[selectedUrn], total = u.r + u.b;
+    var lang = document.documentElement.lang || 'en';
+    ctx.fillStyle = tc.textChartLight; ctx.font = '12px sans-serif';
+    if (lang === 'ro') {
+      ctx.fillText(`Urna #${selectedUrn + 1}: ${u.r} roșii, ${u.b} albastre (${(u.r / total * 100).toFixed(1)}% roșu)`, 15, 18);
+    } else {
+      ctx.fillText(`Urn #${selectedUrn + 1}: ${u.r} red, ${u.b} blue (${(u.r / total * 100).toFixed(1)}% red)`, 15, 18);
+    }
+    // Proportion bar
+    const barL = 15, barT = 30, barW = W - 30, barH = 30;
+    const rW = (u.r / total) * barW;
+    ctx.fillStyle = '#ff6b6b'; ctx.fillRect(barL, barT, rW, barH);
+    ctx.fillStyle = '#4dabf7'; ctx.fillRect(barL + rW, barT, barW - rW, barH);
+    ctx.fillStyle = tc.textChartWhite; ctx.font = 'bold 13px sans-serif';
+    if (rW > 30) ctx.fillText(u.r, barL + rW / 2 - 10, barT + 21);
+    if (barW - rW > 30) ctx.fillText(u.b, barL + rW + (barW - rW) / 2 - 10, barT + 21);
+    // Mini balls
+    const bSize = 7, maxBalls = Math.min(total, Math.floor((W - 30) / (bSize + 1)) * 5);
+    const rBalls = Math.round((u.r / total) * maxBalls), bBalls = maxBalls - rBalls;
+    const arr = Array(rBalls).fill('r').concat(Array(bBalls).fill('b'));
+    for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    const cols = Math.floor((W - 30) / (bSize + 1));
+    for (let i = 0; i < arr.length; i++) {
+      const col = i % cols, row = Math.floor(i / cols);
+      if (row >= 5) break;
+      ctx.fillStyle = arr[i] === 'r' ? '#ff6b6b' : '#4dabf7';
+      ctx.beginPath(); ctx.arc(20 + col * (bSize + 1), 75 + row * (bSize + 1), bSize / 2, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  // Click to select urn
+  document.getElementById('c7a_lines').addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect(), sx = this.width / rect.width, sy = this.height / rect.height;
+    const mx = (e.clientX - rect.left) * sx, my = (e.clientY - rect.top) * sy;
+    const pad = { l: 50, r: 10, t: 15, b: 30 }, pw = this.width - pad.l - pad.r, ph = this.height - pad.t - pad.b;
+    let best = Infinity, bestI = 0;
+    for (let i = 0; i < numUrns; i++) {
+      const h = histories[i];
+      for (let j = 0; j < h.length; j += Math.max(1, Math.floor(h.length / 50))) {
+        const px = pad.l + (j / numDraws) * pw, py = pad.t + (1 - h[j]) * ph;
+        const d = (mx - px) ** 2 + (my - py) ** 2;
+        if (d < best) { best = d; bestI = i; }
+      }
+    }
+    selectedUrn = bestI;
+    draw();
+  });
+
+  reset();
+  return { step, togglePlay, reset };
+})();
+
+// ==========================================
+// 7b. INCREASING RETURNS & LOCK-IN
+// ==========================================
+const sim7b = (() => {
+  let usersA = 0, usersB = 0, history = [], maxUsers = 200, curUser = 0;
+  let playing = false, timer = null, multiRuns = [], tipping = null, lockedIn = false;
+
+  bindSlider('s7b_qa', 'v7b_qa'); bindSlider('s7b_qb', 'v7b_qb');
+  bindSlider('s7b_net', 'v7b_net'); bindSlider('s7b_noise', 'v7b_noise');
+  bindSlider('s7b_users', 'v7b_users'); bindSlider('s7b_runs', 'v7b_runs');
+
+  function params() {
+    return {
+      qa: +document.getElementById('s7b_qa').value / 100,
+      qb: +document.getElementById('s7b_qb').value / 100,
+      net: +document.getElementById('s7b_net').value / 100,
+      noise: +document.getElementById('s7b_noise').value / 100,
+      maxU: +document.getElementById('s7b_users').value
+    };
+  }
+
+  function reset() {
+    playing = false; clearInterval(timer);
+    var lang = document.documentElement.lang || 'en';
+    document.getElementById('btn7b_play').textContent = lang === 'ro' ? 'Pornește' : 'Play';
+    usersA = 0; usersB = 0; history = []; curUser = 0; tipping = null; lockedIn = false;
+    maxUsers = +document.getElementById('s7b_users').value;
+    draw();
+  }
+
+  function step() {
+    if (curUser >= maxUsers) return;
+    const p = params();
+    curUser++;
+    const total = usersA + usersB + 1;
+    const fA = usersA / Math.max(total, 1), fB = usersB / Math.max(total, 1);
+    const vA = p.qa + p.net * fA + (Math.random() - 0.5) * p.noise;
+    const vB = p.qb + p.net * fB + (Math.random() - 0.5) * p.noise;
+    vA >= vB ? usersA++ : usersB++;
+    history.push(usersA / (usersA + usersB));
+    // Lock-in detection
+    if (history.length >= 20 && !lockedIn) {
+      const r = history.slice(-20);
+      if (r.every(p => p > 0.9) || r.every(p => p < 0.1)) {
+        lockedIn = true;
+        if (!tipping) tipping = curUser - 20;
+      }
+    }
+    draw();
+  }
+
+  function togglePlay() {
+    playing = !playing;
+    var lang = document.documentElement.lang || 'en';
+    document.getElementById('btn7b_play').textContent = playing ? (lang === 'ro' ? 'Pauză' : 'Pause') : (lang === 'ro' ? 'Pornește' : 'Play');
+    if (playing) {
+      timer = setInterval(() => {
+        if (curUser >= maxUsers) { playing = false; clearInterval(timer); document.getElementById('btn7b_play').textContent = (lang === 'ro' ? 'Pornește' : 'Play'); return; }
+        step();
+      }, 30);
+    } else clearInterval(timer);
+  }
+
+  function runAll() {
+    multiRuns = [];
+    const p = params();
+    const runs = +document.getElementById('s7b_runs').value;
+    const maxU = p.maxU;
+    for (let r = 0; r < runs; r++) {
+      let a = 0, b = 0; const h = [];
+      for (let u = 0; u < maxU; u++) {
+        const total = a + b + 1, fA = a / Math.max(total, 1), fB = b / Math.max(total, 1);
+        const vA = p.qa + p.net * fA + (Math.random() - 0.5) * p.noise;
+        const vB = p.qb + p.net * fB + (Math.random() - 0.5) * p.noise;
+        vA >= vB ? a++ : b++;
+        h.push(a / (a + b));
+      }
+      multiRuns.push(h);
+    }
+    draw();
+  }
+
+  function draw() {
+    document.getElementById('st7b_user').textContent = curUser;
+    document.getElementById('st7b_a').textContent = usersA;
+    document.getElementById('st7b_b').textContent = usersB;
+    var lang = document.documentElement.lang || 'en';
+    document.getElementById('st7b_lock').textContent = lockedIn ? (lang === 'ro' ? 'DA' : 'YES') : (lang === 'ro' ? 'Nu' : 'No');
+    document.getElementById('st7b_lock').style.color = lockedIn ? getThemeColors().accentRed : getThemeColors().accentGold;
+    document.getElementById('st7b_tip').textContent = tipping ? (lang === 'ro' ? `Utilizator #${tipping}` : `User #${tipping}`) : '--';
+    drawShare();
+    drawMulti();
+  }
+
+  function drawShare() {
+    const c = document.getElementById('c7b_share'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const tc = getThemeColors();
+    ctx.clearRect(0, 0, W, H);
+    const pad = { l: 50, r: 15, t: 20, b: 30 }, pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    // Grid
+    ctx.strokeStyle = tc.gridLine; ctx.fillStyle = tc.textChart; ctx.font = '10px sans-serif';
+    for (let y = 0; y <= 1; y += 0.25) {
+      const py = pad.t + (1 - y) * ph;
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(W - pad.r, py); ctx.stroke();
+      ctx.fillText((y * 100).toFixed(0) + '%', 10, py + 4);
+    }
+    var lang = document.documentElement.lang || 'en';
+    if (history.length < 2) { ctx.fillStyle = tc.textChartDim; ctx.font = '13px sans-serif'; ctx.fillText(lang === 'ro' ? 'Apasă Pas sau Pornește' : 'Click Step or Play to begin', W / 2 - 80, H / 2); return; }
+    const maxU = maxUsers;
+    // A fill (bottom)
+    ctx.fillStyle = 'rgba(255,107,107,0.35)';
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t + ph);
+    for (let i = 0; i < history.length; i++) {
+      ctx.lineTo(pad.l + (i / maxU) * pw, pad.t + (1 - history[i]) * ph);
+    }
+    ctx.lineTo(pad.l + ((history.length - 1) / maxU) * pw, pad.t + ph);
+    ctx.closePath(); ctx.fill();
+    // B fill (top)
+    ctx.fillStyle = 'rgba(77,171,247,0.35)';
+    ctx.beginPath();
+    for (let i = 0; i < history.length; i++) {
+      const px = pad.l + (i / maxU) * pw, py = pad.t + (1 - history[i]) * ph;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.lineTo(pad.l + ((history.length - 1) / maxU) * pw, pad.t);
+    ctx.lineTo(pad.l, pad.t); ctx.closePath(); ctx.fill();
+    // Line
+    ctx.strokeStyle = tc.textChartWhite + 'cc'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < history.length; i++) {
+      const px = pad.l + (i / maxU) * pw, py = pad.t + (1 - history[i]) * ph;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    // Tipping marker
+    if (tipping) {
+      const tx = pad.l + (tipping / maxU) * pw;
+      ctx.strokeStyle = '#ffd43b'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(tx, pad.t); ctx.lineTo(tx, pad.t + ph); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#ffd43b'; ctx.font = 'bold 10px sans-serif'; ctx.fillText(lang === 'ro' ? 'COTITURĂ' : 'TIPPING', tx - 22, pad.t - 4);
+    }
+    // Labels
+    ctx.fillStyle = '#ff6b6b'; ctx.font = 'bold 11px sans-serif'; ctx.fillText(lang === 'ro' ? 'Teh A' : 'Tech A', W - 55, pad.t + 15);
+    ctx.fillStyle = '#4dabf7'; ctx.fillText(lang === 'ro' ? 'Teh B' : 'Tech B', W - 55, H - pad.b - 10);
+  }
+
+  function drawMulti() {
+    const c = document.getElementById('c7b_multi'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const tc = getThemeColors();
+    ctx.clearRect(0, 0, W, H);
+    const pad = { l: 40, r: 15, t: 20, b: 30 }, pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    var lang = document.documentElement.lang || 'en';
+    if (multiRuns.length === 0) {
+      ctx.fillStyle = tc.textChartDim; ctx.font = '13px sans-serif'; ctx.fillText(lang === 'ro' ? 'Apasă "Rulează Tot" pentru a compara' : 'Click "Run All" to compare runs', W / 2 - 100, H / 2);
+      return;
+    }
+    // Grid
+    ctx.strokeStyle = tc.gridLine; ctx.fillStyle = tc.textChart; ctx.font = '10px sans-serif';
+    for (let y = 0; y <= 1; y += 0.5) {
+      const py = pad.t + (1 - y) * ph;
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(W - pad.r, py); ctx.stroke();
+      ctx.fillText((y * 100).toFixed(0) + '%', 5, py + 4);
+    }
+    // 50% ref
+    ctx.strokeStyle = tc.gridLineStrong; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(pad.l, pad.t + 0.5 * ph); ctx.lineTo(W - pad.r, pad.t + 0.5 * ph); ctx.stroke();
+    ctx.setLineDash([]);
+    let aW = 0, bW = 0;
+    for (const h of multiRuns) {
+      const f = h[h.length - 1];
+      const col = f > 0.5 ? 'rgba(255,107,107,0.5)' : 'rgba(77,171,247,0.5)';
+      f > 0.5 ? aW++ : bW++;
+      ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let i = 0; i < h.length; i++) {
+        const px = pad.l + (i / h.length) * pw, py = pad.t + (1 - h[i]) * ph;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#ff6b6b'; ctx.font = 'bold 12px sans-serif'; ctx.fillText(lang === 'ro' ? `A câștigă: ${aW}` : `A wins: ${aW}`, W - 90, pad.t + 15);
+    ctx.fillStyle = '#4dabf7'; ctx.fillText(lang === 'ro' ? `B câștigă: ${bW}` : `B wins: ${bW}`, W - 90, pad.t + 32);
+    // Inferior wins note
+    const p = params();
+    if (p.qa < p.qb && aW > 0) {
+      ctx.fillStyle = tc.accentGold; ctx.font = '11px sans-serif';
+      ctx.fillText(lang === 'ro' ? `A inferioară a câștigat de ${aW} ori!` : `Inferior A won ${aW} times!`, pad.l + 5, H - pad.b - 5);
+    } else if (p.qb < p.qa && bW > 0) {
+      ctx.fillStyle = tc.accentGold; ctx.font = '11px sans-serif';
+      ctx.fillText(lang === 'ro' ? `B inferioară a câștigat de ${bW} ori!` : `Inferior B won ${bW} times!`, pad.l + 5, H - pad.b - 5);
+    }
+  }
+
+  reset();
+  return { step, togglePlay, reset, runAll };
+})();
+
+// ==========================================
+// 7c. NETWORK MODELS
+// ==========================================
+const sim7c = (() => {
+  let nodes = [], adj = [], edges = [], positions = [], velocities = [];
+  let selectedNodes = [], shortestPath = [];
+  let simRunning = false, animFrame = null, simIterations = 0;
+
+  bindSlider('s7c_nodes', 'v7c_nodes');
+  bindSlider('s7c_p', 'v7c_p', v => (v / 100).toFixed(2));
+  bindSlider('s7c_k', 'v7c_k');
+  bindSlider('s7c_beta', 'v7c_beta', v => (v / 100).toFixed(2));
+  bindSlider('s7c_m', 'v7c_m');
+
+  function updateControls() {
+    const t = document.getElementById('s7c_type').value;
+    document.getElementById('grp7c_p').style.display = t === 'random' ? '' : 'none';
+    document.getElementById('grp7c_k').style.display = t === 'smallworld' ? '' : 'none';
+    document.getElementById('grp7c_beta').style.display = t === 'smallworld' ? '' : 'none';
+    document.getElementById('grp7c_m').style.display = t === 'scalefree' ? '' : 'none';
+  }
+
+  function generate() {
+    const n = +document.getElementById('s7c_nodes').value;
+    const type = document.getElementById('s7c_type').value;
+    nodes = []; adj = []; edges = []; selectedNodes = []; shortestPath = [];
+    for (let i = 0; i < n; i++) { nodes.push(i); adj.push(new Set()); }
+
+    if (type === 'random') {
+      const p = +document.getElementById('s7c_p').value / 100;
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        if (Math.random() < p) { edges.push([i, j]); adj[i].add(j); adj[j].add(i); }
+      }
+    } else if (type === 'smallworld') {
+      const K = +document.getElementById('s7c_k').value;
+      const beta = +document.getElementById('s7c_beta').value / 100;
+      for (let i = 0; i < n; i++) for (let j = 1; j <= K / 2; j++) {
+        const nb = (i + j) % n;
+        if (!adj[i].has(nb)) { adj[i].add(nb); adj[nb].add(i); edges.push([i, nb]); }
+      }
+      const ec = [...edges];
+      for (const [u, v] of ec) {
+        if (Math.random() < beta) {
+          adj[u].delete(v); adj[v].delete(u);
+          const idx = edges.findIndex(e => (e[0] === u && e[1] === v) || (e[0] === v && e[1] === u));
+          if (idx >= 0) edges.splice(idx, 1);
+          let nv, att = 0;
+          do { nv = Math.floor(Math.random() * n); att++; } while ((nv === u || adj[u].has(nv)) && att < 100);
+          if (att < 100) { adj[u].add(nv); adj[nv].add(u); edges.push([u, nv]); }
+          else { adj[u].add(v); adj[v].add(u); edges.push([u, v]); }
+        }
+      }
+    } else if (type === 'scalefree') {
+      const m = +document.getElementById('s7c_m').value;
+      for (let i = 0; i <= m && i < n; i++) for (let j = i + 1; j <= m && j < n; j++) {
+        edges.push([i, j]); adj[i].add(j); adj[j].add(i);
+      }
+      for (let i = m + 1; i < n; i++) {
+        const targets = new Set();
+        const totalDeg = nodes.slice(0, i).reduce((s, nd) => s + adj[nd].size, 0) || 1;
+        let safety = 0;
+        while (targets.size < Math.min(m, i) && safety < 500) {
+          let r = Math.random() * totalDeg;
+          for (let j = 0; j < i; j++) { r -= adj[j].size; if (r <= 0) { targets.add(j); break; } }
+          safety++;
+        }
+        for (const t of targets) { edges.push([i, t]); adj[i].add(t); adj[t].add(i); }
+      }
+    }
+
+    // Init positions: circle layout
+    const canvas = document.getElementById('c7c_graph');
+    const cw = canvas.width, ch = canvas.height;
+    positions = []; velocities = [];
+    for (let i = 0; i < n; i++) {
+      const a = (2 * Math.PI * i) / n;
+      positions.push({ x: cw / 2 + Math.cos(a) * Math.min(cw, ch) * 0.38, y: ch / 2 + Math.sin(a) * Math.min(cw, ch) * 0.38 });
+      velocities.push({ x: 0, y: 0 });
+    }
+    simRunning = true; simIterations = 0;
+    computeStats();
+    animate();
+  }
+
+  function animate() {
+    if (!simRunning || simIterations > 300) { simRunning = false; drawGraph(); drawDegree(); drawProps(); return; }
+    simIterations++;
+    const n = nodes.length, canvas = document.getElementById('c7c_graph');
+    const cw = canvas.width, ch = canvas.height;
+    const ideal = Math.sqrt((cw * ch) / Math.max(n, 1)) * 0.85;
+    for (let iter = 0; iter < 3; iter++) {
+      const forces = nodes.map(() => ({ x: 0, y: 0 }));
+      // Repulsion
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        const dx = positions[i].x - positions[j].x, dy = positions[i].y - positions[j].y;
+        const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+        const f = (ideal * ideal) / dist;
+        const fx = (dx / dist) * f, fy = (dy / dist) * f;
+        forces[i].x += fx; forces[i].y += fy;
+        forces[j].x -= fx; forces[j].y -= fy;
+      }
+      // Attraction
+      for (const [u, v] of edges) {
+        const dx = positions[u].x - positions[v].x, dy = positions[u].y - positions[v].y;
+        const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+        const f = (dist * dist) / ideal;
+        const fx = (dx / dist) * f, fy = (dy / dist) * f;
+        forces[u].x -= fx; forces[u].y -= fy;
+        forces[v].x += fx; forces[v].y += fy;
+      }
+      // Center gravity
+      for (let i = 0; i < n; i++) {
+        forces[i].x += (cw / 2 - positions[i].x) * 0.01;
+        forces[i].y += (ch / 2 - positions[i].y) * 0.01;
+      }
+      // Apply
+      const temp = Math.max(0.5, 3 - simIterations * 0.01);
+      for (let i = 0; i < n; i++) {
+        const fm = Math.sqrt(forces[i].x ** 2 + forces[i].y ** 2);
+        if (fm > 0) {
+          const s = Math.min(temp, fm) / fm;
+          positions[i].x += forces[i].x * s;
+          positions[i].y += forces[i].y * s;
+        }
+        positions[i].x = Math.max(25, Math.min(cw - 25, positions[i].x));
+        positions[i].y = Math.max(25, Math.min(ch - 25, positions[i].y));
+      }
+    }
+    drawGraph(); drawDegree(); drawProps();
+    animFrame = requestAnimationFrame(animate);
+  }
+
+  function computeStats() {
+    const n = nodes.length; if (!n) return;
+    let totalDeg = 0;
+    for (let i = 0; i < n; i++) totalDeg += adj[i].size;
+    const avgDeg = totalDeg / n;
+    // Clustering
+    let totalCC = 0;
+    for (let i = 0; i < n; i++) {
+      const nb = [...adj[i]], k = nb.length; if (k < 2) continue;
+      let tri = 0;
+      for (let a = 0; a < k; a++) for (let b = a + 1; b < k; b++) if (adj[nb[a]].has(nb[b])) tri++;
+      totalCC += (2 * tri) / (k * (k - 1));
+    }
+    const cc = totalCC / n;
+    // Avg path length (sample)
+    const sample = Math.min(n, 25);
+    let tpl = 0, pc = 0;
+    for (let s = 0; s < sample; s++) {
+      const src = Math.floor((s / sample) * n), dist = bfs(src);
+      for (let t = 0; t < n; t++) if (t !== src && dist[t] < Infinity) { tpl += dist[t]; pc++; }
+    }
+    const apl = pc > 0 ? tpl / pc : Infinity;
+    document.getElementById('st7c_nodes').textContent = n;
+    document.getElementById('st7c_edges').textContent = edges.length;
+    document.getElementById('st7c_deg').textContent = avgDeg.toFixed(2);
+    document.getElementById('st7c_cc').textContent = cc.toFixed(4);
+    document.getElementById('st7c_apl').textContent = apl === Infinity ? 'N/A' : apl.toFixed(2);
+  }
+
+  function bfs(src) {
+    const n = nodes.length, dist = new Array(n).fill(Infinity); dist[src] = 0;
+    const q = [src]; let qi = 0;
+    while (qi < q.length) { const u = q[qi++]; for (const v of adj[u]) if (dist[v] === Infinity) { dist[v] = dist[u] + 1; q.push(v); } }
+    return dist;
+  }
+
+  function bfsPath(src, dst) {
+    const n = nodes.length, dist = new Array(n).fill(Infinity), prev = new Array(n).fill(-1);
+    dist[src] = 0; const q = [src]; let qi = 0;
+    while (qi < q.length) {
+      const u = q[qi++]; if (u === dst) break;
+      for (const v of adj[u]) if (dist[v] === Infinity) { dist[v] = dist[u] + 1; prev[v] = u; q.push(v); }
+    }
+    if (dist[dst] === Infinity) return [];
+    const path = []; for (let u = dst; u !== -1; u = prev[u]) path.unshift(u);
+    return path;
+  }
+
+  function findPath() {
+    if (selectedNodes.length === 2) {
+      shortestPath = bfsPath(selectedNodes[0], selectedNodes[1]);
+      var lang = document.documentElement.lang || 'en';
+      document.getElementById('st7c_path').textContent = shortestPath.length > 0
+        ? shortestPath.join(' -> ') + ` (${shortestPath.length - 1} ${lang === 'ro' ? 'pași' : 'hops'})` : (lang === 'ro' ? 'Fără cale' : 'No path');
+      drawGraph();
+    }
+  }
+
+  function clearSelection() {
+    selectedNodes = []; shortestPath = [];
+    var lang = document.documentElement.lang || 'en';
+    document.getElementById('st7c_path').textContent = lang === 'ro' ? 'Fă clic pe două noduri' : 'Click two nodes';
+    drawGraph();
+  }
+
+  // Click handler
+  document.getElementById('c7c_graph').addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect(), sx = this.width / rect.width, sy = this.height / rect.height;
+    const mx = (e.clientX - rect.left) * sx, my = (e.clientY - rect.top) * sy;
+    let closest = -1, cd = 20;
+    for (let i = 0; i < nodes.length; i++) {
+      const d = Math.sqrt((mx - positions[i].x) ** 2 + (my - positions[i].y) ** 2);
+      if (d < cd) { cd = d; closest = i; }
+    }
+    if (closest >= 0) {
+      var lang = document.documentElement.lang || 'en';
+      if (selectedNodes.length >= 2) { selectedNodes = [closest]; shortestPath = []; document.getElementById('st7c_path').textContent = lang === 'ro' ? 'Selectează al doilea nod...' : 'Select second node...'; }
+      else { selectedNodes.push(closest); if (selectedNodes.length === 2) findPath(); else document.getElementById('st7c_path').textContent = lang === 'ro' ? 'Selectează al doilea nod...' : 'Select second node...'; }
+      drawGraph();
+    }
+  });
+
+  function drawGraph() {
+    const c = document.getElementById('c7c_graph'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const tc = getThemeColors();
+    ctx.clearRect(0, 0, W, H);
+    const n = nodes.length;
+    var lang = document.documentElement.lang || 'en';
+    if (!n) { ctx.fillStyle = tc.textChartDim; ctx.font = '14px sans-serif'; ctx.fillText(lang === 'ro' ? 'Apasă "Generează" pentru a crea o rețea' : 'Click "Generate" to create a network', W / 2 - 130, H / 2); return; }
+    // Path edge set
+    const pathSet = new Set();
+    for (let i = 0; i < shortestPath.length - 1; i++) {
+      const a = Math.min(shortestPath[i], shortestPath[i + 1]), b = Math.max(shortestPath[i], shortestPath[i + 1]);
+      pathSet.add(a + ',' + b);
+    }
+    // Edges
+    for (const [u, v] of edges) {
+      const key = Math.min(u, v) + ',' + Math.max(u, v);
+      if (pathSet.has(key)) { ctx.strokeStyle = '#ffd43b'; ctx.lineWidth = 3; }
+      else { ctx.strokeStyle = tc.edgeLine; ctx.lineWidth = 0.5; }
+      ctx.beginPath(); ctx.moveTo(positions[u].x, positions[u].y); ctx.lineTo(positions[v].x, positions[v].y); ctx.stroke();
+    }
+    // Nodes
+    const maxDeg = Math.max(...nodes.map(i => adj[i].size), 1);
+    for (let i = 0; i < n; i++) {
+      const deg = adj[i].size, r = 3 + (deg / maxDeg) * 10;
+      const isSel = selectedNodes.includes(i), isPath = shortestPath.includes(i);
+      if (isSel) { ctx.fillStyle = '#ffd43b'; ctx.shadowColor = '#ffd43b'; ctx.shadowBlur = 12; }
+      else if (isPath) { ctx.fillStyle = '#ffa94d'; ctx.shadowColor = '#ffa94d'; ctx.shadowBlur = 8; }
+      else { ctx.fillStyle = `hsl(${180 + (deg / maxDeg) * 180},70%,60%)`; ctx.shadowBlur = 0; }
+      ctx.beginPath(); ctx.arc(positions[i].x, positions[i].y, r, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      // Node label for selected/path nodes
+      if (isSel || isPath) {
+        ctx.fillStyle = tc.textChartWhite; ctx.font = 'bold 9px sans-serif';
+        ctx.fillText(i, positions[i].x + r + 2, positions[i].y - 2);
+      }
+    }
+  }
+
+  function drawDegree() {
+    const c = document.getElementById('c7c_degree'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const tc = getThemeColors();
+    ctx.clearRect(0, 0, W, H);
+    const n = nodes.length; if (!n) return;
+    const degs = nodes.map(i => adj[i].size), maxDeg = Math.max(...degs, 1);
+    const dc = new Array(maxDeg + 1).fill(0);
+    degs.forEach(d => dc[d]++);
+    const maxC = Math.max(...dc, 1);
+    const pad = { l: 35, r: 10, t: 20, b: 30 }, pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    const barW = Math.max(2, pw / (maxDeg + 1));
+    // Title
+    var lang = document.documentElement.lang || 'en';
+    ctx.fillStyle = tc.textMuted || tc.textChart; ctx.font = 'bold 10px sans-serif'; ctx.fillText(lang === 'ro' ? 'DISTRIBUȚIA GRADELOR' : 'DEGREE DISTRIBUTION', pad.l, 13);
+    for (let d = 0; d <= maxDeg; d++) {
+      if (dc[d] === 0) continue;
+      const bh = (dc[d] / maxC) * ph, hue = 180 + (d / maxDeg) * 180;
+      ctx.fillStyle = `hsla(${hue},70%,60%,0.75)`;
+      ctx.fillRect(pad.l + d * barW, pad.t + ph - bh, Math.max(barW - 1, 2), bh);
+    }
+    ctx.fillStyle = tc.textChart; ctx.font = '9px sans-serif';
+    ctx.fillText(lang === 'ro' ? 'Grad' : 'Degree', W / 2 - 15, H - 5);
+    ctx.fillText('0', pad.l, H - 12); ctx.fillText(maxDeg, pad.l + maxDeg * barW, H - 12);
+  }
+
+  function drawProps() {
+    const c = document.getElementById('c7c_props'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const tc = getThemeColors();
+    ctx.clearRect(0, 0, W, H);
+    const ccVal = parseFloat(document.getElementById('st7c_cc').textContent) || 0;
+    const aplVal = parseFloat(document.getElementById('st7c_apl').textContent) || 0;
+    const degVal = parseFloat(document.getElementById('st7c_deg').textContent) || 0;
+    var lang = document.documentElement.lang || 'en';
+    ctx.fillStyle = tc.textChart; ctx.font = 'bold 10px sans-serif'; ctx.fillText(lang === 'ro' ? 'PROPRIETĂȚI REȚEA' : 'NETWORK PROPERTIES', 15, 18);
+    const props = [
+      { name: lang === 'ro' ? 'Coeficient Grupare' : 'Clustering Coefficient', value: ccVal, max: 1, color: tc.accentRed, display: ccVal.toFixed(4) },
+      { name: lang === 'ro' ? 'Lungime Medie Cale' : 'Avg Path Length', value: Math.min(aplVal / 10, 1), max: 1, color: tc.accentCyan, display: aplVal.toFixed(2) },
+      { name: lang === 'ro' ? 'Grad Mediu' : 'Avg Degree', value: Math.min(degVal / 20, 1), max: 1, color: tc.accentGreen, display: degVal.toFixed(1) }
+    ];
+    const barH = 28, gap = 18, startY = 40;
+    props.forEach((p, i) => {
+      const y = startY + i * (barH + gap);
+      ctx.fillStyle = tc.barBgDim; ctx.fillRect(110, y, W - 130, barH);
+      ctx.fillStyle = p.color; ctx.fillRect(110, y, p.value * (W - 130), barH);
+      ctx.fillStyle = tc.textInfo; ctx.font = '11px sans-serif'; ctx.fillText(p.name, 10, y + 19);
+      ctx.fillStyle = tc.textChartWhite; ctx.font = 'bold 11px sans-serif';
+      ctx.fillText(p.display, 112 + p.value * (W - 130) + 5, y + 19);
+    });
+    // Type description
+    const type = document.getElementById('s7c_type').value;
+    const descEn = {
+      random: 'Short paths, low clustering. Poisson degree distribution.',
+      smallworld: 'Short paths AND high clustering. "Your friends know each other."',
+      scalefree: 'Power-law degree distribution. Hubs vulnerable to targeted attack.'
+    };
+    const descRo = {
+      random: 'Căi scurte, grupare scăzută. Distribuție Poisson a gradelor.',
+      smallworld: 'Căi scurte ȘI grupare ridicată. "Prietenii tăi se cunosc între ei."',
+      scalefree: 'Distribuție lege de putere. Hub-urile vulnerabile la atacuri țintite.'
+    };
+    var desc = lang === 'ro' ? descRo : descEn;
+    ctx.fillStyle = tc.accentGold; ctx.font = '11px sans-serif';
+    const lines = wrapText(desc[type] || '', W - 30);
+    lines.forEach((line, i) => ctx.fillText(line, 10, startY + 3 * (barH + gap) + 10 + i * 15));
+  }
+
+  function wrapText(text, maxW) {
+    const words = text.split(' '), lines = []; let line = '';
+    for (const w of words) {
+      if (line.length + w.length + 1 > maxW / 6) { lines.push(line); line = w; }
+      else line += (line ? ' ' : '') + w;
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  generate();
+  return { generate, findPath, clearSelection, updateControls };
+})();
+</script>
+
+<script>
+function setTheme(t){document.body.className='theme-'+t;localStorage.setItem('mt-theme',t);if(typeof redrawAll==='function')redrawAll();}
+function toggleLang(){var c=document.documentElement.lang||'en',n=c==='en'?'ro':'en';document.documentElement.lang=n;document.getElementById('langBtn').textContent=n==='en'?'RO':'EN';localStorage.setItem('mt-lang',n);applyLanguage(n);}
+function applyLanguage(lang){document.querySelectorAll('[data-ro]').forEach(function(el){if(lang==='ro'){if(!el.dataset.en)el.dataset.en=el.innerHTML;el.innerHTML=el.dataset.ro;}else{if(el.dataset.en)el.innerHTML=el.dataset.en;}});}
+(function(){var t=localStorage.getItem('mt-theme')||'dark',l=localStorage.getItem('mt-lang')||'en';document.body.className='theme-'+t;if(l==='ro'){document.documentElement.lang='ro';document.getElementById('langBtn').textContent='EN';setTimeout(function(){applyLanguage('ro');},100);}})();
+</script>
+
+</body>
+</html>
